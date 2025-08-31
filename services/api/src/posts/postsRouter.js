@@ -4,7 +4,7 @@ import {
     getPublishedPosts,
     updatePost,
     deletePost,
-    getPublishedPost,
+    getPost,
 } from "./postsController.js"
 import passport from "passport"
 import { strategies } from "../config/passport.js"
@@ -23,7 +23,7 @@ router
             session: false,
             failWithError: false,
         }),
-        getPublishedPost
+        getPost
     )
     .put(passport.authenticate(strategies.jwt, { session: false }), updatePost)
     .delete(

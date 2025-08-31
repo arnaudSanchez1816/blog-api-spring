@@ -9,7 +9,7 @@ import postsService from "./postsService.js"
 import { validateRequest } from "../middlewares/validator.js"
 import createHttpError from "http-errors"
 
-export const getPublishedPost = [
+export const getPost = [
     validateRequest(getPublishedPostValidator),
     async (req, res, next) => {
         try {
