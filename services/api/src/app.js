@@ -7,6 +7,7 @@ import createHttpError from "http-errors"
 import signupRouter from "./signup/signupRouter.js"
 import authRouter from "./auth/authRouter.js"
 import postsRouter from "./posts/postsRouter.js"
+import usersRouter from "./users/usersRouter.js"
 import passport from "./config/passport.js"
 import { pino } from "./config/pino.js"
 import { ZodError } from "zod"
@@ -26,6 +27,7 @@ const v1Router = express.Router()
 v1Router.use("/signup", signupRouter)
 v1Router.use("/auth", authRouter)
 v1Router.use("/posts", postsRouter)
+v1Router.use("/users", usersRouter)
 app.use("/api/v1", v1Router)
 
 // 404 error

@@ -2,7 +2,7 @@ import passport from "passport"
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt"
 import { Strategy as LocalStrategy } from "passport-local"
 import bcrypt from "bcryptjs"
-import userService from "../user/userService.js"
+import userService from "../users/usersService.js"
 
 const jwtStrategy = new JwtStrategy(
     {

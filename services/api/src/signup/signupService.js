@@ -1,4 +1,4 @@
-import userService from "../user/userService.js"
+import userService from "../users/usersService.js"
 
 export const signupUser = async ({ email, name, password }) => {
     const newUser = await userService.createUser({ email, name, password })

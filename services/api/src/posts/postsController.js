@@ -37,15 +37,17 @@ export const getPublishedPosts = [
     async (req, res, next) => {
         try {
             const { page, pageSize, sortBy } = req.query
-            const posts = await postsService.getPublishedPosts({
+
+            const { posts, count } = await postsService.getPosts({
                 page,
                 pageSize,
                 sortBy,
+                publishedOnly: true,
             })
 
             const responseJson = {
                 metadata: {
-                    count: posts.length,
+                    count: count,
                     page: page,
                     pageSize: pageSize,
                 },
@@ -58,8 +60,6 @@ export const getPublishedPosts = [
         }
     },
 ]
-
-export const getUserPosts = [async (req, res, next) => {}]
 
 export const createPost = [
     validateRequest(createPostValidator),

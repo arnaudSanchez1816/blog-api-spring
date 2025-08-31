@@ -35,4 +35,4 @@ export const createUser = async ({ email, name, password }) => {
     return createdUser
 }
 
-export * as default from "./userService.js"
+export * as default from "./usersService.js"
