@@ -14,6 +14,7 @@ export const generateAccessToken = async (
             process.env.JWT_SECRET,
             {
                 expiresIn,
+                algorithm: "HS256",
             },
             (error, encodedToken) => {
                 if (error) {

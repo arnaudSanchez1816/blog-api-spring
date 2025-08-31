@@ -1,20 +1,22 @@
-import { signupValidator } from "./signupSchemas.js"
+import { signupValidator } from "./signupValidators.js"
 import signupService from "./signupService.js"
+import { validateRequest } from "../middlewares/validator.js"
 
-export const signup = async (req, res, next) => {
-    try {
-        const { name, email, password } = await signupValidator.validate(
-            req.body
-        )
+export const signup = [
+    validateRequest(signupValidator),
+    async (req, res, next) => {
+        try {
+            const { name, email, password } = req.body
 
-        const newUser = await signupService.signupUser({
-            name,
-            email,
-            password,
-        })
+            const newUser = await signupService.signupUser({
+                name,
+                email,
+                password,
+            })
 
-        return res.status(201).json({ newUser })
-    } catch (error) {
-        next(error)
-    }
-}
+            return res.status(201).json({ newUser })
+        } catch (error) {
+            next(error)
+        }
+    },
+]

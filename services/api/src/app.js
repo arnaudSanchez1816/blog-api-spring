@@ -6,8 +6,10 @@ import pinoHttp from "pino-http"
 import createHttpError from "http-errors"
 import signupRouter from "./signup/signupRouter.js"
 import authRouter from "./auth/authRouter.js"
+import postsRouter from "./posts/postsRouter.js"
 import passport from "./config/passport.js"
 import { pino } from "./config/pino.js"
+import { ZodError } from "zod"
 
 const app = express()
 
@@ -23,7 +25,8 @@ app.use(passport.initialize())
 const v1Router = express.Router()
 v1Router.use("/signup", signupRouter)
 v1Router.use("/auth", authRouter)
-app.use("/v1/api", v1Router)
+v1Router.use("/posts", postsRouter)
+app.use("/api/v1", v1Router)
 
 // 404 error
 // eslint-disable-next-line
@@ -34,21 +37,15 @@ app.use((req, res, next) => {
 // Error handler
 // eslint-disable-next-line
 app.use((error, req, res, next) => {
-    let errors = {
-        message: error.message,
-    }
-    if (error instanceof errors.E_VALIDATION_ERROR) {
-        error = error.messages.map((e) => {
+    let errors = error.message
+    if (error instanceof ZodError) {
+        error = error.issues.map((e) => {
             return {
-                field: e.field,
+                path: e.path,
                 message: e.message,
             }
         })
         error.status = 400
-    } else {
-        errors.push({
-            message: error.message,
-        })
     }
 
     pino.error(error)

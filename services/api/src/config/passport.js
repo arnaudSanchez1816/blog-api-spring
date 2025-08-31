@@ -6,8 +6,9 @@ import userService from "../user/userService.js"
 
 const jwtStrategy = new JwtStrategy(
     {
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken,
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         secretOrKey: process.env.JWT_SECRET,
+        algorithms: ["HS256"],
     },
     async (jwtPayload, done) => {
         try {
