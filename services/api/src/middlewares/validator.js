@@ -13,9 +13,10 @@ export const validateRequest = (validator) => async (req, res, next) => {
             params: req.params,
             query: req.query,
         })
+
         _.merge(req.params, data.params)
         _.merge(req.body, data.body)
-        _.merge(req.query, data.query)
+        updateQuery(req, _.merge(req.query, data.query))
 
         return next()
     } catch (error) {
@@ -26,4 +27,14 @@ export const validateRequest = (validator) => async (req, res, next) => {
         // Rethrow
         throw error
     }
+}
+
+// This only modifies req.query when it must change due to validation.
+// `req.query` remains immutable after changing it here.
+function updateQuery(req, value) {
+    Object.defineProperty(req, "query", {
+        ...Object.getOwnPropertyDescriptor(req, "query"),
+        writable: false,
+        value,
+    })
 }
