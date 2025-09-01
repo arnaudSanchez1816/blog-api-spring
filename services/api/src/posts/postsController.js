@@ -10,6 +10,8 @@ import postsService, { userCanViewPost } from "./postsService.js"
 import commentsService from "../comments/commentsService.js"
 import { validateRequest } from "../middlewares/validator.js"
 import createHttpError from "http-errors"
+import { checkPermission } from "../middlewares/checkPermission.js"
+import { PermissionType } from "@prisma/client"
 
 export const getPost = [
     validateRequest(getPublishedPostValidator),
@@ -62,6 +64,7 @@ export const getPublishedPosts = [
 ]
 
 export const createPost = [
+    checkPermission(PermissionType.CREATE),
     validateRequest(createPostValidator),
     async (req, res, next) => {
         try {
@@ -78,6 +81,7 @@ export const createPost = [
 ]
 
 export const updatePost = [
+    checkPermission(PermissionType.UPDATE),
     validateRequest(updatePostValidator),
     async (req, res, next) => {
         try {
@@ -108,6 +112,7 @@ export const updatePost = [
 ]
 
 export const deletePost = [
+    checkPermission(PermissionType.DELETE),
     validateRequest(deletePostValidator),
     async (req, res, next) => {
         try {
@@ -162,7 +167,7 @@ export const getPostComments = [
 ]
 
 export const createPostComment = [
-    validateRequest(null),
+    validateRequest(createPostComment),
     async (req, res, next) => {
         try {
             const { id: postId } = req.params

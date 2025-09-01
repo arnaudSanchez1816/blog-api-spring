@@ -6,6 +6,8 @@ import {
 } from "./commentsValidators.js"
 import commentsService from "./commentsService.js"
 import createHttpError from "http-errors"
+import { checkPermission } from "../middlewares/checkPermission.js"
+import { PermissionType } from "@prisma/client"
 
 export const getComment = [
     validateRequest(getCommentValidator),
@@ -25,6 +27,7 @@ export const getComment = [
 ]
 
 export const deleteComment = [
+    checkPermission(PermissionType.DELETE),
     validateRequest(deleteCommentValidator),
     async (req, res, next) => {
         try {
@@ -44,6 +47,7 @@ export const deleteComment = [
 ]
 
 export const editComment = [
+    checkPermission(PermissionType.UPDATE),
     validateRequest(editCommentValidator),
     async (req, res, next) => {
         try {

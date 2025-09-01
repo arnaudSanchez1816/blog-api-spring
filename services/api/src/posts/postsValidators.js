@@ -1,3 +1,4 @@
+import { createCommentValidator } from "../comments/commentsValidators.js"
 import { SortByValues } from "./postsService.js"
 import { z } from "zod"
 
@@ -45,4 +46,11 @@ export const getPostCommentsValidator = z.object({
     params: z.object({
         id: postIdSchema,
     }),
+})
+
+export const createPostCommentValidator = z.object({
+    params: z.object({
+        id: postIdSchema,
+    }),
+    ...createCommentValidator.shape,
 })

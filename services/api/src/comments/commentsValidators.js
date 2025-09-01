@@ -1,6 +1,10 @@
 import { z } from "zod"
 
 const commentIdSchema = z.coerce.number().int().min(1)
+const commentContentSchema = z.object({
+    username: z.string().trim(),
+    body: z.string().trim(),
+})
 
 export const getCommentValidator = z.object({
     params: z.object({
@@ -14,8 +18,9 @@ export const deleteCommentValidator = z.object({
 
 export const editCommentValidator = z.object({
     ...getCommentValidator.shape,
-    body: z.object({
-        username: z.string().trim(),
-        body: z.string().trim(),
-    }),
+    body: commentContentSchema,
+})
+
+export const createCommentValidator = z.object({
+    body: commentContentSchema,
 })
