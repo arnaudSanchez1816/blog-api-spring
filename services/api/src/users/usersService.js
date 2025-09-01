@@ -26,7 +26,12 @@ export const getUserById = async (id) => {
     return user
 }
 
-export const createUser = async ({ email, name, password }) => {
+export const createUser = async ({
+    email,
+    name,
+    password,
+    roleName = "user",
+}) => {
     const hashedPassword = await bcrypt.hash(
         password,
         +process.env.PASSWORD_SALT_LENGTH
@@ -37,6 +42,11 @@ export const createUser = async ({ email, name, password }) => {
             email: email,
             name: name,
             password: hashedPassword,
+            roles: {
+                connect: {
+                    name: roleName,
+                },
+            },
         },
     })
 
