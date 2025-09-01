@@ -16,6 +16,11 @@ export const getUserById = async (id) => {
         where: {
             id: id,
         },
+        include: {
+            roles: {
+                include: { permissions: true },
+            },
+        },
     })
 
     return user
