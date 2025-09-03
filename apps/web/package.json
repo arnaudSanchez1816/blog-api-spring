@@ -10,11 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroui/react": "^2.8.3",
+    "framer-motion": "^12.23.12",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
+    "@repo/heroui-config": "workspace:*",
     "@repo/tailwind-config": "workspace:*",
     "@tailwindcss/vite": "^4.1.12",
     "@types/react": "^19.1.10",
