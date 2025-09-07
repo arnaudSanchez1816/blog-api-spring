@@ -1,21 +1,38 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
-import { HeroUIProvider } from "@heroui/react"
-import { RouterProvider, createRouter } from "@tanstack/react-router"
-import { routeTree } from "./routeTree.gen"
+import {
+    createBrowserRouter,
+    createRoutesFromElements,
+    Route,
+} from "react-router"
+import { RouterProvider } from "react-router/dom"
 import "./style.css"
+import App from "./App"
+import Home from "./pages/Home"
+import About from "./pages/About"
+import Posts from "./pages/Posts"
+import { getPublicPosts } from "./api/posts"
+import Post, { loader } from "./pages/Post"
 
-// Set up a Router instance
-const router = createRouter({
-    routeTree,
-    defaultPreload: "intent",
-    scrollRestoration: true,
-})
-
-createRoot(document.getElementById("root")).render(
-    <StrictMode>
-        <HeroUIProvider>
-            <RouterProvider router={router} />
-        </HeroUIProvider>
-    </StrictMode>
+const router = createBrowserRouter(
+    createRoutesFromElements(
+        <Route path="/" element={<App />}>
+            <Route index element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/posts">
+                <Route index element={<Posts />} loader={getPublicPosts} />
+                <Route path=":postId" element={<Post />} loader={loader} />
+            </Route>
+        </Route>
+    )
 )
+
+const rootElement = document.getElementById("root")
+
+if (rootElement) {
+    createRoot(rootElement).render(
+        <StrictMode>
+            <RouterProvider router={router} />
+        </StrictMode>
+    )
+}
