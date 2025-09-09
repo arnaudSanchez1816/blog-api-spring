@@ -1,5 +1,4 @@
 import {
-    Input,
     Link,
     Navbar,
     NavbarBrand,
@@ -9,10 +8,9 @@ import {
     NavbarMenuItem,
     NavbarMenuToggle,
 } from "@heroui/react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useLocation } from "react-router"
 import NavLink from "./NavLink"
-import SearchIcon from "./SearchIcon"
 
 function BlogLogo({ ...props }) {
     return (
@@ -28,9 +26,14 @@ function BlogLogo({ ...props }) {
 }
 
 export default function Header() {
+    const rootRef = useRef(null)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const location = useLocation()
     const locationPathname = location.pathname
+
+    useEffect(() => {
+        rootRef.current = document.querySelector("#root")
+    }, [])
 
     return (
         <Navbar
@@ -53,6 +56,9 @@ export default function Header() {
                     "data-[active=true]:after:h-[2px]",
                     "data-[active=true]:after:rounded-[2px]",
                     "data-[active=true]:after:bg-primary",
+                ],
+                menuItem: [
+                    "[&>a]:w-full [&>a.active]:font-medium [&>a.active]:text-primary",
                 ],
             }}
         >
@@ -97,35 +103,32 @@ export default function Header() {
                 </NavbarItem>
             </NavbarContent>
             <NavbarContent></NavbarContent>
-            <NavbarMenu>
+            <NavbarMenu portalContainer={rootRef.current}>
                 <NavbarMenuItem>
-                    <Link
-                        className="w-full"
+                    <NavLink
                         color="foreground"
                         href="/"
                         size="lg"
                         onPress={() => setIsMenuOpen(false)}
                     >
                         Home
-                    </Link>
-                    <Link
-                        className="w-full"
+                    </NavLink>
+                    <NavLink
                         color="foreground"
                         href="/posts"
                         size="lg"
                         onPress={() => setIsMenuOpen(false)}
                     >
                         Posts
-                    </Link>
-                    <Link
-                        className="w-full"
+                    </NavLink>
+                    <NavLink
                         color="foreground"
                         href="/about"
                         size="lg"
                         onPress={() => setIsMenuOpen(false)}
                     >
                         About
-                    </Link>
+                    </NavLink>
                 </NavbarMenuItem>
             </NavbarMenu>
         </Navbar>
