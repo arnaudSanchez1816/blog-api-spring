@@ -18,6 +18,7 @@ export const getPublicPosts = async ({ page, pageSize }) => {
         })
 
         return {
+            count: 100,
             results: posts,
         }
     } catch (error) {

@@ -13,12 +13,18 @@ import About from "./pages/About"
 import Posts, { postsLoader } from "./pages/Posts"
 import Post, { loader } from "./pages/Post"
 import AsideLayout, { asideLayoutLoader } from "./layouts/AsideLayout"
+import Search, { searchLoader } from "./pages/Search"
 
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route path="/" element={<App />}>
             <Route element={<AsideLayout />} loader={asideLayoutLoader}>
                 <Route index element={<Home />} loader={homeLoader} />
+                <Route
+                    path="/search"
+                    element={<Search />}
+                    loader={searchLoader}
+                />
             </Route>
             <Route path="/about" element={<About />} />
             <Route path="/posts">
