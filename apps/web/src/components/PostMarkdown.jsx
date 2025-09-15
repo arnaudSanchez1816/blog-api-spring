@@ -1,4 +1,4 @@
-import { Divider, Image, Link, Snippet } from "@heroui/react"
+import { Code, Divider, Image, Link, Snippet } from "@heroui/react"
 import Markdown from "react-markdown"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { prism, tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism"
@@ -65,18 +65,13 @@ export default function PostMarkdown({ children, ...props }) {
                             {children}
                         </SyntaxHighlighter>
                     ) : (
-                        <Snippet
+                        <Code
                             {...rest}
                             radius="sm"
-                            className={className}
-                            hideSymbol={true}
-                            hideCopyButton={true}
-                            classNames={{
-                                pre: "whitespace-pre-line",
-                            }}
+                            className="whitespace-pre-line"
                         >
                             {children}
-                        </Snippet>
+                        </Code>
                     )
                 },
                 a: (props) => {
@@ -135,7 +130,6 @@ export default function PostMarkdown({ children, ...props }) {
                         className="border-l-5 border-foreground/10 mb-4 py-2 pl-4 [&>p]:mb-2"
                     />
                 ),
-                img: ({ node, ...props }) => <Image {...props}></Image>,
             }}
         >
             {children}
