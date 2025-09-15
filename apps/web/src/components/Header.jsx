@@ -11,6 +11,7 @@ import {
 import { useEffect, useRef, useState } from "react"
 import { useLocation } from "react-router"
 import NavLink from "./NavLink"
+import ThemeSwitcher from "./ThemeSwitcher"
 
 function BlogLogo({ ...props }) {
     return (
@@ -102,7 +103,9 @@ export default function Header() {
                     </NavLink>
                 </NavbarItem>
             </NavbarContent>
-            <NavbarContent></NavbarContent>
+            <NavbarContent justify="end">
+                <ThemeSwitcher />
+            </NavbarContent>
             <NavbarMenu portalContainer={rootRef.current}>
                 <NavbarMenuItem>
                     <NavLink
