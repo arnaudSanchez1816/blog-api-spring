@@ -1,17 +1,25 @@
-import { useLoaderData } from "react-router"
+import { data, useLoaderData } from "react-router"
 import { getPublicPost } from "../api/posts"
 import PostMarkdown from "../components/PostMarkdown"
 import Tag from "../components/Tag"
-import { Button, Divider, Form, Input, Textarea } from "@heroui/react"
+import { Divider } from "@heroui/react"
 import CommentsSection from "../components/CommentsSection/CommentsSection"
+import { postSchema } from "@repo/zod-schemas"
 
 export const postPageLoader = async ({ params }) => {
-    const postId = params.postId
-    const post = await getPublicPost(postId)
+    try {
+        const postIdSchema = postSchema.pick({ id: true })
+        const { id } = await postIdSchema.parseAsync({ id: params.postId })
+        const post = await getPublicPost(id)
 
-    return {
-        postId,
-        post,
+        return {
+            id,
+            post,
+        }
+    } catch (error) {
+        console.error(error)
+
+        return data("Post not found", 404)
     }
 }
 
