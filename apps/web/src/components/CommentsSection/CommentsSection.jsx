@@ -70,11 +70,17 @@ export default function CommentsSection({ postId, commentsCount }) {
     if (!comments) {
         if (commentsCount <= 0) {
             return (
-                <div className="flex items-center justify-center">
-                    <p className="text-foreground/70 text-lg font-medium">
-                        No comments yet
-                    </p>
-                </div>
+                <CommentsSectionWrapper
+                    commentsCount={commentsCount}
+                    fetchComments={triggerFetch}
+                    postId={postId}
+                >
+                    <div className="flex items-center justify-center">
+                        <p className="text-foreground/70 text-lg font-medium">
+                            No comments yet
+                        </p>
+                    </div>
+                </CommentsSectionWrapper>
             )
         } else {
             return (
