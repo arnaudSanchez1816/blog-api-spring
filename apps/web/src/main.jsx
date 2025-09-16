@@ -15,10 +15,19 @@ import PostPage, { postPageLoader } from "./pages/Post"
 import AsideLayout, { asideLayoutLoader } from "./layouts/AsideLayout"
 import Search, { searchLoader } from "./pages/Search"
 import ErrorPage from "./pages/Error"
+import { Spinner } from "@heroui/react"
 
 const router = createBrowserRouter(
     createRoutesFromElements(
-        <Route path="/" element={<App />}>
+        <Route
+            path="/"
+            element={<App />}
+            hydrateFallbackElement={
+                <div className="flex h-screen items-center justify-center">
+                    <Spinner />
+                </div>
+            }
+        >
             <Route ErrorBoundary={ErrorPage}>
                 <Route element={<AsideLayout />} loader={asideLayoutLoader}>
                     <Route
