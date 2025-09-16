@@ -18,10 +18,7 @@ const idRouter = Router({ mergeParams: true })
 // /posts/:id/publish
 idRouter
     .route("/publish")
-    .post(
-        passport.authenticate(strategies.jwt, { session: false }),
-        publishPost
-    )
+    .put(passport.authenticate(strategies.jwt, { session: false }), publishPost)
 
 // /posts/:id/comments
 idRouter
