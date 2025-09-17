@@ -19,11 +19,13 @@ export default function ErrorPage() {
 
     if (error instanceof Error) {
         return (
-            <>
-                <h1>Something went wrong</h1>
-                <p>{error.message}</p>
+            <div className="flex h-full min-h-[50vh] flex-col items-center justify-center gap-4">
+                <h1 className="text-danger text-5xl font-medium">
+                    Something went wrong
+                </h1>
+                <p className="text-danger-700">{error.message}</p>
                 <pre>{error.stack}</pre>
-            </>
+            </div>
         )
     }
 
