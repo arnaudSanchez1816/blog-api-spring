@@ -7,7 +7,8 @@ export const getPublicPosts = async ({ page, pageSize }) => {
         searchParams.set("pageSize", pageSize)
     }
     const apiUrl = import.meta.env.VITE_API_URL
-    const response = await fetch(`${apiUrl}/posts?${searchParams}`, {
+    const url = new URL(`./posts?${searchParams}`, apiUrl)
+    const response = await fetch(url, {
         mode: "cors",
     })
 
@@ -24,7 +25,8 @@ export const getPublicPosts = async ({ page, pageSize }) => {
 
 export const getPublicPost = async (postId) => {
     const apiUrl = import.meta.env.VITE_API_URL
-    const response = await fetch(`${apiUrl}/posts/${postId}`, { mode: "cors" })
+    const url = new URL(`./posts/${postId}`, apiUrl)
+    const response = await fetch(url, { mode: "cors" })
 
     if (!response.ok) {
         throw response

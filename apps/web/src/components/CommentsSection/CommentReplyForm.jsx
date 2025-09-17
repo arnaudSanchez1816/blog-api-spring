@@ -1,5 +1,6 @@
 import { addToast, Button, Form, Input, Textarea } from "@heroui/react"
 import { useState } from "react"
+import { postComment } from "../../api/comments"
 
 export default function CommentReplyForm({ postId, fetchComments }) {
     const [submitting, setSubmitting] = useState(false)
@@ -7,32 +8,21 @@ export default function CommentReplyForm({ postId, fetchComments }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
+        const { username, body } = Object.fromEntries(
+            new FormData(e.currentTarget)
+        )
+
         setSubmitting(true)
         try {
             if (isNaN(Number(postId))) {
                 throw new Error("Invalid post id")
             }
 
-            const response = await fetch(
-                `https://jsonplaceholder.typicode.com/posts/${postId}/comments`,
-                {
-                    mode: "cors",
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        username: "User@email.com",
-                        body: "Lorem ipsum, new comment !",
-                    }),
-                }
-            )
-
-            if (!response.ok) {
-                throw new Error(
-                    `${response.status} Fetch failure : ${response.statusText}`
-                )
-            }
+            const response = await postComment({
+                postId,
+                username,
+                commentBody: body,
+            })
 
             if (fetchComments) {
                 fetchComments()

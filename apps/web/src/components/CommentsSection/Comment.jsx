@@ -1,12 +1,12 @@
 import { Divider } from "@heroui/react"
 
 export default function Comment({ comment }) {
-    const { id, name, email, body } = comment
+    const { id, username, body } = comment
     return (
         <div id={`comment-${id}`}>
             <div className="flex flex-col gap-y-2 lg:flex-row lg:justify-between">
                 <div>
-                    <span className="font-medium">{email}</span>
+                    <span className="font-medium">{username}</span>
                     <span> </span>
                     <span>says:</span>
                 </div>

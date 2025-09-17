@@ -28,11 +28,8 @@ export default function CommentsSection({ postId, commentsCount }) {
         error,
         loading,
         triggerFetch,
-    } = useData(`/posts/${postId}/comments`, {
+    } = useData(`./posts/${postId}/comments`, {
         mode: "cors",
-        morphDataCb: (data) => {
-            return { count: data.length, results: data }
-        },
         fetchManually: true,
     })
 
