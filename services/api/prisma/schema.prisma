@@ -52,8 +52,18 @@ model Post {
     authorId Int @map("author_id")
     author User @relation(fields: [authorId], references: [id])
     comments Comment[]
+    tags Tag[]
 
     @@map("posts")
+}
+
+model Tag {
+    id Int @id @default(autoincrement())
+    name String
+    slug String @unique
+    posts Post[]
+
+    @@map("tags")
 }
 
 model Comment {

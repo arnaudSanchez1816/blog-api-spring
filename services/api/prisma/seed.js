@@ -58,6 +58,8 @@ async function main() {
         }),
     ])
 
+    // Create tags
+
     const admin = await prisma.user.upsert({
         where: { email: process.env.SEEDING_ADMIN_EMAIL },
         update: {},

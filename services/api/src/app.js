@@ -9,10 +9,13 @@ import authRouter from "./auth/authRouter.js"
 import postsRouter from "./posts/postsRouter.js"
 import usersRouter from "./users/usersRouter.js"
 import commentsRouter from "./comments/commentsRouter.js"
+import tagsRouter from "./tags/tagsRouter.js"
 import passport from "./config/passport.js"
 import { pino } from "./config/pino.js"
 import { ZodError } from "zod"
 import cors from "cors"
+import { AlreadyExistsError } from "./helpers/errors.js"
+import { Prisma } from "@prisma/client"
 
 const app = express()
 
@@ -34,6 +37,7 @@ v1Router.use("/auth", authRouter)
 v1Router.use("/posts", postsRouter)
 v1Router.use("/users", usersRouter)
 v1Router.use("/comments", commentsRouter)
+v1Router.use("/tags", tagsRouter)
 app.use("/api/v1", v1Router)
 
 // 404 error
@@ -47,6 +51,22 @@ app.use((req, res, next) => {
 app.use((error, req, res, next) => {
     pino.error(error)
     let errors = error.message
+
+    if (error instanceof AlreadyExistsError) {
+        error.status = 400
+    }
+
+    if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2016"
+    ) {
+        const { details } = error
+        if (details.includes("RecordNotFound")) {
+            error.status = 404
+            errors = "Not found"
+        }
+    }
+
     if (error instanceof ZodError) {
         error = error.issues.map((e) => {
             return {

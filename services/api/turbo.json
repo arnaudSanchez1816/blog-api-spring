@@ -2,7 +2,7 @@
     "extends": ["//"],
     "tasks": {
       "build": {
-        "env": ["PORT", "PINO_LOG_LEVEL", "JWT_SECRET", "PASSWORD_SALT_LENGTH", "CORS_ORIGIN_URL"],
+        "env": ["NODE_ENV", "PORT", "PINO_LOG_LEVEL", "JWT_SECRET", "PASSWORD_SALT_LENGTH", "CORS_ORIGIN_URL"],
         "outputs": ["dist/**"]
       }
     }
