@@ -106,6 +106,14 @@ export const updatePost = async ({ postId, title, body }) => {
         description = `${descrMatch[1]}...`
     }
 
+    // Reading time estimation
+    const bodyWords = plainBody.match(/\S+/g)
+    let readingTime = 1
+    if (bodyWords) {
+        // 200 words per minute
+        readingTime = Math.max(bodyWords.length / 200, 1)
+    }
+
     const updatedPost = await prisma.post.update({
         where: {
             id: postId,
@@ -114,6 +122,7 @@ export const updatePost = async ({ postId, title, body }) => {
             title: title,
             body: body,
             description: description,
+            readingTime: readingTime,
         },
     })
 

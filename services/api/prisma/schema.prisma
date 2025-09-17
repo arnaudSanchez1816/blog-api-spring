@@ -47,6 +47,7 @@ model Post {
     title String
     description String @default("")
     body String
+    readingTime Int @default(1)
     publishedAt DateTime? @db.Timestamptz @map("published_at") // Post is considered unpublished if publishedAt is null
     authorId Int @map("author_id")
     author User @relation(fields: [authorId], references: [id])
