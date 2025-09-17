@@ -69,7 +69,7 @@ export default function PostItem({ post, className = "" }) {
                         </time>
                     </Link>
                     <span>•</span>
-                    <span>{readingTime}</span>
+                    <span>{`${readingTime} min read`}</span>
                 </div>
             </header>
             <div className="my-4">{description}</div>

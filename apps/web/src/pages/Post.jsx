@@ -34,7 +34,7 @@ function Post({ post }) {
                         {format(publishedAt, "MMMM dd, y")}
                     </time>
                     <span>•</span>
-                    <span>{readingTime}</span>
+                    <span>{`${readingTime} min read`}</span>
                 </div>
                 {tags.length > 0 && (
                     <div className="flex max-w-full flex-wrap gap-2">
