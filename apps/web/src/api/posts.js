@@ -36,12 +36,5 @@ export const getPublicPost = async (postId) => {
 
     return {
         ...post,
-        tags: [
-            {
-                id: 1,
-                name: "JavaScript",
-                slug: "js",
-            },
-        ],
     }
 }
