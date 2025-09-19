@@ -106,14 +106,14 @@ export const updatePost = [
                 throw new createHttpError.Forbidden()
             }
 
-            await postsService.updatePost({
+            const updatedPost = await postsService.updatePost({
                 postId,
                 title,
                 tags,
                 body,
             })
 
-            return res.status(204).send()
+            return res.status(200).send(updatedPost)
         } catch (error) {
             next(error)
         }

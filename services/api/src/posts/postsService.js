@@ -139,11 +139,32 @@ export const updatePost = async ({ postId, title, body, tags }) => {
             id: postId,
         },
         data: {
-            title,
-            body,
-            description,
-            tags,
+            ...(title && { title }),
+            ...(body && { body }),
+            ...(description && { description }),
+            ...(tags && {
+                tags: {
+                    set: tags.map((t) => {
+                        if (typeof t === "string") {
+                            return {
+                                slug: t,
+                            }
+                        }
+                        return {
+                            id: t,
+                        }
+                    }),
+                },
+            }),
             ...(body && { readingTime }),
+        },
+        select: {
+            id: true,
+            title: !!title,
+            body: !!body,
+            description: !!description,
+            tags: !!tags,
+            readingTime: !!body,
         },
     })
 

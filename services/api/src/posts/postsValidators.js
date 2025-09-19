@@ -7,10 +7,7 @@ const postSchema = z.object({
     id: z.coerce.number().int().min(1),
     title: z.string().trim().min(1),
     body: z.string(),
-    tags: z
-        .string()
-        .transform((val) => val.split(","))
-        .pipe(z.array(z.union([tagSchema.shape.id, tagSchema.shape.slug]))),
+    tags: z.array(z.union([tagSchema.shape.id, tagSchema.shape.slug])),
 })
 
 export const getPublishedPostsValidator = z.object({
@@ -21,7 +18,12 @@ export const getPublishedPostsValidator = z.object({
             .default(SortByValues.publishedAtDesc),
         page: z.coerce.number().int().min(0).optional().default(1),
         pageSize: z.coerce.number().int().min(1).max(50).optional().default(20),
-        tags: postSchema.shape.tags.optional().default([]),
+        tags: z
+            .string()
+            .transform((val) => val.split(","))
+            .pipe(postSchema.shape.tags)
+            .optional()
+            .default([]),
     }),
 })
 
@@ -36,7 +38,12 @@ export const updatePostValidator = z.object({
         .omit({
             id: true,
         })
-        .partial(),
+        .partial()
+        .refine(
+            ({ title, body, tags }) =>
+                title !== undefined || body !== undefined || tags !== undefined,
+            { error: "At least one field must be provided." }
+        ),
     params: z.object({
         id: postSchema.shape.id,
     }),
