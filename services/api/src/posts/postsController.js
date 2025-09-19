@@ -22,7 +22,9 @@ export const getPost = [
             const { id } = req.params
             const { id: userId } = req.user || {}
 
-            const post = await postsService.getPostDetails(id)
+            const post = await postsService.getPostDetails(id, {
+                includeTags: true,
+            })
             if (!post) {
                 throw new createHttpError.NotFound()
             }
@@ -90,7 +92,7 @@ export const updatePost = [
     validateRequest(updatePostValidator),
     async (req, res, next) => {
         try {
-            const { title, body } = req.body
+            const { title, body, tags } = req.body
             const { id: postId } = req.params
             const { id: userId } = req.user
 
@@ -106,6 +108,7 @@ export const updatePost = [
             await postsService.updatePost({
                 postId,
                 title,
+                tags,
                 body,
             })
 

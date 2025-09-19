@@ -105,27 +105,31 @@ export const createPost = async (title, authorId) => {
     return createdPost
 }
 
-export const updatePost = async ({ postId, title, body }) => {
-    // https://github.com/ejrbuss/markdown-to-txt/blob/main/src/markdown-to-txt.ts
-    const plainBody = marked(body, {
-        renderer: plainTextRenderer,
-    })
-    const window = new JSDOM("").window
-    const purify = DOMPurify(window)
-    const sanitizedBody = purify.sanitize(plainBody)
-    // Get first 50 words from body to use as description
-    let description = sanitizedBody
-    const descrMatch = sanitizedBody.match(/(^(?:\S+\s*){1,50}).*/)
-    if (descrMatch) {
-        description = `${descrMatch[1]}...`
-    }
-
-    // Reading time estimation
-    const bodyWords = plainBody.match(/\S+/g)
+export const updatePost = async ({ postId, title, body, tags }) => {
+    let description = undefined
     let readingTime = 1
-    if (bodyWords) {
-        // 200 words per minute
-        readingTime = Math.max(bodyWords.length / 200, 1)
+
+    if (body) {
+        // https://github.com/ejrbuss/markdown-to-txt/blob/main/src/markdown-to-txt.ts
+        const plainBody = marked(body, {
+            renderer: plainTextRenderer,
+        })
+        const window = new JSDOM("").window
+        const purify = DOMPurify(window)
+        const sanitizedBody = purify.sanitize(plainBody)
+        // Get first 50 words from body to use as description
+        description = sanitizedBody
+        const descrMatch = sanitizedBody.match(/(^(?:\S+\s*){1,50}).*/)
+        if (descrMatch) {
+            description = `${descrMatch[1]}...`
+        }
+
+        // Reading time estimation
+        const bodyWords = plainBody.match(/\S+/g)
+        if (bodyWords) {
+            // 200 words per minute
+            readingTime = Math.max(bodyWords.length / 200, 1)
+        }
     }
 
     const updatedPost = await prisma.post.update({
@@ -133,10 +137,11 @@ export const updatePost = async ({ postId, title, body }) => {
             id: postId,
         },
         data: {
-            title: title,
-            body: body,
-            description: description,
-            readingTime: readingTime,
+            title,
+            body,
+            description,
+            tags,
+            ...(body && { readingTime }),
         },
     })
 
@@ -168,7 +173,7 @@ export const publishPost = async (postId) => {
 
 export const getPostDetails = async (
     postId,
-    { includeComments = false } = {}
+    { includeComments = false, includeTags = false } = {}
 ) => {
     const { _count, ...post } = await prisma.post.findUnique({
         where: {
@@ -189,6 +194,9 @@ export const getPostDetails = async (
             },
             ...(includeComments && {
                 comments: true,
+            }),
+            ...(includeTags && {
+                tags: true,
             }),
         },
     })
