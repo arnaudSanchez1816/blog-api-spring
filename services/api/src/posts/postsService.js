@@ -5,9 +5,9 @@ import { marked } from "marked"
 import { plainTextRenderer } from "../helpers/markedPlainTextRenderer.js"
 
 export const SortByValues = {
-    publishedAtAsc: "+publishedAt",
+    publishedAtAsc: "publishedAt",
     publishedAtDesc: "-publishedAt",
-    idAsc: "+id",
+    idAsc: "id",
     idDesc: "-id",
 }
 
