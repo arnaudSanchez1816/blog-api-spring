@@ -18,6 +18,7 @@ export const getPosts = async ({
     publishedOnly = true,
     authorId = undefined,
     tags = [],
+    includeBody = true,
 } = {}) => {
     page = Math.max(page, 1)
 
@@ -67,6 +68,7 @@ export const getPosts = async ({
                 },
             },
             tags: true,
+            body: includeBody,
         },
     }
 

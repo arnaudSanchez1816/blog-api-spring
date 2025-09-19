@@ -50,6 +50,7 @@ export const getPublishedPosts = [
                 sortBy,
                 publishedOnly: true,
                 tags,
+                includeBody: false,
             })
 
             const responseJson = {
