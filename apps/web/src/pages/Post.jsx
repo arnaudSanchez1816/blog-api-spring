@@ -45,7 +45,7 @@ function Post({ post }) {
                 )}
             </div>
             <Divider />
-            <div className="markdown-body mt-8">
+            <div className="mt-8">
                 <PostMarkdown>{body}</PostMarkdown>
             </div>
             <Divider className="mb-8 mt-16" />
