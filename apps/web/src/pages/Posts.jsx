@@ -1,30 +1,35 @@
-import { Pagination } from "@heroui/react"
-import { useLoaderData, useOutletContext } from "react-router"
-import PostItem from "../components/PostItem"
+import {
+    Await,
+    useLoaderData,
+    useLocation,
+    useOutletContext,
+} from "react-router"
 import { getPublicPosts } from "../api/posts"
-import useTwBreakpoint from "../hooks/useTwBreakpoint"
-import SadFaceIcon from "../components/Icons/SadFaceIcon"
-import { useEffect } from "react"
+import { Fragment, Suspense, useEffect } from "react"
 import useParamSearchParams from "../hooks/useParamSearchParams"
 import SortByButton from "../components/SortByButton"
+import PostsList from "../components/Posts/PostsList"
+import PostsListSkeleton from "../components/Posts/PostsListSkeleton"
+
+const pageSize = 10
 
 export const postsLoader = async ({ request }) => {
     const url = new URL(request.url)
     const pageTerm = url.searchParams.get("page")
-    const pageSizeTerm = url.searchParams.get("pageSize")
+    const pageSizeTerm = url.searchParams.get("pageSize") || pageSize
     const sortBy = url.searchParams.get("sortBy")
-    const posts = await getPublicPosts({
+    const getPosts = getPublicPosts({
         page: pageTerm,
         pageSize: pageSizeTerm,
         sortBy,
     })
 
-    return posts
+    return { getPosts }
 }
 
 export default function Posts() {
-    const { metadata, results: posts } = useLoaderData()
-    const { count, pageSize } = metadata
+    const location = useLocation()
+    const { getPosts } = useLoaderData()
     const [currentPageString, setCurrentPage] = useParamSearchParams("page", 1)
     const [leftContent, setLeftContent] = useOutletContext()
 
@@ -35,44 +40,22 @@ export default function Posts() {
         return () => setLeftContent(undefined)
     }, [setLeftContent])
 
-    const isMd = useTwBreakpoint("md")
-
-    const totalPages = Math.max(count / Math.max(pageSize, 1), currentPage)
-
     return (
-        <>
-            <div>
-                {posts.length > 0 ? (
-                    posts.map((post) => (
-                        <PostItem
-                            post={post}
-                            key={post.id}
-                            className="[&+*]:mt-12"
+        <Fragment key={location.key}>
+            <Suspense fallback={<PostsListSkeleton nbPosts={pageSize} />}>
+                <Await resolve={getPosts}>
+                    {({ results, metadata }) => (
+                        <PostsList
+                            posts={results}
+                            pagination={{
+                                currentPage,
+                                setCurrentPage,
+                                ...metadata,
+                            }}
                         />
-                    ))
-                ) : (
-                    <div className="my-4 flex flex-col gap-4">
-                        <SadFaceIcon
-                            size={48}
-                            className="self-center stroke-2"
-                        />
-                        <p className="text-center text-xl font-medium">
-                            No results
-                        </p>
-                    </div>
-                )}
-            </div>
-            {totalPages > 1 && (
-                <div className="mt-8 flex justify-center">
-                    <Pagination
-                        showControls
-                        page={currentPage}
-                        onChange={setCurrentPage}
-                        total={Math.max(totalPages, currentPage)}
-                        siblings={isMd ? 1 : 0}
-                    />
-                </div>
-            )}
-        </>
+                    )}
+                </Await>
+            </Suspense>
+        </Fragment>
     )
 }

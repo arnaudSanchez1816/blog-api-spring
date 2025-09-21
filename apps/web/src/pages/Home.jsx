@@ -1,24 +1,30 @@
-import { useLoaderData } from "react-router"
+import { Await, useLoaderData } from "react-router"
 import { getPublicPosts } from "../api/posts"
-import PostItem from "../components/PostItem"
+import { Suspense } from "react"
+import PostsListSkeleton from "../components/Posts/PostsListSkeleton"
+import PostsList from "../components/Posts/PostsList"
+
+const pageSize = 5
 
 export async function homeLoader() {
-    const posts = await getPublicPosts({
+    const getPosts = getPublicPosts({
         page: 1,
-        pageSize: 5,
+        pageSize,
     })
 
-    return posts
+    return { getPosts }
 }
 
 export default function Home() {
-    const { results: posts } = useLoaderData()
+    const { getPosts } = useLoaderData()
 
     return (
         <>
-            {posts.map((post) => (
-                <PostItem post={post} key={post.id} className="[&+*]:mt-12" />
-            ))}
+            <Suspense fallback={<PostsListSkeleton nbPosts={pageSize} />}>
+                <Await resolve={getPosts}>
+                    {({ results }) => <PostsList posts={results} />}
+                </Await>
+            </Suspense>
         </>
     )
 }

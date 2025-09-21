@@ -49,7 +49,7 @@ function ArrowRightIcon({
     )
 }
 
-export default function PostItem({ post, className = "" }) {
+export default function PostItem({ post, className = "", isLoaded = true }) {
     const { id, title, description, readingTime, publishedAt, commentsCount } =
         post
     const postHref = `/posts/${id}`
