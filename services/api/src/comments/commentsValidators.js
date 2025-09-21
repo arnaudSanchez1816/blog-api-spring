@@ -1,26 +1,23 @@
 import { z } from "zod"
-
-const commentIdSchema = z.coerce.number().int().min(1)
-const commentContentSchema = z.object({
-    username: z.string().trim(),
-    body: z.string().trim(),
-})
+import { commentSchema } from "@repo/zod-schemas"
 
 export const getCommentValidator = z.object({
-    params: z.object({
-        id: commentIdSchema,
-    }),
+    params: commentSchema.pick({ id: true }),
 })
 
 export const deleteCommentValidator = z.object({
-    ...getCommentValidator.shape,
+    params: commentSchema.pick({ id: true }),
 })
 
 export const editCommentValidator = z.object({
-    ...getCommentValidator.shape,
-    body: commentContentSchema,
+    params: commentSchema.pick({ id: true }),
+    body: commentSchema.omit({
+        id: true,
+    }),
 })
 
 export const createCommentValidator = z.object({
-    body: commentContentSchema,
+    body: commentSchema.omit({
+        id: true,
+    }),
 })

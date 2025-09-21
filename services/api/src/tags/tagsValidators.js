@@ -1,13 +1,5 @@
 import { z } from "zod"
-
-export const tagSchema = z.object({
-    id: z.coerce.number().int().min(1),
-    name: z.string().max(30),
-    slug: z
-        .string()
-        .max(30)
-        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-})
+import { tagSchema } from "@repo/zod-schemas"
 
 export const getTagValidator = z.object({
     params: z.object({
