@@ -1,0 +1,25 @@
+@import "@repo/tailwind-config";
+@import "@repo/heroui-config";
+
+@layer components {
+    .markdown-body {
+        ul,
+        ol {
+            list-style: revert;
+            margin: revert;
+            padding-left: calc(var(--spacing) * 8);
+        }
+
+        ol ol,
+        ul ol {
+            list-style-type: lower-roman;
+        }
+
+        ul ul ol,
+        ul ol ol,
+        ol ul ol,
+        ol ol ol {
+            list-style-type: lower-alpha;
+        }
+    }
+}

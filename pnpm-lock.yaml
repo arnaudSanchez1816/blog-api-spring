@@ -18,6 +18,82 @@ importers:
         specifier: ^2.5.6
         version: 2.5.6
 
+  apps/cms:
+    dependencies:
+      '@heroui/react':
+        specifier: ^2.8.3
+        version: 2.8.3(@types/react@19.1.11)(framer-motion@12.23.12(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(tailwindcss@4.1.12)
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
+      framer-motion:
+        specifier: ^12.23.12
+        version: 12.23.12(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react:
+        specifier: ^19.1.1
+        version: 19.1.1
+      react-dom:
+        specifier: ^19.1.1
+        version: 19.1.1(react@19.1.1)
+      react-markdown:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@19.1.11)(react@19.1.1)
+      react-responsive:
+        specifier: ^10.0.1
+        version: 10.0.1(react@19.1.1)
+      react-router:
+        specifier: ^7.8.2
+        version: 7.8.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react-syntax-highlighter:
+        specifier: ^15.6.6
+        version: 15.6.6(react@19.1.1)
+      remark-emoji:
+        specifier: ^5.0.2
+        version: 5.0.2
+      remark-textr:
+        specifier: ^6.1.0
+        version: 6.1.0
+      zod:
+        specifier: ^4.1.5
+        version: 4.1.5
+    devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@repo/heroui-config':
+        specifier: workspace:*
+        version: link:../../packages/heroui-config
+      '@repo/tailwind-config':
+        specifier: workspace:*
+        version: link:../../packages/tailwind-config
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@repo/zod-schemas':
+        specifier: workspace:*
+        version: link:../../packages/zod-schemas
+      '@tailwindcss/vite':
+        specifier: ^4.1.12
+        version: 4.1.12(vite@7.1.3(@types/node@22.15.3)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.20.5))
+      '@types/react':
+        specifier: ^19.1.10
+        version: 19.1.11
+      '@types/react-dom':
+        specifier: ^19.1.7
+        version: 19.1.8(@types/react@19.1.11)
+      '@vitejs/plugin-react':
+        specifier: ^5.0.0
+        version: 5.0.1(vite@7.1.3(@types/node@22.15.3)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.20.5))
+      eslint:
+        specifier: ^9.34.0
+        version: 9.34.0(jiti@2.5.1)
+      tailwindcss:
+        specifier: ^4.1.12
+        version: 4.1.12
+      vite:
+        specifier: ^7.1.2
+        version: 7.1.3(@types/node@22.15.3)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.20.5)
+
   apps/web:
     dependencies:
       '@heroui/react':
@@ -66,6 +142,9 @@ importers:
       '@repo/tailwind-config':
         specifier: workspace:*
         version: link:../../packages/tailwind-config
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@repo/zod-schemas':
         specifier: workspace:*
         version: link:../../packages/zod-schemas
@@ -148,28 +227,76 @@ importers:
 
   packages/ui:
     dependencies:
+      '@heroui/react':
+        specifier: ^2.8.3
+        version: 2.8.3(@types/react@19.1.11)(framer-motion@12.23.12(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(tailwindcss@4.1.12)
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
+      framer-motion:
+        specifier: ^12.23.12
+        version: 12.23.12(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react:
-        specifier: ^19.1.0
-        version: 19.1.0
+        specifier: ^19.1.1
+        version: 19.1.1
       react-dom:
-        specifier: ^19.1.0
-        version: 19.1.0(react@19.1.0)
+        specifier: ^19.1.1
+        version: 19.1.1(react@19.1.1)
+      react-markdown:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/react@19.1.11)(react@19.1.1)
+      react-responsive:
+        specifier: ^10.0.1
+        version: 10.0.1(react@19.1.1)
+      react-router:
+        specifier: ^7.8.2
+        version: 7.8.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react-syntax-highlighter:
+        specifier: ^15.6.6
+        version: 15.6.6(react@19.1.1)
+      remark-emoji:
+        specifier: ^5.0.2
+        version: 5.0.2
+      remark-textr:
+        specifier: ^6.1.0
+        version: 6.1.0
+      zod:
+        specifier: ^4.1.5
+        version: 4.1.5
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@types/node':
-        specifier: ^22.15.3
-        version: 22.15.3
+      '@repo/heroui-config':
+        specifier: workspace:*
+        version: link:../heroui-config
+      '@repo/tailwind-config':
+        specifier: workspace:*
+        version: link:../tailwind-config
+      '@repo/zod-schemas':
+        specifier: workspace:*
+        version: link:../zod-schemas
+      '@tailwindcss/vite':
+        specifier: ^4.1.12
+        version: 4.1.12(vite@7.1.3(@types/node@22.15.3)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.20.5))
       '@types/react':
-        specifier: 19.1.0
-        version: 19.1.0
+        specifier: ^19.1.10
+        version: 19.1.11
       '@types/react-dom':
-        specifier: 19.1.1
-        version: 19.1.1(@types/react@19.1.0)
+        specifier: ^19.1.7
+        version: 19.1.8(@types/react@19.1.11)
+      '@vitejs/plugin-react':
+        specifier: ^5.0.0
+        version: 5.0.1(vite@7.1.3(@types/node@22.15.3)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.20.5))
       eslint:
         specifier: ^9.34.0
         version: 9.34.0(jiti@2.5.1)
+      tailwindcss:
+        specifier: ^4.1.12
+        version: 4.1.12
+      vite:
+        specifier: ^7.1.2
+        version: 7.1.3(@types/node@22.15.3)(jiti@2.5.1)(lightningcss@1.30.1)(tsx@4.20.5)
 
   packages/zod-schemas:
     dependencies:
@@ -1971,18 +2098,10 @@ packages:
   '@types/node@22.15.3':
     resolution: {integrity: sha512-lX7HFZeHf4QG/J7tBZqrCAXwz9J5RD56Y6MpP0eJkka8p+K0RY/yBTW7CYFJ4VGCclxqOLKmiGP5juQc6MKgcw==}
 
-  '@types/react-dom@19.1.1':
-    resolution: {integrity: sha512-jFf/woGTVTjUJsl2O7hcopJ1r0upqoq/vIOoCj0yLh3RIXxWcljlpuZ+vEBRXsymD1jhfeJrlyTy/S1UW+4y1w==}
-    peerDependencies:
-      '@types/react': ^19.0.0
-
   '@types/react-dom@19.1.8':
     resolution: {integrity: sha512-xG7xaBMJCpcK0RpN8jDbAACQo54ycO6h4dSSmgv8+fu6ZIAdANkx/WsawASUjVXYfy+J9AbUpRMNNEsXCDfDBQ==}
     peerDependencies:
       '@types/react': ^19.0.0
-
-  '@types/react@19.1.0':
-    resolution: {integrity: sha512-UaicktuQI+9UKyA4njtDOGBD/67t8YEBt2xdfqu8+gP9hqPUPsiXlNPcpS2gVdjmis5GKPG3fCxbQLVgxsQZ8w==}
 
   '@types/react@19.1.11':
     resolution: {integrity: sha512-lr3jdBw/BGj49Eps7EvqlUaoeA0xpj3pc0RoJkHpYaCHkVK7i28dKyImLQb3JVlqs3aYSXf7qYuWOW/fgZnTXQ==}
@@ -3667,11 +3786,6 @@ packages:
   rc9@2.1.2:
     resolution: {integrity: sha512-btXCnMmRIBINM2LDZoEmOogIZU7Qe7zn4BpomSKZ/ykbLObuBdvG+mFq11DL6fjH1DRwHhrlgtYWG96bJiC7Cg==}
 
-  react-dom@19.1.0:
-    resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
-    peerDependencies:
-      react: ^19.1.0
-
   react-dom@19.1.1:
     resolution: {integrity: sha512-Dlq/5LAZgF0Gaz6yiqZCf6VCcZs1ghAJyrsu84Q/GT0gV+mCxbfmKNoGRKBYMJ8IEdGPqu49YWXD02GCknEDkw==}
     peerDependencies:
@@ -3716,10 +3830,6 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
-  react@19.1.0:
-    resolution: {integrity: sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==}
-    engines: {node: '>=0.10.0'}
 
   react@19.1.1:
     resolution: {integrity: sha512-w8nqGImo45dmMIfljjMwOGtbmC/mk4CMYhWIicdSflH91J9TyCyczcPFXJzrZ/ZXcgGRFeP6BU0BEJTw6tZdfQ==}
@@ -6785,18 +6895,11 @@ snapshots:
   '@types/node@22.15.3':
     dependencies:
       undici-types: 6.21.0
-
-  '@types/react-dom@19.1.1(@types/react@19.1.0)':
-    dependencies:
-      '@types/react': 19.1.0
+    optional: true
 
   '@types/react-dom@19.1.8(@types/react@19.1.11)':
     dependencies:
       '@types/react': 19.1.11
-
-  '@types/react@19.1.0':
-    dependencies:
-      csstype: 3.1.3
 
   '@types/react@19.1.11':
     dependencies:
@@ -8748,11 +8851,6 @@ snapshots:
       defu: 6.1.4
       destr: 2.0.5
 
-  react-dom@19.1.0(react@19.1.0):
-    dependencies:
-      react: 19.1.0
-      scheduler: 0.26.0
-
   react-dom@19.1.1(react@19.1.1):
     dependencies:
       react: 19.1.1
@@ -8814,8 +8912,6 @@ snapshots:
       use-latest: 1.3.0(@types/react@19.1.11)(react@19.1.1)
     transitivePeerDependencies:
       - '@types/react'
-
-  react@19.1.0: {}
 
   react@19.1.1: {}
 
@@ -9314,7 +9410,8 @@ snapshots:
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
 
-  undici-types@6.21.0: {}
+  undici-types@6.21.0:
+    optional: true
 
   unicode-emoji-modifier-base@1.0.0: {}
 
