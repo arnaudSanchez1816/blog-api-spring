@@ -1,5 +1,6 @@
 @import "@repo/tailwind-config";
 @import "@repo/heroui-config";
+@import "@repo/ui/style.css";
 
 @layer components {
     .markdown-body {

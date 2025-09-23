@@ -9,6 +9,7 @@ import { RouterProvider } from "react-router/dom"
 import "./style.css"
 import App from "./App"
 import { Spinner } from "@heroui/react"
+import SearchLayout, { searchLayoutLoader } from "./layouts/SearchLayout"
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -21,7 +22,9 @@ const router = createBrowserRouter(
                 </div>
             }
         >
-            <Route index element={<div>Hello world !</div>}></Route>
+            <Route element={<SearchLayout />} loader={searchLayoutLoader}>
+                <Route index element={<div>Hello world !</div>}></Route>
+            </Route>
         </Route>
     )
 )

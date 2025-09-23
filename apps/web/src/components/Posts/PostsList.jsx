@@ -1,5 +1,5 @@
 import { Pagination } from "@heroui/react"
-import SadFaceIcon from "../Icons/SadFaceIcon"
+import SadFaceIcon from "@repo/ui/components/Icons/SadFaceIcon"
 import PostItem from "./PostItem"
 import useTwBreakpoint from "../../hooks/useTwBreakpoint"
 

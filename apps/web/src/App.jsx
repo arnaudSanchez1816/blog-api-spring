@@ -1,10 +1,25 @@
 import { HeroUIProvider, ToastProvider } from "@heroui/react"
-import Header from "./components/Header"
 import { Outlet, ScrollRestoration, useHref, useNavigate } from "react-router"
-import Footer from "./components/Footer"
 import { ThemeContext } from "@repo/ui/hooks/useTheme"
+import Header from "@repo/ui/components/Header"
+import Footer from "@repo/ui/components/Footer"
+import FooterContent from "./components/FooterContent"
 
 const body = document.body
+const headerNavItems = [
+    {
+        name: "Home",
+        href: "/",
+    },
+    {
+        name: "Posts",
+        href: "/posts",
+    },
+    {
+        name: "About",
+        href: "/about",
+    },
+]
 
 export default function App() {
     const navigate = useNavigate()
@@ -15,11 +30,13 @@ export default function App() {
                 <ScrollRestoration />
                 <ToastProvider />
                 <ThemeContext value={{ themeHtmlElement: body }}>
-                    <Header />
+                    <Header title="Blog-API" navItems={headerNavItems} />
                     <main className="px-6">
                         <Outlet />
                     </main>
-                    <Footer />
+                    <Footer>
+                        <FooterContent />
+                    </Footer>
                 </ThemeContext>
             </HeroUIProvider>
         </>

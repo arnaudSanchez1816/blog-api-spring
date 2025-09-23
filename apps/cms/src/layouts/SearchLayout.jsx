@@ -7,18 +7,30 @@ import {
     useMatches,
     useSearchParams,
 } from "react-router"
-import SearchIcon from "@repo/ui/components/Icons/SearchIcon"
-import { getTags } from "../api/tags"
 import { useCallback, useEffect, useRef, useState } from "react"
 import Tag from "@repo/ui/components/Tag"
+import SearchIcon from "@repo/ui/components/Icons/SearchIcon"
 
-export async function asideLayoutLoader() {
+const getTags = async () => {
+    const apiUrl = import.meta.env.VITE_API_URL
+    const url = new URL(`./tags`, apiUrl)
+    const response = await fetch(url, { mode: "cors" })
+    if (!response.ok) {
+        throw response
+    }
+
+    const tags = await response.json()
+
+    return tags
+}
+
+export async function searchLayoutLoader() {
     const tags = await getTags()
 
     return tags
 }
 
-export default function AsideLayout() {
+export default function SearchLayout() {
     const { results: tags } = useLoaderData()
     const searchInputRef = useRef(null)
     const location = useLocation()

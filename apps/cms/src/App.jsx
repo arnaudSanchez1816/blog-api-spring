@@ -1,8 +1,36 @@
 import { HeroUIProvider, ToastProvider } from "@heroui/react"
+import Footer from "@repo/ui/components/Footer"
+import Header from "@repo/ui/components/Header"
 import { ThemeContext } from "@repo/ui/hooks/useTheme"
-import { Outlet, ScrollRestoration, useHref, useNavigate } from "react-router"
+import {
+    href,
+    Outlet,
+    ScrollRestoration,
+    useHref,
+    useNavigate,
+} from "react-router"
+import FooterContent from "./components/FooterContent"
 
 const body = document.body
+
+const headerNavItems = [
+    {
+        name: "Home",
+        href: "/",
+    },
+    {
+        name: "All Posts",
+        href: "/posts",
+    },
+    {
+        name: "My posts",
+        href: "/my-posts",
+    },
+    {
+        name: "Tags",
+        href: "/tags",
+    },
+]
 
 export default function App() {
     const navigate = useNavigate()
@@ -13,9 +41,13 @@ export default function App() {
                 <ScrollRestoration />
                 <ToastProvider />
                 <ThemeContext value={{ themeHtmlElement: body }}>
+                    <Header navItems={headerNavItems} />
                     <main className="px-6">
                         <Outlet />
                     </main>
+                    <Footer>
+                        <FooterContent />
+                    </Footer>
                 </ThemeContext>
             </HeroUIProvider>
         </>

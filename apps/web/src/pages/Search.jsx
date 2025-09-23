@@ -1,7 +1,7 @@
 import { useLoaderData, useNavigation, useOutletContext } from "react-router"
 import { getPublicPosts } from "../api/posts"
 import PostItem from "../components/Posts/PostItem"
-import SadFaceIcon from "../components/Icons/SadFaceIcon"
+import SadFaceIcon from "@repo/ui/components/Icons/SadFaceIcon"
 import { Pagination, Spinner } from "@heroui/react"
 import useTwBreakpoint from "../hooks/useTwBreakpoint"
 import { useEffect } from "react"

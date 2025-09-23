@@ -1,11 +1,11 @@
 import { data, useLoaderData } from "react-router"
 import { getPublicPost } from "../api/posts"
 import PostMarkdown from "../components/PostMarkdown"
-import Tag from "../components/Tag"
 import { Divider } from "@heroui/react"
 import CommentsSection from "../components/CommentsSection/CommentsSection"
 import { postSchema } from "@repo/zod-schemas"
 import { format } from "date-fns"
+import Tag from "@repo/ui/components/Tag"
 
 export const postPageLoader = async ({ params }) => {
     try {
