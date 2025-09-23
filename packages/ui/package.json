@@ -5,7 +5,9 @@
   "type": "module",
   "exports": {
     "./components/*": "./src/components/*.jsx",
-    "./hooks/*": "./src/hooks/*.js"
+    "./components/icons/*": "./src/components/icons/*.jsx",
+    "./hooks/*": "./src/hooks/*.js",
+    "./style.css": "./src/style.css"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0"
