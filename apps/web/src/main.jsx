@@ -15,7 +15,7 @@ import Posts, { postsLoader } from "./pages/Posts"
 import PostPage, { postPageLoader } from "./pages/Post"
 import AsideLayout, { asideLayoutLoader } from "./layouts/AsideLayout"
 import Search, { searchLoader } from "./pages/Search"
-import ErrorPage from "./pages/Error"
+import ErrorView from "@repo/ui/components/ErrorView"
 import { Spinner } from "@heroui/react"
 
 const router = createBrowserRouter(
@@ -29,7 +29,7 @@ const router = createBrowserRouter(
                 </div>
             }
         >
-            <Route ErrorBoundary={ErrorPage}>
+            <Route errorElement={<ErrorView />}>
                 <Route element={<AsideLayout />} loader={asideLayoutLoader}>
                     <Route
                         index
@@ -67,7 +67,7 @@ const router = createBrowserRouter(
             </Route>
             <Route
                 path="/*"
-                ErrorBoundary={ErrorPage}
+                errorElement={<ErrorView />}
                 loader={() => {
                     throw data("Page not found", 404)
                 }}
