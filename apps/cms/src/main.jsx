@@ -10,6 +10,7 @@ import "./style.css"
 import App from "./App"
 import { Spinner } from "@heroui/react"
 import SearchLayout, { searchLayoutLoader } from "./layouts/SearchLayout"
+import Login from "./pages/Login"
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -25,6 +26,7 @@ const router = createBrowserRouter(
             <Route element={<SearchLayout />} loader={searchLayoutLoader}>
                 <Route index element={<div>Hello world !</div>}></Route>
             </Route>
+            <Route path="/login" element={<Login />}></Route>
         </Route>
     )
 )
