@@ -1,8 +1,11 @@
 import { PermissionType } from "@prisma/client"
 import { checkPermission } from "../middlewares/checkPermission.js"
 import { validateRequest } from "../middlewares/validator.js"
-import postsService, { SortByValues } from "../posts/postsService.js"
-import { createUserValidator } from "./usersValidators.js"
+import postsService from "../posts/postsService.js"
+import {
+    createUserValidator,
+    getCurrentUserPostsValidator,
+} from "./usersValidators.js"
 import usersService from "../users/usersService.js"
 
 export const getCurrentUser = async (req, res, next) => {
@@ -16,29 +19,37 @@ export const getCurrentUser = async (req, res, next) => {
     }
 }
 
-export const getCurrentUserPosts = async (req, res, next) => {
-    try {
-        const { id: userId } = req.user
+export const getCurrentUserPosts = [
+    validateRequest(getCurrentUserPostsValidator),
+    async (req, res, next) => {
+        try {
+            const { q, page, pageSize, sortBy, tags } = req.query
+            const { id: userId } = req.user
 
-        const { posts, count } = await postsService.getPosts({
-            sortBy: SortByValues.idDesc,
-            publishedOnly: false,
-            authorId: userId,
-            includeBody: false,
-        })
+            const { posts, count } = await postsService.getPosts({
+                q,
+                pageSize,
+                page,
+                tags,
+                sortBy,
+                publishedOnly: false,
+                authorId: userId,
+                includeBody: false,
+            })
 
-        const responseJson = {
-            metadata: {
-                count: count,
-            },
-            results: posts,
+            const responseJson = {
+                metadata: {
+                    count: count,
+                },
+                results: posts,
+            }
+
+            return res.json(responseJson)
+        } catch (error) {
+            next(error)
         }
-
-        return res.json(responseJson)
-    } catch (error) {
-        next(error)
-    }
-}
+    },
+]
 
 export const createUser = [
     checkPermission(PermissionType.CREATE),

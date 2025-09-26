@@ -1,6 +1,7 @@
 import z from "zod"
 import { signupValidator } from "../signup/signupValidators.js"
 import { prisma } from "../config/prisma.js"
+import { getPublishedPostsValidator } from "../posts/postsValidators.js"
 
 export const createUserValidator = z.object({
     body: signupValidator.shape.body.safeExtend({
@@ -21,3 +22,7 @@ export const createUserValidator = z.object({
             }),
     }),
 })
+
+export const getCurrentUserPostsValidator = getPublishedPostsValidator.extend(
+    {}
+)
