@@ -5,6 +5,7 @@ import authService from "./authService.js"
 import { validateRequest } from "../middlewares/validator.js"
 import { AuthenticationError } from "../helpers/errors.js"
 import createHttpError from "http-errors"
+import _ from "lodash"
 
 const COOKIE_REFRESH_TOKEN_MAX_AGE = 30 * 24 * 60 * 60 * 1000
 
@@ -37,6 +38,7 @@ export const login = [
             })
 
             return res.json({
+                user: _.omit(user, "password"),
                 accessToken: accessToken,
             })
         } catch (error) {
