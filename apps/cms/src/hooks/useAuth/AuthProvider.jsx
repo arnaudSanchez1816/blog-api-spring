@@ -2,12 +2,10 @@ import { Spinner } from "@heroui/react"
 import {
     createContext,
     useCallback,
-    useEffect,
     useLayoutEffect,
     useMemo,
     useState,
 } from "react"
-import { useNavigate } from "react-router"
 import { fetchAccessToken } from "../../api/fetchAccessToken"
 import { fetchCurrentUser } from "../../api/fetchCurrentUser"
 
@@ -19,11 +17,16 @@ import { fetchCurrentUser } from "../../api/fetchCurrentUser"
  */
 
 /**
+ * @callback logoutCallback
+ * @returns {Promise<void>} - Result
+ */
+
+/**
  * @typedef {object} AuthContextType
  * @property {object} AuthContextType.user
  * @property {string} AuthContextType.accessToken
  * @property {loginCallback} AuthContextType.login
- * @property {() => void} AuthContextType.logoff
+ * @property {logoutCallback} AuthContextType.logout
  */
 
 /** @type {AuthContextType} */
@@ -31,13 +34,12 @@ export const AuthContext = createContext({
     user: null,
     accessToken: null,
     login: null,
-    logoff: null,
+    logout: null,
 })
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(undefined)
     const [accessToken, setAccessToken] = useState(undefined)
-    const navigate = useNavigate()
 
     useLayoutEffect(() => {
         let ignore = false
@@ -112,8 +114,7 @@ export const AuthProvider = ({ children }) => {
     const logout = useCallback(() => {
         setUser(null)
         setAccessToken(null)
-        navigate("/login")
-    }, [navigate])
+    }, [])
 
     const providerValue = useMemo(() => {
         return { user, accessToken, login, logout }
