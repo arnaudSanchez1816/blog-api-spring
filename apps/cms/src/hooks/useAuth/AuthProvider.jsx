@@ -8,6 +8,8 @@ import {
     useState,
 } from "react"
 import { useNavigate } from "react-router"
+import { fetchAccessToken } from "../../api/fetchAccessToken"
+import { fetchCurrentUser } from "../../api/fetchCurrentUser"
 
 /**
  * @callback loginCallback
@@ -39,48 +41,31 @@ export const AuthProvider = ({ children }) => {
 
     useLayoutEffect(() => {
         let ignore = false
-        const getAccessToken = async () => {
-            const getTokenUrl = new URL(
-                "./auth/token",
-                import.meta.env.VITE_API_URL
-            )
-            const getTokenResponse = await fetch(getTokenUrl, {
-                mode: "cors",
-                credentials: "include",
-                method: "get",
-            })
-            if (ignore) {
-                return
-            }
-            if (!getTokenResponse.ok) {
-                setAccessToken(null)
-                return
-            }
-            const { accessToken } = await getTokenResponse.json()
 
-            setAccessToken(accessToken)
-            return accessToken
-        }
-        getAccessToken().then(async (token) => {
-            if (!token) {
-                return
-            }
-            const url = new URL("./users/me", import.meta.env.VITE_API_URL)
-            const response = await fetch(url, {
-                mode: "cors",
-                credentials: "include",
-                method: "get",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            if (!response.ok) {
+        const initAuthProvider = async () => {
+            try {
+                const token = await fetchAccessToken()
+                if (ignore) {
+                    return
+                }
+                setAccessToken(token)
+                const user = await fetchCurrentUser(token)
+                if (ignore) {
+                    return
+                }
+                setUser(user)
+            } catch (error) {
+                if (ignore) {
+                    return
+                }
+                if (!(error instanceof Response)) {
+                    console.error(error)
+                }
+                setAccessToken(null)
                 setUser(null)
-                return
             }
-            const user = await response.json()
-            setUser(user)
-        })
+        }
+        initAuthProvider()
 
         return () => {
             ignore = true
