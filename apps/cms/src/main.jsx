@@ -1,4 +1,4 @@
-import { StrictMode } from "react"
+import { StrictMode, useMemo } from "react"
 import { createRoot } from "react-dom/client"
 import {
     createBrowserRouter,
@@ -14,45 +14,69 @@ import SearchLayout, { searchLayoutLoader } from "./layouts/SearchLayout"
 import Login from "./pages/Login"
 import ProtectedRoute from "./components/ProtectedRoute"
 import ErrorView from "@repo/ui/components/ErrorView"
+import Home, { homeLoader } from "./pages/Home"
+import { AuthProvider } from "./hooks/useAuth/AuthProvider"
+import useAuth from "./hooks/useAuth/useAuth"
 
-const router = createBrowserRouter(
-    createRoutesFromElements(
-        <Route
-            path="/"
-            element={<App />}
-            hydrateFallbackElement={
-                <div className="flex h-screen items-center justify-center">
-                    <Spinner />
-                </div>
-            }
-        >
-            <Route errorElement={<ErrorView />}>
-                <Route element={<ProtectedRoute redirect="/login" replace />}>
+function Root() {
+    const { accessToken, logout } = useAuth()
+
+    const router = useMemo(
+        () =>
+            createBrowserRouter(
+                createRoutesFromElements(
                     <Route
-                        element={<SearchLayout />}
-                        loader={searchLayoutLoader}
+                        path="/"
+                        element={<App />}
+                        hydrateFallbackElement={
+                            <div className="flex h-screen items-center justify-center">
+                                <Spinner />
+                            </div>
+                        }
                     >
-                        <Route index element={<div>Hello world !</div>}></Route>
+                        <Route errorElement={<ErrorView />}>
+                            <Route
+                                element={
+                                    <ProtectedRoute redirect="/login" replace />
+                                }
+                            >
+                                <Route
+                                    element={<SearchLayout />}
+                                    loader={searchLayoutLoader}
+                                >
+                                    <Route
+                                        index
+                                        element={<Home />}
+                                        loader={() => homeLoader(accessToken)}
+                                    ></Route>
+                                </Route>
+                            </Route>
+                            <Route path="/login" element={<Login />}></Route>
+                            <Route path="/logout" action={logout}></Route>
+                            <Route
+                                path="/*"
+                                loader={() => {
+                                    throw data("Page not found", 404)
+                                }}
+                            />
+                        </Route>
                     </Route>
-                </Route>
-                <Route path="/login" element={<Login />}></Route>
-                <Route
-                    path="/*"
-                    loader={() => {
-                        throw data("Page not found", 404)
-                    }}
-                />
-            </Route>
-        </Route>
+                )
+            ),
+        [accessToken, logout]
     )
-)
+
+    return <RouterProvider router={router} />
+}
 
 const rootElement = document.getElementById("root")
 
 if (rootElement) {
     createRoot(rootElement).render(
         <StrictMode>
-            <RouterProvider router={router} />
+            <AuthProvider>
+                <Root />
+            </AuthProvider>
         </StrictMode>
     )
 }
