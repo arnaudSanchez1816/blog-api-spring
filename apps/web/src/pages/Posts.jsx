@@ -6,10 +6,10 @@ import {
 } from "react-router"
 import { getPublicPosts } from "../api/posts"
 import { Fragment, Suspense, useEffect } from "react"
-import useParamSearchParams from "../hooks/useParamSearchParams"
+import useParamSearchParams from "@repo/ui/hooks/useParamSearchParams"
 import SortByButton from "../components/SortByButton"
-import PostsList from "../components/Posts/PostsList"
-import PostsListSkeleton from "../components/Posts/PostsListSkeleton"
+import PostsList from "@repo/ui/components/PostsList/PostsList"
+import PostsListSkeleton from "@repo/ui/components/PostsList/PostsListSkeleton"
 
 const pageSize = 10
 
