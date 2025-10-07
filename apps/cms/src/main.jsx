@@ -17,6 +17,7 @@ import ErrorView from "@repo/ui/components/ErrorView"
 import Home, { homeLoader } from "./pages/Home"
 import { AuthProvider } from "./hooks/useAuth/AuthProvider"
 import useAuth from "./hooks/useAuth/useAuth"
+import AllPosts from "./pages/AllPosts"
 
 function Root() {
     const { accessToken, user, logout } = useAuth()
@@ -49,6 +50,10 @@ function Root() {
                                         index
                                         element={<Home />}
                                         loader={() => homeLoader(accessToken)}
+                                    ></Route>
+                                    <Route
+                                        path="/posts"
+                                        element={<AllPosts />}
                                     ></Route>
                                 </Route>
                             </Route>
