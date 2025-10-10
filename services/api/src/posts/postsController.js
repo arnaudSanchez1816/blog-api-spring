@@ -42,14 +42,16 @@ export const getPublishedPosts = [
     validateRequest(getPublishedPostsValidator),
     async (req, res, next) => {
         try {
-            const { q, page, pageSize, sortBy, tags } = req.query
+            const { q, page, pageSize, sortBy, tags, unpublished } = req.query
+            const { id: userId } = req.user || {}
+            const publishedOnly = userId ? !unpublished : true
 
             const { posts, count } = await postsService.getPosts({
                 q,
                 page,
                 pageSize,
                 sortBy,
-                publishedOnly: true,
+                publishedOnly: publishedOnly,
                 tags,
                 includeBody: false,
             })

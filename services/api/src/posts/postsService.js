@@ -74,7 +74,14 @@ export const getPosts = async ({
                     comments: true,
                 },
             },
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
             tags: true,
+            authorId: false,
         },
         omit: {
             body: !includeBody,

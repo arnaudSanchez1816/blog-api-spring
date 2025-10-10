@@ -27,6 +27,7 @@ export const getPublishedPostsValidator = z.object({
             .optional()
             .default([])
             .catch([]),
+        unpublished: z.transform(() => true).default(false),
     }),
 })
 

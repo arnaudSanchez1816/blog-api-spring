@@ -51,7 +51,12 @@ router.use("/:id", idRouter)
 // /posts
 router
     .route("/")
-    .get(getPublishedPosts)
+    .get(
+        passport.authenticate([strategies.jwt, strategies.anonymous], {
+            session: false,
+        }),
+        getPublishedPosts
+    )
     .post(passport.authenticate(strategies.jwt, { session: false }), createPost)
 
 export default router
