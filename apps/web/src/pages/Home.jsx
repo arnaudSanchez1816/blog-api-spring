@@ -1,8 +1,8 @@
 import { Await, useLoaderData } from "react-router"
 import { getPublicPosts } from "../api/posts"
 import { Suspense } from "react"
-import PostsListSkeleton from "../components/Posts/PostsListSkeleton"
-import PostsList from "../components/Posts/PostsList"
+import PostsListSkeleton from "@repo/ui/components/PostsList/PostsListSkeleton"
+import PostsList from "@repo/ui/components/PostsList/PostsList"
 
 const pageSize = 5
 

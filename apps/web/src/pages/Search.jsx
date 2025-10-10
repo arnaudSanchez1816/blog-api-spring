@@ -1,12 +1,12 @@
 import { useLoaderData, useNavigation, useOutletContext } from "react-router"
 import { getPublicPosts } from "../api/posts"
-import PostItem from "../components/Posts/PostItem"
 import SadFaceIcon from "@repo/ui/components/Icons/SadFaceIcon"
 import { Pagination, Spinner } from "@heroui/react"
 import { useEffect } from "react"
 import SortByButton from "../components/SortByButton"
-import useParamSearchParams from "../hooks/useParamSearchParams"
 import useTwBreakpoint from "@repo/ui/hooks/useTwBreakpoint"
+import PostItem from "@repo/ui/components/PostsList/PostItem"
+import useParamSearchParams from "@repo/ui/hooks/useParamSearchParams"
 
 const pageSize = 10
 
