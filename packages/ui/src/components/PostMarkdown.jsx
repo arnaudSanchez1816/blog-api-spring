@@ -1,7 +1,7 @@
 import { Code, Divider, Image, Link, Snippet } from "@heroui/react"
 import Markdown from "react-markdown"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { prism, tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism"
+import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism"
 import emoji from "remark-emoji"
 import textr from "remark-textr"
 

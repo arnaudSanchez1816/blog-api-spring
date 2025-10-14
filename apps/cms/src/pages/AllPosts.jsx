@@ -1,5 +1,5 @@
 import { useOutletContext, useSearchParams } from "react-router"
-import useQuery from "../hooks/useQuery"
+import useQuery from "@repo/ui/hooks/useQuery"
 import PostsListSkeleton from "@repo/ui/components/PostsList/PostsListSkeleton"
 import PostsList from "@repo/ui/components/PostsList/PostsList"
 import useParamSearchParams from "@repo/ui/hooks/useParamSearchParams"

@@ -2,8 +2,9 @@ import { Alert, Button } from "@heroui/react"
 import Comment from "./Comment"
 import CommentSkeleton from "./CommentSkeleton"
 import CommentReplyForm from "./CommentReplyForm"
-import useData from "../../hooks/useData"
 import { useLocation } from "react-router"
+import useQuery from "../../hooks/useQuery"
+import { useCallback } from "react"
 
 const commentsSectionId = "comments"
 
@@ -25,21 +26,43 @@ function CommentsSectionWrapper({
     )
 }
 
+async function fetchComments(postId) {
+    if (!postId) {
+        throw new Error("PostId is invalid")
+    }
+
+    const url = new URL(
+        `./posts/${postId}/comments`,
+        import.meta.env.VITE_API_URL
+    )
+    const response = await fetch(url, {
+        mode: "cors",
+        method: "get",
+    })
+    if (!response.ok) {
+        throw response
+    }
+    const comments = await response.json()
+    return comments
+}
+
 export default function CommentsSection({ postId, commentsCount }) {
-    let fetchCommentsManually = true
+    let queryEnabled = false
     const { hash } = useLocation()
 
     if (hash && hash === `#${commentsSectionId}`) {
-        fetchCommentsManually = false
+        queryEnabled = true
     }
-    const {
-        data: comments,
-        error,
-        loading,
-        triggerFetch,
-    } = useData(`./posts/${postId}/comments`, {
-        mode: "cors",
-        fetchManually: fetchCommentsManually,
+
+    const fetchCommentsQuery = useCallback(
+        () => fetchComments(postId),
+        [postId]
+    )
+
+    const [comments, error, loading, triggerFetch] = useQuery({
+        queryFn: fetchCommentsQuery,
+        enabled: queryEnabled,
+        queryKey: ["comments", postId],
     })
 
     if (error) {

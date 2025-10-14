@@ -1,7 +1,7 @@
 import { useLoaderData } from "react-router"
 import aboutMarkdownUrl from "../assets/about.md"
 import Markdown from "react-markdown"
-import PostMarkdown from "../components/PostMarkdown"
+import PostMarkdown from "@repo/ui/components/PostMarkdown"
 
 export const aboutLoader = async () => {
     const response = await fetch(aboutMarkdownUrl)
