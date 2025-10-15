@@ -1,4 +1,7 @@
-export const getPublicPosts = async ({ q, tags, page, pageSize, sortBy }) => {
+export const fetchPosts = async (
+    { q, tags, page, pageSize, sortBy, showUnpublished = false },
+    token
+) => {
     const searchParams = new URLSearchParams()
     if (page) {
         searchParams.set("page", page)
@@ -25,10 +28,17 @@ export const getPublicPosts = async ({ q, tags, page, pageSize, sortBy }) => {
 
         searchParams.set("tags", tags.join(","))
     }
+    if (showUnpublished) {
+        searchParams.set("unpublished", "")
+    }
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./posts?${searchParams}`, apiUrl)
     const response = await fetch(url, {
         mode: "cors",
+        headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+        },
     })
 
     if (!response.ok) {
@@ -42,7 +52,7 @@ export const getPublicPosts = async ({ q, tags, page, pageSize, sortBy }) => {
     }
 }
 
-export const getPublicPost = async (postId) => {
+export const fetchPost = async (postId) => {
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./posts/${postId}`, apiUrl)
     const response = await fetch(url, { mode: "cors" })
@@ -53,7 +63,5 @@ export const getPublicPost = async (postId) => {
 
     const post = await response.json()
 
-    return {
-        ...post,
-    }
+    return post
 }

@@ -1,13 +1,13 @@
 import { Await, useLoaderData } from "react-router"
-import { getPublicPosts } from "../api/posts"
 import { Suspense } from "react"
 import PostsListSkeleton from "@repo/ui/components/PostsList/PostsListSkeleton"
 import PostsList from "@repo/ui/components/PostsList/PostsList"
+import { fetchPosts } from "@repo/client-api/posts"
 
 const pageSize = 5
 
 export async function homeLoader() {
-    const getPosts = getPublicPosts({
+    const getPosts = fetchPosts({
         page: 1,
         pageSize,
     })

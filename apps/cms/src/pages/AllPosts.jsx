@@ -3,11 +3,11 @@ import useQuery from "@repo/ui/hooks/useQuery"
 import PostsListSkeleton from "@repo/ui/components/PostsList/PostsListSkeleton"
 import PostsList from "@repo/ui/components/PostsList/PostsList"
 import useParamSearchParams from "@repo/ui/hooks/useParamSearchParams"
-import { fetchAllPosts } from "../api/fetchAllPosts"
 import useAuth from "../hooks/useAuth/useAuth"
 import { useCallback, useEffect } from "react"
 import SearchParamsToggle from "@repo/ui/components/SearchParamsToggle"
 import SearchParamsSelect from "@repo/ui/components/SearchParamsSelect"
+import { fetchPosts } from "@repo/client-api/posts"
 
 const DEFAULT_PAGE_SIZE = 10
 
@@ -17,13 +17,15 @@ async function allPostsQuery({ accessToken, searchParams }) {
     const sortBy = searchParams.get("sortBy")
     const showUnpublished = searchParams.get("unpublished") === "true"
 
-    return fetchAllPosts({
-        accessToken,
-        page,
-        pageSize,
-        sortBy,
-        showUnpublished,
-    })
+    return fetchPosts(
+        {
+            page,
+            pageSize,
+            sortBy,
+            showUnpublished,
+        },
+        accessToken
+    )
 }
 
 export default function AllPosts() {

@@ -1,9 +1,9 @@
 import { Divider } from "@heroui/react"
+import { fetchPost } from "@repo/client-api/posts"
 import CommentsSection from "@repo/ui/components/CommentsSection/CommentsSection"
 import PostHeader from "@repo/ui/components/PostHeader"
 import PostMarkdown from "@repo/ui/components/PostMarkdown"
 import { postSchema } from "@repo/zod-schemas"
-import { fetchPost } from "../api/fetchPost"
 import { data, useLoaderData } from "react-router"
 
 export async function postLoader({ params }) {

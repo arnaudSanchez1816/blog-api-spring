@@ -6,8 +6,8 @@ import {
     useMemo,
     useState,
 } from "react"
-import { fetchAccessToken } from "../../api/fetchAccessToken"
-import { fetchCurrentUser } from "../../api/fetchCurrentUser"
+import { fetchAccessToken } from "@repo/client-api/auth"
+import { fetchCurrentUser } from "@repo/client-api/users"
 
 /**
  * @callback loginCallback

@@ -4,12 +4,12 @@ import {
     useLocation,
     useOutletContext,
 } from "react-router"
-import { getPublicPosts } from "../api/posts"
 import { Fragment, Suspense, useEffect } from "react"
 import useParamSearchParams from "@repo/ui/hooks/useParamSearchParams"
 import SortByButton from "../components/SortByButton"
 import PostsList from "@repo/ui/components/PostsList/PostsList"
 import PostsListSkeleton from "@repo/ui/components/PostsList/PostsListSkeleton"
+import { fetchPosts } from "@repo/client-api/posts"
 
 const pageSize = 10
 
@@ -18,7 +18,7 @@ export const postsLoader = async ({ request }) => {
     const pageTerm = url.searchParams.get("page")
     const pageSizeTerm = url.searchParams.get("pageSize") || pageSize
     const sortBy = url.searchParams.get("sortBy")
-    const getPosts = getPublicPosts({
+    const getPosts = fetchPosts({
         page: pageTerm,
         pageSize: pageSizeTerm,
         sortBy,

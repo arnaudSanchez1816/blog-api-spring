@@ -1,5 +1,4 @@
 import { useLoaderData, useNavigation, useOutletContext } from "react-router"
-import { getPublicPosts } from "../api/posts"
 import SadFaceIcon from "@repo/ui/components/Icons/SadFaceIcon"
 import { Pagination, Spinner } from "@heroui/react"
 import { useEffect } from "react"
@@ -7,6 +6,7 @@ import SortByButton from "../components/SortByButton"
 import useTwBreakpoint from "@repo/ui/hooks/useTwBreakpoint"
 import PostItem from "@repo/ui/components/PostsList/PostItem"
 import useParamSearchParams from "@repo/ui/hooks/useParamSearchParams"
+import { fetchPosts } from "@repo/client-api/posts"
 
 const pageSize = 10
 
@@ -17,7 +17,7 @@ export const searchLoader = async ({ request }) => {
     const pageTerm = url.searchParams.get("page")
     const sortBy = url.searchParams.get("sortBy")
 
-    const posts = await getPublicPosts({
+    const posts = await fetchPosts({
         q: q,
         tags: tagTerm,
         pageSize: pageSize,

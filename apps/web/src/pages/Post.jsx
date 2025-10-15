@@ -1,16 +1,16 @@
 import { data, useLoaderData } from "react-router"
-import { getPublicPost } from "../api/posts"
 import PostMarkdown from "@repo/ui/components/PostMarkdown"
 import { Divider } from "@heroui/react"
 import { postSchema } from "@repo/zod-schemas"
 import PostHeader from "@repo/ui/components/PostHeader"
 import CommentsSection from "@repo/ui/components/CommentsSection/CommentsSection"
+import { fetchPost } from "@repo/client-api/posts"
 
 export const postPageLoader = async ({ params }) => {
     try {
         const postIdSchema = postSchema.pick({ id: true })
         const { id } = await postIdSchema.parseAsync({ id: params.postId })
-        const post = await getPublicPost(id)
+        const post = await fetchPost(id)
 
         return post
     } catch (error) {

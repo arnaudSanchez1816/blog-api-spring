@@ -1,4 +1,4 @@
-export const getTags = async () => {
+export const fetchTags = async () => {
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./tags`, apiUrl)
     const response = await fetch(url, { mode: "cors" })

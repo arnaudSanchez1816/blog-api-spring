@@ -1,39 +1,44 @@
 import NavLink from "@repo/ui/components/NavLink"
 import useAuth from "../hooks/useAuth/useAuth"
-import { authFetch } from "../helpers/authFetch"
-import { redirect, useLoaderData } from "react-router"
-import { AuthException } from "../helpers/authException"
+import useQuery from "@repo/ui/hooks/useQuery"
+import PostsList from "@repo/ui/components/PostsList/PostsList"
+import { useCallback } from "react"
+import { fetchUserPosts } from "@repo/client-api/users"
+import PostsListSkeleton from "@repo/ui/components/PostsList/PostsListSkeleton"
+import { Alert } from "@heroui/react"
 
-export const homeLoader = async (token) => {
-    try {
-        const url = new URL("./users/me/posts", import.meta.env.VITE_API_URL)
-        const searchParams = new URLSearchParams()
-        searchParams.set("pageSize", 3)
-        searchParams.set("sortBy", "-id")
-        const response = await authFetch(`${url}?${searchParams}`, token, {
-            mode: "cors",
-            method: "get",
-        })
+const NB_RECENT_POSTS = 3
 
-        if (!response.ok) {
-            throw response
-        }
+function RecentPosts({ token }) {
+    const fetchRecentPostsQuery = useCallback(
+        () =>
+            fetchUserPosts(
+                { pageSize: NB_RECENT_POSTS, page: 1, sortBy: "-id" },
+                token
+            ),
+        [token]
+    )
+    const [data, loading, errors] = useQuery({
+        queryFn: fetchRecentPostsQuery,
+        queryKey: ["recent", "posts"],
+        enabled: true,
+    })
 
-        const data = await response.json()
-
-        return {
-            posts: data.results,
-            total: data.metadata.count,
-        }
-    } catch {
-        throw redirect("/login")
+    if (loading) {
+        return <PostsListSkeleton nbPosts={NB_RECENT_POSTS} />
     }
+
+    if (errors) {
+        return <Alert color="danger" title="Failed to fetch recent posts." />
+    }
+
+    const { results: recentPosts } = data
+
+    return <PostsList posts={recentPosts} />
 }
 
 export default function Home() {
-    const { user } = useAuth()
-    const { posts, total } = useLoaderData()
-
+    const { user, accessToken } = useAuth()
     return (
         <div>
             <div className="text-2xl">
@@ -48,11 +53,9 @@ export default function Home() {
                 <NavLink href="/tags">Manage tags</NavLink>
             </div>
             <div className="mt-8">
-                <h2 className="text-xl font-medium">My recent articles</h2>
-                <div>
-                    {posts.map((p) => (
-                        <div key={p.id}>{p.title}</div>
-                    ))}
+                <h2 className="text-2xl font-medium">My recent articles</h2>
+                <div className="mt-4">
+                    <RecentPosts token={accessToken} />
                 </div>
             </div>
         </div>

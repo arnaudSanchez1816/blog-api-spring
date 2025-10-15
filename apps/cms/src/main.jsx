@@ -14,14 +14,14 @@ import SearchLayout, { searchLayoutLoader } from "./layouts/SearchLayout"
 import Login from "./pages/Login"
 import ProtectedRoute, { authLoader } from "./components/ProtectedRoute"
 import ErrorView from "@repo/ui/components/ErrorView"
-import Home, { homeLoader } from "./pages/Home"
+import Home from "./pages/Home"
 import { AuthProvider } from "./hooks/useAuth/AuthProvider"
 import useAuth from "./hooks/useAuth/useAuth"
 import AllPosts from "./pages/AllPosts"
 import Post, { postLoader } from "./pages/Post"
 
 function Root() {
-    const { accessToken, user, logout } = useAuth()
+    const { user, logout } = useAuth()
 
     const router = useMemo(
         () =>
@@ -47,11 +47,7 @@ function Root() {
                                     element={<SearchLayout />}
                                     loader={searchLayoutLoader}
                                 >
-                                    <Route
-                                        index
-                                        element={<Home />}
-                                        loader={() => homeLoader(accessToken)}
-                                    ></Route>
+                                    <Route index element={<Home />}></Route>
                                     <Route path="/posts">
                                         <Route
                                             index
@@ -80,7 +76,7 @@ function Root() {
                     </Route>
                 )
             ),
-        [accessToken, logout]
+        [logout, user]
     )
 
     return <RouterProvider router={router} />

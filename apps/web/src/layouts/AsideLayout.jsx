@@ -8,12 +8,12 @@ import {
     useSearchParams,
 } from "react-router"
 import SearchIcon from "@repo/ui/components/Icons/SearchIcon"
-import { getTags } from "../api/tags"
 import { useCallback, useEffect, useRef, useState } from "react"
 import Tag from "@repo/ui/components/Tag"
+import { fetchTags } from "@repo/client-api/tags"
 
 export async function asideLayoutLoader() {
-    const tags = await getTags()
+    const tags = await fetchTags()
 
     return tags
 }
