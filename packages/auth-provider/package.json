@@ -1,0 +1,22 @@
+{
+    "name": "@repo/auth-provider",
+    "version": "0.0.0",
+    "type": "module",
+    "private": true,
+    "exports": {
+        "./useAuth": "./src/useAuth.js",
+        "./AuthProvider": "./src/AuthProvider.jsx"
+    },
+    "scripts": {
+        "lint": "eslint . --max-warnings 0"
+    },
+    "dependencies": {
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1"
+    },
+    "devDependencies": {
+        "@repo/eslint-config": "workspace:*",
+        "@repo/client-api": "workspace:*",
+        "eslint": "^9.34.0"
+    }
+}

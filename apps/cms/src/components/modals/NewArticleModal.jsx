@@ -13,7 +13,7 @@ import { useId, useRef, useState } from "react"
 import { z } from "zod"
 import { postSchema } from "@repo/zod-schemas"
 import { authFetch } from "../../helpers/authFetch"
-import useAuth from "../../hooks/useAuth/useAuth"
+import useAuth from "@repo/auth-provider/useAuth"
 
 export default function NewArticleModal({ isOpen, onClose, onOpenChange }) {
     const { accessToken } = useAuth()

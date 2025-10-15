@@ -3,11 +3,11 @@ import useQuery from "@repo/ui/hooks/useQuery"
 import PostsListSkeleton from "@repo/ui/components/PostsList/PostsListSkeleton"
 import PostsList from "@repo/ui/components/PostsList/PostsList"
 import useParamSearchParams from "@repo/ui/hooks/useParamSearchParams"
-import useAuth from "../hooks/useAuth/useAuth"
 import { useCallback, useEffect } from "react"
 import SearchParamsToggle from "@repo/ui/components/SearchParamsToggle"
 import SearchParamsSelect from "@repo/ui/components/SearchParamsSelect"
 import { fetchPosts } from "@repo/client-api/posts"
+import useAuth from "@repo/auth-provider/useAuth"
 
 const DEFAULT_PAGE_SIZE = 10
 

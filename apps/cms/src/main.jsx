@@ -15,10 +15,10 @@ import Login from "./pages/Login"
 import ProtectedRoute, { authLoader } from "./components/ProtectedRoute"
 import ErrorView from "@repo/ui/components/ErrorView"
 import Home from "./pages/Home"
-import { AuthProvider } from "./hooks/useAuth/AuthProvider"
-import useAuth from "./hooks/useAuth/useAuth"
 import AllPosts from "./pages/AllPosts"
 import Post, { postLoader } from "./pages/Post"
+import { AuthProvider } from "@repo/auth-provider/AuthProvider"
+import useAuth from "@repo/auth-provider/useAuth"
 
 function Root() {
     const { user, logout, accessToken } = useAuth()
@@ -92,7 +92,13 @@ const rootElement = document.getElementById("root")
 if (rootElement) {
     createRoot(rootElement).render(
         <StrictMode>
-            <AuthProvider>
+            <AuthProvider
+                loaderComponent={
+                    <div className="flex h-screen items-center justify-center">
+                        <Spinner />
+                    </div>
+                }
+            >
                 <Root />
             </AuthProvider>
         </StrictMode>

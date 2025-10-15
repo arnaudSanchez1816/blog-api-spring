@@ -1,11 +1,11 @@
 import NavLink from "@repo/ui/components/NavLink"
-import useAuth from "../hooks/useAuth/useAuth"
 import useQuery from "@repo/ui/hooks/useQuery"
 import PostsList from "@repo/ui/components/PostsList/PostsList"
 import { useCallback } from "react"
 import { fetchUserPosts } from "@repo/client-api/users"
 import PostsListSkeleton from "@repo/ui/components/PostsList/PostsListSkeleton"
 import { Alert } from "@heroui/react"
+import useAuth from "@repo/auth-provider/useAuth"
 
 const NB_RECENT_POSTS = 3
 

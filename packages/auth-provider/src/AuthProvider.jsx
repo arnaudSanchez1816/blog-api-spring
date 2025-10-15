@@ -1,4 +1,3 @@
-import { Spinner } from "@heroui/react"
 import {
     createContext,
     useCallback,
@@ -37,7 +36,7 @@ export const AuthContext = createContext({
     logout: null,
 })
 
-export const AuthProvider = ({ children }) => {
+export const AuthProvider = ({ children, loaderComponent }) => {
     const [user, setUser] = useState(undefined)
     const [accessToken, setAccessToken] = useState(undefined)
 
@@ -121,11 +120,7 @@ export const AuthProvider = ({ children }) => {
     }, [user, accessToken, login, logout])
 
     if (user === undefined) {
-        return (
-            <div className="flex h-screen items-center justify-center">
-                <Spinner />
-            </div>
-        )
+        return loaderComponent || <div>Loading</div>
     }
 
     return (

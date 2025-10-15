@@ -2,7 +2,7 @@ import { Button, Form, Input } from "@heroui/react"
 import { useRef, useState } from "react"
 import ThreeColumnLayout from "../layouts/ThreeColumnLayout"
 import { Navigate, useNavigate } from "react-router"
-import useAuth from "../hooks/useAuth/useAuth"
+import useAuth from "@repo/auth-provider/useAuth"
 
 export default function Login() {
     const navigate = useNavigate()

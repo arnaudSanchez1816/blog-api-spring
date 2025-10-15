@@ -1,5 +1,5 @@
+import useAuth from "@repo/auth-provider/useAuth"
 import { Navigate, Outlet, redirect } from "react-router"
-import useAuth from "../hooks/useAuth/useAuth"
 
 export function authLoader(user) {
     const isAuthenticated = !!user

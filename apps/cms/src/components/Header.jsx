@@ -14,7 +14,7 @@ import { useFetcher, useLocation } from "react-router"
 import ThemeSwitcher from "@repo/ui/components/ThemeSwitcher"
 import BlogLogo from "@repo/ui/components/BlogLogo"
 import NavLink from "@repo/ui/components/NavLink"
-import useAuth from "../hooks/useAuth/useAuth"
+import useAuth from "@repo/auth-provider/useAuth"
 
 export default function Header({ title = "Blog-API", navItems = [] }) {
     const { user } = useAuth()

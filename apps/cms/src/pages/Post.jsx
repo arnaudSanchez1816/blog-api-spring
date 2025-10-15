@@ -1,4 +1,5 @@
 import { Divider } from "@heroui/react"
+import useAuth from "@repo/auth-provider/useAuth"
 import { fetchPost } from "@repo/client-api/posts"
 import CommentsSection from "@repo/ui/components/CommentsSection/CommentsSection"
 import PostHeader from "@repo/ui/components/PostHeader"
@@ -15,6 +16,7 @@ export async function postLoader({ params }, accessToken) {
 }
 
 export default function Post() {
+    const { accessToken } = useAuth()
     const post = useLoaderData()
 
     const { id, body, commentsCount } = post
