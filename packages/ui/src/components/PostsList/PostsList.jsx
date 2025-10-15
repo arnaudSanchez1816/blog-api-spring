@@ -12,6 +12,7 @@ export default function PostsList({
     pagination,
     pagination: { currentPage, setCurrentPage, count, pageSize } = {},
     renderItem = defaultRenderItem,
+    ...props
 }) {
     const isMd = useTwBreakpoint("md")
     const totalPages = pagination
@@ -20,7 +21,7 @@ export default function PostsList({
 
     return (
         <>
-            <div>
+            <div {...props}>
                 {posts.length > 0 ? (
                     posts.map((post) => renderItem(post))
                 ) : (
