@@ -6,22 +6,17 @@ import PostMarkdown from "@repo/ui/components/PostMarkdown"
 import { postSchema } from "@repo/zod-schemas"
 import { data, useLoaderData } from "react-router"
 
-export async function postLoader({ params }) {
-    try {
-        const postIdSchema = postSchema.pick({ id: true })
-        const { id } = await postIdSchema.parseAsync({ id: params.postId })
-        const post = await fetchPost(id)
+export async function postLoader({ params }, accessToken) {
+    const postIdSchema = postSchema.pick({ id: true })
+    const { id } = await postIdSchema.parseAsync({ id: params.postId })
+    const post = await fetchPost(id, accessToken)
 
-        return post
-    } catch (error) {
-        console.error(error)
-
-        return data("Post not found", 404)
-    }
+    return post
 }
 
 export default function Post() {
     const post = useLoaderData()
+
     const { id, body, commentsCount } = post
 
     return (

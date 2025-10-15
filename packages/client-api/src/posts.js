@@ -52,10 +52,16 @@ export const fetchPosts = async (
     }
 }
 
-export const fetchPost = async (postId) => {
+export const fetchPost = async (postId, accessToken = null) => {
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./posts/${postId}`, apiUrl)
-    const response = await fetch(url, { mode: "cors" })
+    const response = await fetch(url, {
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json",
+            ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
+    })
 
     if (!response.ok) {
         throw response

@@ -21,7 +21,7 @@ import AllPosts from "./pages/AllPosts"
 import Post, { postLoader } from "./pages/Post"
 
 function Root() {
-    const { user, logout } = useAuth()
+    const { user, logout, accessToken } = useAuth()
 
     const router = useMemo(
         () =>
@@ -59,7 +59,12 @@ function Root() {
                                         <Route
                                             path=":postId"
                                             element={<Post />}
-                                            loader={postLoader}
+                                            loader={({ params }) =>
+                                                postLoader(
+                                                    { params },
+                                                    accessToken
+                                                )
+                                            }
                                         />
                                     </Route>
                                 </Route>
@@ -76,7 +81,7 @@ function Root() {
                     </Route>
                 )
             ),
-        [logout, user]
+        [accessToken, logout, user]
     )
 
     return <RouterProvider router={router} />
