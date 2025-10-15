@@ -5,6 +5,8 @@ import CommentReplyForm from "./CommentReplyForm"
 import { useLocation } from "react-router"
 import useQuery from "../../hooks/useQuery"
 import { useCallback } from "react"
+import { fetchComments } from "@repo/client-api/comments"
+import useAuth from "@repo/auth-provider/useAuth"
 
 const commentsSectionId = "comments"
 
@@ -26,27 +28,8 @@ function CommentsSectionWrapper({
     )
 }
 
-async function fetchComments(postId) {
-    if (!postId) {
-        throw new Error("PostId is invalid")
-    }
-
-    const url = new URL(
-        `./posts/${postId}/comments`,
-        import.meta.env.VITE_API_URL
-    )
-    const response = await fetch(url, {
-        mode: "cors",
-        method: "get",
-    })
-    if (!response.ok) {
-        throw response
-    }
-    const comments = await response.json()
-    return comments
-}
-
 export default function CommentsSection({ postId, commentsCount }) {
+    const { accessToken } = useAuth()
     let queryEnabled = false
     const { hash } = useLocation()
 
@@ -55,11 +38,11 @@ export default function CommentsSection({ postId, commentsCount }) {
     }
 
     const fetchCommentsQuery = useCallback(
-        () => fetchComments(postId),
-        [postId]
+        () => fetchComments(postId, accessToken),
+        [postId, accessToken]
     )
 
-    const [comments, error, loading, triggerFetch] = useQuery({
+    const [comments, loading, error, triggerFetch] = useQuery({
         queryFn: fetchCommentsQuery,
         enabled: queryEnabled,
         queryKey: ["comments", postId],

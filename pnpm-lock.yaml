@@ -304,6 +304,9 @@ importers:
       '@repo/auth-provider':
         specifier: workspace:*
         version: link:../auth-provider
+      '@repo/client-api':
+        specifier: workspace:*
+        version: link:../client-api
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config

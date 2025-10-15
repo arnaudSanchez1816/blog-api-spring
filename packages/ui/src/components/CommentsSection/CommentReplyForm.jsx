@@ -1,31 +1,10 @@
 import { addToast, Button, Form, Input, Textarea, User } from "@heroui/react"
 import useAuth from "@repo/auth-provider/useAuth"
+import { postComment } from "@repo/client-api/comments"
 import { useState } from "react"
 
-const postComment = async ({ postId, username, commentBody }) => {
-    const API_URL = import.meta.env.VITE_API_URL
-
-    const url = new URL(`./posts/${postId}/comments`, API_URL)
-    console.log(url)
-    const response = await fetch(url, {
-        mode: "cors",
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            username,
-            body: commentBody,
-        }),
-    })
-
-    if (!response.ok) {
-        throw response
-    }
-}
-
 export default function CommentReplyForm({ postId, fetchComments }) {
-    const { user } = useAuth()
+    const { user, accessToken } = useAuth()
     const [submitting, setSubmitting] = useState(false)
 
     const handleSubmit = async (e) => {
@@ -41,11 +20,14 @@ export default function CommentReplyForm({ postId, fetchComments }) {
                 throw new Error("Invalid post id")
             }
 
-            const response = await postComment({
-                postId,
-                username,
-                commentBody: body,
-            })
+            const response = await postComment(
+                {
+                    postId,
+                    username,
+                    commentBody: body,
+                },
+                accessToken
+            )
 
             if (fetchComments) {
                 fetchComments()
