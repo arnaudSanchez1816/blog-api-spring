@@ -49,11 +49,12 @@ function ControlsButtonsGroup({ post }) {
 }
 
 export default function PostAdminControls({ post }) {
-    const { id, publishedAt } = post
     return (
         <>
-            <div className="hidden">
-                <ControlsButtonsGroup post={post} />
+            <div className="hidden min-w-32 lg:block">
+                <div className="flex gap-2 xl:flex-col">
+                    <ControlsButtonsGroup post={post} />
+                </div>
             </div>
             <Popover backdrop="opaque" placement="left">
                 <PopoverTrigger>
@@ -61,7 +62,7 @@ export default function PostAdminControls({ post }) {
                         color="primary"
                         radius="full"
                         isIconOnly
-                        className="fixed bottom-4 right-4 z-10"
+                        className="fixed bottom-4 right-4 z-10 lg:hidden"
                     >
                         <EditIcon />
                     </Button>
