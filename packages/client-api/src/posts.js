@@ -71,3 +71,57 @@ export const fetchPost = async (postId, accessToken = null) => {
 
     return post
 }
+
+export const deletePost = async (postId, accessToken) => {
+    const apiUrl = import.meta.env.VITE_API_URL
+    const url = new URL(`./posts/${postId}`, apiUrl)
+
+    const response = await fetch(url, {
+        mode: "cors",
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+        },
+    })
+
+    if (!response.ok) {
+        throw response
+    }
+}
+
+export const publishPost = async (postId, accessToken) => {
+    const apiUrl = import.meta.env.VITE_API_URL
+    const url = new URL(`./posts/${postId}/publish`, apiUrl)
+
+    const response = await fetch(url, {
+        mode: "cors",
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+        },
+    })
+
+    if (!response.ok) {
+        throw response
+    }
+}
+
+export const hidePost = async (postId, accessToken) => {
+    const apiUrl = import.meta.env.VITE_API_URL
+    const url = new URL(`./posts/${postId}/hide`, apiUrl)
+
+    const response = await fetch(url, {
+        mode: "cors",
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+        },
+    })
+
+    if (!response.ok) {
+        throw response
+    }
+}

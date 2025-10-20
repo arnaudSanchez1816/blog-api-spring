@@ -1,11 +1,13 @@
-import { Divider } from "@heroui/react"
-import useAuth from "@repo/auth-provider/useAuth"
+import { Button, Divider } from "@heroui/react"
 import { fetchPost } from "@repo/client-api/posts"
 import CommentsSection from "@repo/ui/components/CommentsSection/CommentsSection"
+import EditIcon from "@repo/ui/components/Icons/EditIcon"
 import PostHeader from "@repo/ui/components/PostHeader"
 import PostMarkdown from "@repo/ui/components/PostMarkdown"
 import { postSchema } from "@repo/zod-schemas"
-import { data, useLoaderData } from "react-router"
+import { useEffect } from "react"
+import { useLoaderData, useOutletContext } from "react-router"
+import PostAdminControls from "../components/PostAdminControls/PostAdminControls"
 
 export async function postLoader({ params }, accessToken) {
     const postIdSchema = postSchema.pick({ id: true })
@@ -16,10 +18,15 @@ export async function postLoader({ params }, accessToken) {
 }
 
 export default function Post() {
-    const { accessToken } = useAuth()
     const post = useLoaderData()
 
-    const { id, body, commentsCount } = post
+    const { id, body, commentsCount, publishedAt } = post
+
+    const [leftContent, setLeftContent] = useOutletContext()
+    useEffect(() => {
+        setLeftContent(<PostAdminControls post={post} />)
+        return () => setLeftContent(undefined)
+    }, [setLeftContent])
 
     return (
         <article>
