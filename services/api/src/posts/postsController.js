@@ -191,7 +191,7 @@ export const hidePost = [
             if (post.authorId !== userId) {
                 throw new createHttpError.Forbidden()
             }
-            if (post.publishedAt) {
+            if (!post.publishedAt) {
                 return res.status(204).send()
             }
 
