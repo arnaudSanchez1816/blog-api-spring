@@ -58,14 +58,24 @@ app.use((error, req, res, next) => {
         error.status = 400
     }
 
-    if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2016"
-    ) {
-        const { details } = error
-        if (details.includes("RecordNotFound")) {
-            error.status = 404
-            errors = "Not found"
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        switch (error.code) {
+            case "P2016": {
+                const { details } = error
+                if (details.includes("RecordNotFound")) {
+                    error.status = 404
+                    errors = "Not found"
+                }
+                break
+            }
+            case "P2025":
+                error.status = 404
+                errors = "Not found"
+                break
+            default:
+                error.status = 500
+                errors = error.message
+                break
         }
     }
 
