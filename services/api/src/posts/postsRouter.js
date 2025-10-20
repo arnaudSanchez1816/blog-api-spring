@@ -8,12 +8,18 @@ import {
     getPostComments,
     createPostComment,
     publishPost,
+    hidePost,
 } from "./postsController.js"
 import passport from "passport"
 import { strategies } from "../config/passport.js"
 
 const router = Router()
 const idRouter = Router({ mergeParams: true })
+
+// /posts/:id/hide
+idRouter
+    .route("/hide")
+    .put(passport.authenticate(strategies.jwt, { session: false }), hidePost)
 
 // /posts/:id/publish
 idRouter

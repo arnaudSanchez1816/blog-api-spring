@@ -210,11 +210,24 @@ export const publishPost = async (postId) => {
     return publishedPost
 }
 
+export const hidePost = async (postId) => {
+    const publishedPost = await prisma.post.update({
+        where: {
+            id: postId,
+        },
+        data: {
+            publishedAt: null,
+        },
+    })
+
+    return publishedPost
+}
+
 export const getPostDetails = async (
     postId,
     { includeComments = false, includeTags = false } = {}
 ) => {
-    const { _count, ...post } = await prisma.post.findUnique({
+    const { _count, ...post } = await prisma.post.findUniqueOrThrow({
         where: {
             id: postId,
         },

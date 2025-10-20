@@ -5,6 +5,7 @@ import {
     getPostCommentsValidator,
     getPublishedPostsValidator,
     getPublishedPostValidator,
+    hidePostValidator,
     publishPostValidator,
     updatePostValidator,
 } from "./postsValidators.js"
@@ -168,6 +169,33 @@ export const publishPost = [
             }
 
             await postsService.publishPost(postId)
+
+            return res.status(204).send()
+        } catch (error) {
+            next(error)
+        }
+    },
+]
+
+export const hidePost = [
+    checkPermission(PermissionType.UPDATE),
+    validateRequest(hidePostValidator),
+    async (req, res, next) => {
+        try {
+            const { id: postId } = req.params
+            const { id: userId } = req.user
+            const post = await postsService.getPostDetails(postId)
+            if (!post) {
+                throw new createHttpError.NotFound()
+            }
+            if (post.authorId !== userId) {
+                throw new createHttpError.Forbidden()
+            }
+            if (post.publishedAt) {
+                return res.status(204).send()
+            }
+
+            await postsService.hidePost(postId)
 
             return res.status(204).send()
         } catch (error) {

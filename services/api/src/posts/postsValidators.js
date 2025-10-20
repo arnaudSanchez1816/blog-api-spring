@@ -65,6 +65,12 @@ export const publishPostValidator = z.object({
     }),
 })
 
+export const hidePostValidator = z.object({
+    params: postSchema.pick({
+        id: true,
+    }),
+})
+
 export const getPublishedPostValidator = z.object({
     params: postSchema.pick({ id: true }),
 })
