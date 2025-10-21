@@ -63,7 +63,11 @@ export default function PostAdminControls({ post }) {
                     <ControlsButtonsGroup post={post} fetcher={fetcher} />
                 </div>
             </div>
-            <Popover backdrop="opaque" placement="left">
+            <Popover
+                backdrop="opaque"
+                placement="left"
+                shouldCloseOnInteractOutside={() => fetcher.state === "idle"}
+            >
                 <PopoverTrigger>
                     <Button
                         color="primary"
