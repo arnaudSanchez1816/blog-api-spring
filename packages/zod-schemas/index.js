@@ -8,11 +8,13 @@ export const commentSchema = z.object({
 
 export const tagSchema = z.object({
     id: z.coerce.number().int().min(1),
-    name: z.string().max(30),
+    name: z.string().max(30, "Maximum 30 characters"),
     slug: z
         .string()
-        .max(30)
-        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+        .max(30, "Maximum 30 characters")
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+            error: "Only alphanumeric and - characters allowed",
+        }),
 })
 
 export const postSchema = z.object({
