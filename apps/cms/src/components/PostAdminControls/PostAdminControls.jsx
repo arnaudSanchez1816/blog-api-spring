@@ -56,6 +56,8 @@ function ControlsButtonsGroup({ post, fetcher }) {
 export default function PostAdminControls({ post }) {
     const fetcher = useFetcher()
 
+    const fetcherIsLoading = fetcher.state !== "idle"
+
     return (
         <>
             <div className="min-w-38 hidden lg:block">
@@ -73,6 +75,7 @@ export default function PostAdminControls({ post }) {
                         color="primary"
                         radius="full"
                         isIconOnly
+                        isLoading={fetcherIsLoading}
                         className="fixed bottom-4 right-4 z-10 lg:hidden"
                     >
                         <EditIcon />
