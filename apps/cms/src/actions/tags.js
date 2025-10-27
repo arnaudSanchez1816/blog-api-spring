@@ -1,6 +1,7 @@
 import { addToast } from "@heroui/react"
 import { createTag, deleteTag, editTag } from "@repo/client-api/tags"
 import { data } from "react-router"
+import { parseErrorResponse } from "../utils/parseErrorResponse"
 
 export async function tagsAction({ request }, accessToken) {
     const { method } = request
@@ -41,15 +42,15 @@ async function createTagAction(formData, accessToken) {
         return createdTag
     } catch (error) {
         if (error instanceof Response) {
-            const errorBody = await error.json()
-            const { errorMessage } = errorBody.error
+            const errorResponse = await parseErrorResponse(error)
+            const { status, errorMessage } = errorResponse
             addToast({
                 title: "Failed to create tag",
-                description: `${error.status} : ${errorMessage}`,
+                description: `${status} : ${errorMessage}`,
                 color: "danger",
             })
 
-            return errorBody
+            return errorResponse
         }
 
         return error
@@ -70,15 +71,15 @@ async function editTagAction(tagId, formData, accessToken) {
         return editedTag
     } catch (error) {
         if (error instanceof Response) {
-            const errorBody = await error.json()
-            const { errorMessage } = errorBody.error
+            const errorResponse = await parseErrorResponse(error)
+            const { status, errorMessage } = errorResponse
             addToast({
                 title: "Failed to edit tag",
-                description: `${error.status} : ${errorMessage}`,
+                description: `${status} : ${errorMessage}`,
                 color: "danger",
             })
 
-            return errorBody
+            return errorResponse
         }
 
         return error
@@ -95,15 +96,15 @@ async function deleteTagAction(tagId, accessToken) {
         })
     } catch (error) {
         if (error instanceof Response) {
-            const errorBody = await error.json()
-            const { errorMessage } = errorBody.error
+            const errorResponse = await parseErrorResponse(error)
+            const { status, errorMessage } = errorResponse
             addToast({
                 title: "Failed to delete tag",
-                description: `${error.status} : ${errorMessage}`,
+                description: `${status} : ${errorMessage}`,
                 color: "danger",
             })
 
-            return errorBody
+            return errorResponse
         }
 
         return error
