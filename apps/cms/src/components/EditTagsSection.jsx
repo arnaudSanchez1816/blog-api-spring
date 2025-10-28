@@ -65,6 +65,7 @@ export default function EditTagsSection({ post }) {
                 label="Add tag"
                 size="sm"
                 className="max-w-3xs"
+                radius="full"
             >
                 {availableTags.map((tag) => (
                     <AutocompleteItem key={tag.id}>{tag.name}</AutocompleteItem>
