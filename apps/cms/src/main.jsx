@@ -23,6 +23,8 @@ import { postsAction } from "./actions/posts"
 import Tags, { tagsLoader } from "./pages/Tags"
 import { tagsAction } from "./actions/tags"
 import { commentsAction } from "./actions/comments"
+import EditPost, { editPostLoader } from "./pages/EditPost"
+import { editPostsActions } from "./actions/editPosts"
 
 function Root() {
     const { user, logout, accessToken } = useAuth()
@@ -85,15 +87,28 @@ function Root() {
                                             }
                                         />
                                     </Route>
+                                    <Route
+                                        path="/tags"
+                                        element={<Tags />}
+                                        loader={tagsLoader}
+                                        action={({ request }) =>
+                                            tagsAction({ request }, accessToken)
+                                        }
+                                    ></Route>
                                 </Route>
                                 <Route
-                                    path="/tags"
-                                    element={<Tags />}
-                                    loader={tagsLoader}
-                                    action={({ request }) =>
-                                        tagsAction({ request }, accessToken)
+                                    path="/posts/:postId/edit"
+                                    element={<EditPost />}
+                                    loader={({ params }) =>
+                                        editPostLoader({ params }, accessToken)
                                     }
-                                ></Route>
+                                    action={(actionsArgs) =>
+                                        editPostsActions({
+                                            ...actionsArgs,
+                                            accessToken,
+                                        })
+                                    }
+                                />
                             </Route>
                             <Route path="/login" element={<Login />}></Route>
                             <Route path="/logout" action={logout}></Route>

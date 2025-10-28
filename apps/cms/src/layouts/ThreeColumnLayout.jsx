@@ -1,6 +1,6 @@
 export default function ThreeColumnLayout({ left, center, right }) {
     return (
-        <div className="mx-auto pt-6 xl:grid xl:grid-cols-[1fr_minmax(auto,65ch)_1fr] xl:justify-center xl:gap-x-16">
+        <div className="mx-auto pt-6 xl:grid xl:grid-cols-[1fr_65ch_1fr] xl:justify-center xl:gap-x-16">
             <div className="m-auto max-w-prose xl:m-0 xl:justify-self-end">
                 {left}
             </div>

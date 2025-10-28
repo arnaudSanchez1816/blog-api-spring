@@ -21,7 +21,8 @@
       "react-syntax-highlighter": "^15.6.6",
       "remark-emoji": "^5.0.2",
       "remark-textr": "^6.1.0",
-      "zod": "^4.1.5"
+      "zod": "^4.1.5",
+      "lodash": "^4.17.21"
     },
     "devDependencies": {
       "@repo/eslint-config": "workspace:*",
