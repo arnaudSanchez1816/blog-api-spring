@@ -5,7 +5,9 @@ export default function PostHeader({ post }) {
     const { title, publishedAt, readingTime, tags } = post
     return (
         <header>
-            <h1 className="text-3xl font-medium">{title}</h1>
+            <h1 className="whitespace-pre-line text-3xl font-medium">
+                {title}
+            </h1>
             <div className="text-foreground/70 my-4 flex flex-col gap-4 text-sm">
                 <div className="flex gap-2">
                     {publishedAt ? (
