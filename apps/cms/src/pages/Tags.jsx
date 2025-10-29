@@ -1,5 +1,5 @@
 import { Await, useAsyncError, useLoaderData, useSubmit } from "react-router"
-import ThreeColumnLayout from "../layouts/ThreeColumnLayout"
+import ThreeColumnLayout from "@repo/ui/components/layouts/ThreeColumnLayout"
 import { fetchTags } from "@repo/client-api/tags"
 import { Suspense } from "react"
 import {

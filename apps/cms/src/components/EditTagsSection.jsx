@@ -1,18 +1,6 @@
-import {
-    Autocomplete,
-    AutocompleteItem,
-    Button,
-    Chip,
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownTrigger,
-    Popover,
-    PopoverTrigger,
-} from "@heroui/react"
-import DeleteIcon from "@repo/ui/components/Icons/DeleteIcon"
+import { Autocomplete, AutocompleteItem, Chip } from "@heroui/react"
 import _ from "lodash"
-import { useRef, useState } from "react"
+import { useRef } from "react"
 import { useLoaderData } from "react-router"
 
 function Tag({ tag, onDeleteTag }) {

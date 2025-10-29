@@ -10,7 +10,6 @@ import { RouterProvider } from "react-router/dom"
 import "./style.css"
 import App from "./App"
 import { Spinner } from "@heroui/react"
-import SearchLayout, { searchLayoutLoader } from "./layouts/SearchLayout"
 import Login from "./pages/Login"
 import ProtectedRoute, { authLoader } from "./components/ProtectedRoute"
 import ErrorView from "@repo/ui/components/ErrorView"
@@ -25,6 +24,10 @@ import { tagsAction } from "./actions/tags"
 import { commentsAction } from "./actions/comments"
 import EditPost, { editPostLoader } from "./pages/EditPost"
 import { editPostsActions } from "./actions/editPosts"
+import Search, { searchLoader } from "@repo/ui/components/Search/Search"
+import SearchLayout, {
+    searchLayoutLoader,
+} from "@repo/ui/components/layouts/SearchLayout"
 
 function Root() {
     const { user, logout, accessToken } = useAuth()
@@ -95,6 +98,14 @@ function Root() {
                                             tagsAction({ request }, accessToken)
                                         }
                                     ></Route>
+                                    <Route
+                                        path="/search"
+                                        element={<Search />}
+                                        loader={searchLoader}
+                                        handle={{
+                                            title: "Search",
+                                        }}
+                                    />
                                 </Route>
                                 <Route
                                     path="/posts/:postId/edit"

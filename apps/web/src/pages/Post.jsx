@@ -1,9 +1,11 @@
-import { data, useLoaderData } from "react-router"
+import { data, useLoaderData, useLocation } from "react-router"
 import PostMarkdown from "@repo/ui/components/PostMarkdown"
 import { Divider } from "@heroui/react"
 import { postSchema } from "@repo/zod-schemas"
 import PostHeader from "@repo/ui/components/PostHeader"
-import CommentsSection from "@repo/ui/components/CommentsSection/CommentsSection"
+import CommentsSection, {
+    commentsSectionId,
+} from "@repo/ui/components/CommentsSection/CommentsSection"
 import { fetchPost } from "@repo/client-api/posts"
 
 export const postPageLoader = async ({ params }) => {
@@ -23,6 +25,13 @@ export const postPageLoader = async ({ params }) => {
 function Post({ post }) {
     const { id, body, commentsCount } = post
 
+    let commentsAutoFetched = false
+    const { hash } = useLocation()
+
+    if (hash && hash === `#${commentsSectionId}`) {
+        commentsAutoFetched = true
+    }
+
     return (
         <article>
             <PostHeader post={post} />
@@ -32,7 +41,11 @@ function Post({ post }) {
             </div>
             <Divider className="mb-8 mt-16" />
             <div>
-                <CommentsSection postId={id} commentsCount={commentsCount} />
+                <CommentsSection
+                    postId={id}
+                    commentsCount={commentsCount}
+                    autoFetch={commentsAutoFetched}
+                />
             </div>
         </article>
     )

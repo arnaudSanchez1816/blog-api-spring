@@ -8,6 +8,7 @@
     "./components/icons/*": "./src/components/icons/*.jsx",
     "./components/PostsList/*": "./src/components/PostsList/*.jsx",
     "./components/CommentsSection/*": "./src/components/CommentsSection/*.jsx",
+    "./components/Search/*": "./src/components/Search/*.jsx",
     "./hooks/*": "./src/hooks/*.js",
     "./style.css": "./src/style.css"
   },

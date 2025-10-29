@@ -1,6 +1,6 @@
 import { Button, Form, Input } from "@heroui/react"
 import { useState } from "react"
-import ThreeColumnLayout from "../layouts/ThreeColumnLayout"
+import ThreeColumnLayout from "@repo/ui/components/layouts/ThreeColumnLayout"
 import { Navigate, useNavigate } from "react-router"
 import useAuth from "@repo/auth-provider/useAuth"
 
