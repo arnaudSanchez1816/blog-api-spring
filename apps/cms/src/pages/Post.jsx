@@ -3,13 +3,13 @@ import { fetchPost } from "@repo/client-api/posts"
 import CommentsSection, {
     commentsSectionId,
 } from "@repo/ui/components/CommentsSection/CommentsSection"
-import PostHeader from "@repo/ui/components/PostHeader"
-import PostMarkdown from "@repo/ui/components/PostMarkdown"
 import { postSchema } from "@repo/zod-schemas"
 import { useEffect } from "react"
 import { useLoaderData, useLocation, useOutletContext } from "react-router"
 import PostAdminControls from "../components/PostAdminControls/PostAdminControls"
 import CommentWithControls from "../components/CommentWithControls"
+import PostHeader from "@repo/ui/components/posts/PostHeader"
+import PostMarkdown from "@repo/ui/components/posts/PostMarkdown"
 
 export async function postLoader({ params }, accessToken) {
     const postIdSchema = postSchema.pick({ id: true })

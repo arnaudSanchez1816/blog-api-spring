@@ -1,12 +1,12 @@
 import { data, useLoaderData, useLocation } from "react-router"
-import PostMarkdown from "@repo/ui/components/PostMarkdown"
 import { Divider } from "@heroui/react"
 import { postSchema } from "@repo/zod-schemas"
-import PostHeader from "@repo/ui/components/PostHeader"
 import CommentsSection, {
     commentsSectionId,
 } from "@repo/ui/components/CommentsSection/CommentsSection"
 import { fetchPost } from "@repo/client-api/posts"
+import PostHeader from "@repo/ui/components/posts/PostHeader"
+import PostMarkdown from "@repo/ui/components/posts/PostMarkdown"
 
 export const postPageLoader = async ({ params }) => {
     try {
