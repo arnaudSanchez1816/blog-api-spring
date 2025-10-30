@@ -6,6 +6,7 @@ export default function SearchParamsToggle({
     defaultState = false,
     offValue,
     onValue,
+    text,
 }) {
     const [param, setParam] = useParamSearchParams(
         paramName,
@@ -20,7 +21,7 @@ export default function SearchParamsToggle({
                 setParam(selected ? onValue : offValue)
             }
         >
-            Show unpublished
+            {text}
         </Switch>
     )
 }
