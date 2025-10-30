@@ -46,7 +46,9 @@ export default function useQuery({ queryFn, queryKey, enabled = true }) {
                 } finally {
                     if (!ignore) {
                         setLoading(false)
-                        setFetchData(false)
+                        if (!enabled) {
+                            setFetchData(false)
+                        }
                     }
                 }
             }
@@ -56,7 +58,7 @@ export default function useQuery({ queryFn, queryKey, enabled = true }) {
         return () => {
             ignore = true
         }
-    }, [...queryKey, fetchData, queryFn])
+    }, [...queryKey, enabled, fetchData, queryFn])
 
     const triggerFetch = useCallback(() => {
         setFetchData(true)
