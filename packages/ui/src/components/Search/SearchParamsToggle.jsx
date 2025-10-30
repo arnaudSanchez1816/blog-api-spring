@@ -1,5 +1,5 @@
-import useParamSearchParams from "../hooks/useParamSearchParams"
 import { Switch } from "@heroui/react"
+import useParamSearchParams from "../../hooks/useParamSearchParams"
 
 export default function SearchParamsToggle({
     paramName,

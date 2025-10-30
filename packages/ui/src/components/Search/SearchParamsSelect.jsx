@@ -1,5 +1,5 @@
 import { Select, SelectItem } from "@heroui/react"
-import useParamSearchParams from "../hooks/useParamSearchParams"
+import useParamSearchParams from "../../hooks/useParamSearchParams"
 
 export default function SearchParamsSelect({ paramName, defaultValue, items }) {
     const [param, setParam] = useParamSearchParams(paramName, defaultValue)

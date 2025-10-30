@@ -1,7 +1,7 @@
 import { Button, Tab, Tabs, Textarea } from "@heroui/react"
 import EditIcon from "@repo/ui/components/Icons/EditIcon"
 import EyeIcon from "@repo/ui/components/Icons/EyeIcon"
-import PostMarkdown from "@repo/ui/components/PostMarkdown"
+import PostMarkdown from "@repo/ui/components/posts/PostMarkdown"
 import { useState } from "react"
 
 export default function EditPostContentSection({ newBody, setNewBody }) {
