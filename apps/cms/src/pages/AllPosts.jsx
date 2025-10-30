@@ -58,7 +58,6 @@ function NewPostButton() {
 export default function AllPosts() {
     const { accessToken } = useAuth()
     const [searchParams, setSearchParams] = useSearchParams()
-
     const queryFn = useCallback(
         () => allPostsQuery({ accessToken, searchParams }),
         [accessToken, searchParams]
@@ -74,7 +73,7 @@ export default function AllPosts() {
     useEffect(() => {
         setLeftContent(
             <>
-                <div className="mt-4">
+                <div className="min-w-38 mt-4">
                     <p className="text-lg font-medium">Filters</p>
                     <div className="flex flex-col gap-2">
                         <SearchParamsSelect
@@ -92,6 +91,7 @@ export default function AllPosts() {
                             offValue={"false"}
                             defaultState={false}
                             paramName={"unpublished"}
+                            text={"Show unpublished"}
                         />
                     </div>
                     <div className="mt-8 flex justify-start xl:justify-center">
