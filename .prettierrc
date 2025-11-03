@@ -7,6 +7,12 @@
         {
             "files": ".prettierrc",
             "options": { "parser": "json" }
+        },
+        {
+            "files": "README.md",
+            "options": {
+                "tabWidth": 2
+            }
         }
     ],
     "plugins": ["prettier-plugin-tailwindcss"]
