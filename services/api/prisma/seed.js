@@ -65,7 +65,7 @@ async function main() {
         update: {},
         create: {
             email: process.env.SEEDING_ADMIN_EMAIL,
-            name: "Admin",
+            name: process.env.SEEDING_ADMIN_NAME,
             password: hashedPassword,
             roles: {
                 connect: { name: "admin" },
