@@ -17,7 +17,7 @@
     "prisma:deploy": "pnpx prisma migrate deploy"
   },
   "prisma": {
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seeding/seed.js"
   },
   "keywords": [],
   "author": "",
