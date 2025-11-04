@@ -23,7 +23,7 @@ pnpm install
 cp ./services/api/.env.example ./services/api/.env
 
 PORT=3000
-DATABASE_URL= "postgresql://USERNAME:PASSWORD@HOST:PORT/blog?schema=public"
+DATABASE_URL= "postgresql://USERNAME:PASSWORD@HOST:PORT/blog?schema=blog_api"
 
 # Create web/.env
 cp ./apps/web/.env.example ./apps/web/.env
