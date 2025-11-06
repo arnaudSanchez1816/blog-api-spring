@@ -1,0 +1,6 @@
+@net_api_HostAddress = http://localhost:3000
+
+GET {{net_api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
