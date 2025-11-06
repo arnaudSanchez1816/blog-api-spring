@@ -12,6 +12,7 @@ public class Comment
 
     public required string Body { get; set; }
 
+    [Column(TypeName = "timestamptz")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public int PostId { get; set; }

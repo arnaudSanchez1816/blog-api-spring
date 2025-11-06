@@ -15,6 +15,7 @@ public class Post
 
     public int ReadingTime { get; set; } = 1;
 
+    [Column(TypeName = "timestamptz")]
     public DateTime? PublishedAt { get; set; }
 
     public int AuthorId { get; set; }
