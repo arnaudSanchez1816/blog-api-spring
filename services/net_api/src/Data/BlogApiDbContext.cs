@@ -51,6 +51,6 @@ public sealed class BlogApiDbContext : DbContext
                 });
                 context.SaveChanges();
             }
-        });
+        }).UseSnakeCaseNamingConvention();
     }
 }
