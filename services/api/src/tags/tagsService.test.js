@@ -1,11 +1,8 @@
-import { vi } from "vitest"
-import { describe, it } from "vitest"
-import prismaMock from "config/__mocks__/prisma.js"
-import * as TagsService from "tags/tagsService.js"
-import { expect } from "vitest"
-import { beforeEach } from "vitest"
+import { describe, it, vi, beforeEach, expect } from "vitest"
+import prismaMock from "../config/__mocks__/prisma.js"
+import * as TagsService from "../tags/tagsService.js"
 
-vi.mock(import("config/prisma.js"))
+vi.mock(import("../config/prisma.js"))
 
 describe("tagsService", () => {
     beforeEach(() => {
