@@ -13,7 +13,7 @@ export const checkPermission = (permission) => (req, res, next) => {
             throw new createHttpError.Forbidden()
         }
 
-        const userRoles = user.roles
+        const userRoles = user.roles || []
         const rolesWithPermissions = userRoles.filter((r) => {
             return r.permissions.find((p) => p.type === permission)
         })
