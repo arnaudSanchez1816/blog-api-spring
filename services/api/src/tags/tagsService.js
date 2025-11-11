@@ -29,7 +29,7 @@ export const createTag = async ({ name, slug }) => {
     return newTag
 }
 
-export const updateTag = async ({ id: tagIdOrSlug, name, slug }) => {
+export const updateTag = async (tagIdOrSlug, { name, slug }) => {
     const isSlug = typeof tagIdOrSlug === "string"
     const updatedTag = await prisma.tag.update({
         where: {

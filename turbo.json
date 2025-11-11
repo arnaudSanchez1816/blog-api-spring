@@ -14,8 +14,15 @@
             "cache": false,
             "persistent": true
         },
-        "preview" : {
+        "preview": {
             "dependsOn": ["^preview"],
+            "cache": false,
+            "persistent": true
+        },
+        "test:unit": {
+            "dependsOn": ["^test:unit"]
+        },
+        "test:unit:watch": {
             "cache": false,
             "persistent": true
         }
