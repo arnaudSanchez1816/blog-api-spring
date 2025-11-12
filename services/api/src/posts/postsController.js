@@ -9,7 +9,7 @@ import {
     publishPostValidator,
     updatePostValidator,
 } from "./postsValidators.js"
-import postsService, { userCanViewPost } from "./postsService.js"
+import * as postsService from "./postsService.js"
 import commentsService from "../comments/commentsService.js"
 import { validateRequest } from "../middlewares/validator.js"
 import createHttpError from "http-errors"
@@ -29,7 +29,7 @@ export const getPost = [
             if (!post) {
                 throw new createHttpError.NotFound()
             }
-            if (!userCanViewPost(post, userId)) {
+            if (!postsService.userCanViewPost(post, userId)) {
                 throw new createHttpError.Forbidden()
             }
             return res.json(post)
@@ -217,7 +217,7 @@ export const getPostComments = [
                 throw new createHttpError.NotFound()
             }
 
-            if (!userCanViewPost(post, userId)) {
+            if (!postsService.userCanViewPost(post, userId)) {
                 throw new createHttpError.Forbidden()
             }
 
@@ -248,7 +248,7 @@ export const createPostComment = [
                 throw new createHttpError.NotFound()
             }
 
-            if (!userCanViewPost(post, userId)) {
+            if (!postsService.userCanViewPost(post, userId)) {
                 throw new createHttpError.Forbidden()
             }
 

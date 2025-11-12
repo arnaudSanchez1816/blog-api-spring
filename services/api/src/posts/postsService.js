@@ -265,5 +265,3 @@ export const userCanViewPost = (post, userId) => {
 
     return true
 }
-
-export * as default from "./postsService.js"

@@ -1,7 +1,7 @@
 import { PermissionType } from "@prisma/client"
 import { checkPermission } from "../middlewares/checkPermission.js"
 import { validateRequest } from "../middlewares/validator.js"
-import postsService from "../posts/postsService.js"
+import * as postsService from "../posts/postsService.js"
 import {
     createUserValidator,
     getCurrentUserPostsValidator,
