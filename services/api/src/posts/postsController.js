@@ -10,7 +10,7 @@ import {
     updatePostValidator,
 } from "./postsValidators.js"
 import * as postsService from "./postsService.js"
-import commentsService from "../comments/commentsService.js"
+import * as commentsService from "../comments/commentsService.js"
 import { validateRequest } from "../middlewares/validator.js"
 import createHttpError from "http-errors"
 import { checkPermission } from "../middlewares/checkPermission.js"

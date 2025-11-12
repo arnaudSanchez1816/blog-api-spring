@@ -4,7 +4,7 @@ import {
     editCommentValidator,
     getCommentValidator,
 } from "./commentsValidators.js"
-import commentsService from "./commentsService.js"
+import * as commentsService from "./commentsService.js"
 import createHttpError from "http-errors"
 import { checkPermission } from "../middlewares/checkPermission.js"
 import { PermissionType } from "@prisma/client"

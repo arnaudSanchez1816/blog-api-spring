@@ -45,5 +45,3 @@ export const updateComment = async ({ commentId, username, body }) => {
 
     return updatedComment
 }
-
-export * as default from "./commentsService.js"
