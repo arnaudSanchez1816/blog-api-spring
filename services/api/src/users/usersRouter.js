@@ -6,13 +6,24 @@ import {
     getCurrentUser,
     getCurrentUserPosts,
 } from "./usersController.js"
+import { validateRequest } from "../middlewares/validator.js"
+import {
+    createUserValidator,
+    getCurrentUserPostsValidator,
+} from "./usersValidators.js"
+import { checkPermission } from "../middlewares/checkPermission.js"
+import { PermissionType } from "@prisma/client"
 
 const router = Router()
 
 // /users/me
 const meRouter = Router()
 meRouter.get("/", getCurrentUser)
-meRouter.get("/posts", getCurrentUserPosts)
+meRouter.get(
+    "/posts",
+    validateRequest(getCurrentUserPostsValidator),
+    getCurrentUserPosts
+)
 
 router.use(
     "/me",
@@ -26,6 +37,8 @@ router.use(
 router.post(
     "/",
     passport.authenticate(strategies.jwt, { session: false }),
+    checkPermission(PermissionType.CREATE),
+    validateRequest(createUserValidator),
     createUser
 )
 
