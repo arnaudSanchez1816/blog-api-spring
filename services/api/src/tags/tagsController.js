@@ -1,12 +1,5 @@
-import { validateRequest } from "../middlewares/validator.js"
-import {
-    createTagValidator,
-    deleteTagValidator,
-    editTagValidator,
-} from "./tagsValidators.js"
 import * as tagService from "./tagsService.js"
 import createHttpError from "http-errors"
-import { checkPermission } from "../middlewares/checkPermission.js"
 import { UniqueConstraintError, ValidationError } from "../lib/errors.js"
 import { handlePrismaKnownErrors } from "../helpers/errors.js"
 
