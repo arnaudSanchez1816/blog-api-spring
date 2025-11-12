@@ -56,5 +56,3 @@ export const deleteTag = async (tagIdOrSlug) => {
 
     return deletedTag
 }
-
-export * as default from "./tagsService.js"
