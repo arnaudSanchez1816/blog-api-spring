@@ -19,6 +19,10 @@ export const getCurrentUser = async (req, res, next) => {
 
 export const getCurrentUserPosts = async (req, res, next) => {
     try {
+        if (!req.user) {
+            throw new createHttpError.Unauthorized()
+        }
+
         const { q, page, pageSize, sortBy, tags } = req.query
         const { id: userId } = req.user
 
