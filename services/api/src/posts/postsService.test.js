@@ -369,4 +369,52 @@ describe("postsService", () => {
             )
         })
     })
+
+    describe("userCanViewPost", () => {
+        it("should return true if the post is published", () => {
+            const isVisible = PostsService.userCanViewPost(
+                {
+                    id: 50,
+                    publishedAt: new Date(),
+                    authorId: 1,
+                },
+                1
+            )
+
+            expect(isVisible).toBe(true)
+        })
+
+        it("should return true if the post is unpublished but the authorId is the same as the user id", () => {
+            const isVisible = PostsService.userCanViewPost(
+                {
+                    id: 50,
+                    authorId: 1,
+                },
+                1
+            )
+
+            expect(isVisible).toBe(true)
+        })
+
+        it("should return false if the post is unpublished and the authorid is different from the user id", () => {
+            const isVisible = PostsService.userCanViewPost(
+                {
+                    id: 50,
+                    authorId: 1,
+                },
+                15100
+            )
+
+            expect(isVisible).toBe(false)
+        })
+
+        it("should return false if the post is unpublished and the user id is missing or invalid", () => {
+            const isVisible = PostsService.userCanViewPost({
+                id: 50,
+                authorId: 1,
+            })
+
+            expect(isVisible).toBe(false)
+        })
+    })
 })
