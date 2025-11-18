@@ -3,7 +3,7 @@ import { SortByValues } from "./postsService.js"
 import { z } from "zod"
 import { postSchema } from "@repo/zod-schemas"
 
-export const getPublishedPostsValidator = z.object({
+export const getPostsValidator = z.object({
     query: z.object({
         q: z.string().optional(),
         sortBy: z
