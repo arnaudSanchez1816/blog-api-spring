@@ -1,3 +1,4 @@
+import createHttpError from "http-errors"
 import { REFRESH_TOKEN_COOKIE } from "../config/passport.js"
 import * as authService from "./authService.js"
 import _ from "lodash"
@@ -7,6 +8,10 @@ const COOKIE_REFRESH_TOKEN_MAX_AGE = 30 * 24 * 60 * 60 * 1000
 export const login = async (req, res, next) => {
     try {
         const user = req.user
+        if (!user) {
+            throw new createHttpError.Unauthorized()
+        }
+
         const generateAccessToken = authService.generateAccessToken(user, {
             expiresIn: "1 day",
         })
@@ -25,7 +30,7 @@ export const login = async (req, res, next) => {
             signed: true,
         })
 
-        return res.json({
+        return res.status(200).json({
             user: _.omit(user, "password"),
             accessToken: accessToken,
         })
@@ -37,11 +42,15 @@ export const login = async (req, res, next) => {
 export const getAccessToken = async (req, res, next) => {
     try {
         const user = req.user
+        if (!user) {
+            throw new createHttpError.Unauthorized()
+        }
+
         const accessToken = await authService.generateAccessToken(user, {
             expiresIn: "1 day",
         })
 
-        return res.json({
+        return res.status(200).json({
             accessToken: accessToken,
         })
     } catch (error) {
