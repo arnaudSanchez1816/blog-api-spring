@@ -1,5 +1,4 @@
 import { describe, vi, expect, it, beforeEach } from "vitest"
-import * as AuthService from "../auth/authService.js"
 import * as AuthController from "../auth/authController.js"
 import createHttpError from "http-errors"
 
