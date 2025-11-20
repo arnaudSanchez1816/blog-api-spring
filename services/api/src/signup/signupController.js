@@ -1,5 +1,5 @@
 import { signupValidator } from "./signupValidators.js"
-import signupService from "./signupService.js"
+import * as signupService from "./signupService.js"
 import { validateRequest } from "../middlewares/validator.js"
 
 export const signup = [
