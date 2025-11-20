@@ -2,7 +2,9 @@ import { defineConfig } from "vitest/config"
 
 export default defineConfig({
     test: {
-        include: ["src/**/*.test.js", "!src/tests"],
+        include: ["src/tests/**/*.test.js"],
+        fileParallelism: false,
+        setupFiles: ["src/tests/helpers/setup.js"],
     },
     resolve: {
         alias: {
