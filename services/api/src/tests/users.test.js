@@ -2,25 +2,12 @@ import { describe, expect, it, beforeEach } from "vitest"
 import { api, v1Api } from "./helpers/supertest.js"
 import prisma from "./helpers/prisma.js"
 import bcryptjs from "bcryptjs"
-import jwt from "jsonwebtoken"
 import _ from "lodash"
-import { testAuthenticationHeader } from "./helpers/tests-helpers.js"
-
-function generateAccessToken({ id, name, email }) {
-    const token = jwt.sign(
-        {
-            sub: id,
-            name,
-            email,
-        },
-        process.env.JWT_ACCESS_SECRET,
-        {
-            expiresIn: "10 minutes",
-        }
-    )
-
-    return token
-}
+import {
+    generateAccessToken,
+    testAuthenticationHeader,
+    testPermissions,
+} from "./helpers/tests-helpers.js"
 
 describe("/users", () => {
     const adminEmail = "admin@email.com"
@@ -91,5 +78,9 @@ describe("/users", () => {
         // eslint-disable-next-line
         it("should respond 401 if the authorization header is invalid or missing", async () =>
             await testAuthenticationHeader("/users", adminUser))
+
+        it("should respond 403 if the user do not have the correct permissions", async () => {
+            await testPermissions("/users", regularUser)
+        })
     })
 })
