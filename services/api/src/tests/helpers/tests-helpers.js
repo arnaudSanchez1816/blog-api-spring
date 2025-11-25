@@ -1,6 +1,7 @@
 import { expect } from "vitest"
 import { api, v1Api } from "./supertest"
 import jwt from "jsonwebtoken"
+import prisma from "./prisma"
 
 export const testAuthenticationHeader = async (route, user) => {
     const token = generateAccessToken(user)
@@ -62,4 +63,25 @@ export const generateAccessToken = (
     )
 
     return token
+}
+
+export const createPosts = async (data) => {
+    const posts = await prisma.post.createManyAndReturn({
+        data,
+        include: {
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+            body: false,
+            authorId: false,
+        },
+    })
+
+    return posts.map((p) => ({
+        ...p,
+        publishedAt: p.publishedAt != null ? p.publishedAt.toISOString() : null,
+    }))
 }
