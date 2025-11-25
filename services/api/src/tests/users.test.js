@@ -4,6 +4,7 @@ import prisma from "./helpers/prisma.js"
 import bcryptjs from "bcryptjs"
 import jwt from "jsonwebtoken"
 import _ from "lodash"
+import { testAuthenticationHeader } from "./helpers/tests-helpers.js"
 
 function generateAccessToken({ id, name, email }) {
     const token = jwt.sign(
@@ -102,7 +103,6 @@ describe("/users", () => {
 
         it("should respond 401 if the authorization header is invalid", async () => {
             const newUserEmail = "newUser@email.com"
-            const token = generateAccessToken(adminUser)
             const newUserData = {
                 name: "newUser",
                 email: newUserEmail,
@@ -110,24 +110,8 @@ describe("/users", () => {
                 passwordConfirmation: "Password10",
                 role: "user",
             }
-            let { status, body } = await api
-                .post(v1Api("/users"))
-                .set("Authorization", `beeeerer ${token}`)
-                .send(newUserData)
 
-            expect(status).toBe(401)
-            ;({ status, body } = await api
-                .post(v1Api("/users"))
-                .set("Authorization", `Bearer${token}`)
-                .send(newUserData))
-
-            expect(status).toBe(401)
-            ;({ status, body } = await api
-                .post(v1Api("/users"))
-                .set("Authorization", `${token}`)
-                .send(newUserData))
-
-            expect(status).toBe(401)
+            await testAuthenticationHeader("/users", adminUser, newUserData)
         })
     })
 })
