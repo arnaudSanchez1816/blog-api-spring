@@ -88,30 +88,8 @@ describe("/users", () => {
             expect(body).toStrictEqual(_.omit(newUser, ["password"]))
         })
 
-        it("should respond 401 if no authorization header is provided", async () => {
-            const newUserEmail = "newUser@email.com"
-            const { status } = await api.post(v1Api("/users")).send({
-                name: "newUser",
-                email: newUserEmail,
-                password: "Password10",
-                passwordConfirmation: "Password10",
-                role: "user",
-            })
-
-            expect(status).toBe(401)
-        })
-
-        it("should respond 401 if the authorization header is invalid", async () => {
-            const newUserEmail = "newUser@email.com"
-            const newUserData = {
-                name: "newUser",
-                email: newUserEmail,
-                password: "Password10",
-                passwordConfirmation: "Password10",
-                role: "user",
-            }
-
-            await testAuthenticationHeader("/users", adminUser, newUserData)
-        })
+        // eslint-disable-next-line
+        it("should respond 401 if the authorization header is invalid or missing", async () =>
+            await testAuthenticationHeader("/users", adminUser))
     })
 })

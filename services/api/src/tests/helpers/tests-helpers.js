@@ -2,25 +2,27 @@ import { expect } from "vitest"
 import { api, v1Api } from "./supertest"
 import { generateAccessToken } from "../../auth/authService"
 
-export const testAuthenticationHeader = async (route, user, data) => {
+export const testAuthenticationHeader = async (route, user) => {
     const token = generateAccessToken(user)
 
-    let { status, body } = await api
+    // No header
+    let { status } = await api.post(v1Api(route))
+    expect(status).toBe(401)
+
+    // Bad header formatting
+    ;({ status } = await api
         .post(v1Api(route))
-        .set("Authorization", `beeeerer ${token}`)
-        .send(data)
+        .set("Authorization", `beeeerer ${token}`))
 
     expect(status).toBe(401)
-    ;({ status, body } = await api
+    ;({ status } = await api
         .post(v1Api(route))
-        .set("Authorization", `Bearer${token}`)
-        .send(data))
+        .set("Authorization", `Bearer${token}`))
 
     expect(status).toBe(401)
-    ;({ status, body } = await api
+    ;({ status } = await api
         .post(v1Api(route))
-        .set("Authorization", `${token}`)
-        .send(data))
+        .set("Authorization", `${token}`))
 
     expect(status).toBe(401)
 }
