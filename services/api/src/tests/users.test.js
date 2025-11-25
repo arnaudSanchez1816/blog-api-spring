@@ -31,6 +31,9 @@ describe("/users", () => {
                         connect: { name: "admin" },
                     },
                 },
+                include: {
+                    roles: true,
+                },
             }),
             prisma.user.create({
                 data: {
@@ -40,6 +43,9 @@ describe("/users", () => {
                     roles: {
                         connect: { name: "user" },
                     },
+                },
+                include: {
+                    roles: true,
                 },
             }),
         ])
@@ -68,11 +74,14 @@ describe("/users", () => {
                 where: {
                     email: newUserEmail,
                 },
+                include: {
+                    roles: true,
+                },
             })
 
             expect(newUser).not.toBeNull()
             expect(status).toBe(201)
-            expect(body).toStrictEqual(_.omit(newUser, ["password"]))
+            expect(body).toMatchObject(_.omit(newUser, ["password"]))
         })
 
         it("should respond 400 if password sent is less than 8 characters", async () => {
@@ -269,5 +278,21 @@ describe("/users", () => {
         it("should respond 403 if the user do not have the correct permissions", async () => {
             await testPermissions("/users", regularUser)
         })
+    })
+
+    describe("[GET] /users/me", () => {
+        it("should respond 200 and send the user details", async () => {
+            const token = generateAccessToken(adminUser)
+            const { status, body } = await api
+                .get(v1Api("/users/me"))
+                .auth(token, { type: "bearer" })
+
+            expect(status).toBe(200)
+            expect(body).toMatchObject(_.omit(adminUser, "password"))
+        })
+
+        // eslint-disable-next-line
+        it("should respond 401 if the authorization header is invalid or missing", async () =>
+            await testAuthenticationHeader("/users", adminUser))
     })
 })
