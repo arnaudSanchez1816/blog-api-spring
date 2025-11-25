@@ -57,6 +57,9 @@ export const createUser = async ({
                 },
             },
         },
+        include: {
+            roles: true,
+        },
     })
 
     return createdUser
