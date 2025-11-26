@@ -4,10 +4,12 @@ import prisma from "./helpers/prisma.js"
 import bcryptjs from "bcryptjs"
 import _ from "lodash"
 import {
+    createPosts,
     generateAccessToken,
     testAuthenticationHeader,
     testPermissions,
 } from "./helpers/tests-helpers.js"
+import { SortByValues } from "../posts/postsService.js"
 
 describe("/users", () => {
     const adminEmail = "admin@email.com"
@@ -294,5 +296,284 @@ describe("/users", () => {
         // eslint-disable-next-line
         it("should respond 401 if the authorization header is invalid or missing", async () =>
             await testAuthenticationHeader("/users", adminUser))
+    })
+
+    describe("[GET] /users/me/posts", () => {
+        it("should find the users posts, respond with 200 and send the results", async () => {
+            const [post1, post2, post3] = await createPosts([
+                {
+                    title: "Post title",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                    publishedAt: new Date(),
+                },
+                {
+                    title: "Other post",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                    publishedAt: new Date(),
+                },
+                {
+                    title: "Unpublished post",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                },
+            ])
+
+            const token = generateAccessToken(adminUser)
+            const { status, body } = await api
+                .get(v1Api("/users/me/posts"))
+                .auth(token, { type: "bearer" })
+                .query({
+                    q: "post",
+                    sortBy: SortByValues.idAsc,
+                    unpublished: true,
+                })
+
+            expect(status).toBe(200)
+            expect(body).toHaveProperty("results")
+            expect(body).toHaveProperty("metadata")
+            const { results, metadata } = body
+            expect(metadata.count).toBe(3)
+            expect(results).toStrictEqual([
+                {
+                    ...post1,
+                    tags: [],
+                    commentsCount: 0,
+                },
+                {
+                    ...post2,
+                    tags: [],
+                    commentsCount: 0,
+                },
+                {
+                    ...post3,
+                    tags: [],
+                    commentsCount: 0,
+                },
+            ])
+        })
+
+        it("should filter posts according to the q query parameter", async () => {
+            const [ignoredPost, expectedPost] = await createPosts([
+                {
+                    title: "An interesting title",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                    publishedAt: new Date(),
+                },
+                {
+                    title: "Post title",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                    publishedAt: new Date(),
+                },
+            ])
+            const token = generateAccessToken(adminUser)
+            const { status, body } = await api
+                .get(v1Api("/users/me/posts"))
+                .auth(token, { type: "bearer" })
+                .query({
+                    q: "post",
+                })
+
+            expect(status).toBe(200)
+            expect(body).toHaveProperty("results")
+            expect(body).toHaveProperty("metadata")
+            const { results, metadata } = body
+            expect(metadata.count).toBe(1)
+            expect(results).toStrictEqual([
+                {
+                    ...expectedPost,
+                    tags: [],
+                    commentsCount: 0,
+                },
+            ])
+        })
+
+        it("should return posts sorted by ascending id", async () => {
+            const [firstPost, secondPost] = await createPosts([
+                {
+                    title: "First post",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                    publishedAt: new Date(),
+                },
+                {
+                    title: "Second post",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                    publishedAt: new Date(),
+                },
+            ])
+            const token = generateAccessToken(adminUser)
+            const { status, body } = await api
+                .get(v1Api("/users/me/posts"))
+                .auth(token, { type: "bearer" })
+                .query({
+                    sortBy: SortByValues.idAsc,
+                })
+
+            expect(status).toBe(200)
+            expect(body).toHaveProperty("results")
+            expect(body).toHaveProperty("metadata")
+            const { results, metadata } = body
+            expect(metadata.count).toBe(2)
+            expect(results).toStrictEqual([
+                {
+                    ...firstPost,
+                    tags: [],
+                    commentsCount: 0,
+                },
+                {
+                    ...secondPost,
+                    tags: [],
+                    commentsCount: 0,
+                },
+            ])
+        })
+
+        it("should return posts sorted by descending id", async () => {
+            const [firstPost, secondPost] = await createPosts([
+                {
+                    title: "First post",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                    publishedAt: new Date(),
+                },
+                {
+                    title: "Second post",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                    publishedAt: new Date(),
+                },
+            ])
+            const token = generateAccessToken(adminUser)
+            const { status, body } = await api
+                .get(v1Api("/users/me/posts"))
+                .auth(token, { type: "bearer" })
+                .query({
+                    sortBy: SortByValues.idDesc,
+                })
+
+            expect(status).toBe(200)
+            expect(body).toHaveProperty("results")
+            expect(body).toHaveProperty("metadata")
+            const { results, metadata } = body
+            expect(metadata.count).toBe(2)
+            expect(results).toStrictEqual([
+                {
+                    ...secondPost,
+                    tags: [],
+                    commentsCount: 0,
+                },
+                {
+                    ...firstPost,
+                    tags: [],
+                    commentsCount: 0,
+                },
+            ])
+        })
+
+        it("should return posts sorted by ascending publication date", async () => {
+            const [post2025, post2024] = await createPosts([
+                {
+                    title: "2025 post",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                    publishedAt: new Date(2025, 0),
+                },
+                {
+                    title: "2024 post",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                    publishedAt: new Date(2024, 0),
+                },
+            ])
+            const token = generateAccessToken(adminUser)
+            const { status, body } = await api
+                .get(v1Api("/users/me/posts"))
+                .auth(token, { type: "bearer" })
+                .query({
+                    sortBy: SortByValues.publishedAtAsc,
+                })
+
+            expect(status).toBe(200)
+            expect(body).toHaveProperty("results")
+            expect(body).toHaveProperty("metadata")
+            const { results, metadata } = body
+            expect(metadata.count).toBe(2)
+            expect(results).toStrictEqual([
+                {
+                    ...post2024,
+                    tags: [],
+                    commentsCount: 0,
+                },
+                {
+                    ...post2025,
+                    tags: [],
+                    commentsCount: 0,
+                },
+            ])
+        })
+
+        it("should return posts sorted by descending publication date", async () => {
+            const [post2025, post2024] = await createPosts([
+                {
+                    title: "2025 post",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                    publishedAt: new Date(2025, 0),
+                },
+                {
+                    title: "2024 post",
+                    body: "post content",
+                    authorId: adminUser.id,
+                    description: "description",
+                    publishedAt: new Date(2024, 0),
+                },
+            ])
+            const token = generateAccessToken(adminUser)
+            const { status, body } = await api
+                .get(v1Api("/users/me/posts"))
+                .auth(token, { type: "bearer" })
+                .query({
+                    sortBy: SortByValues.publishedAtDesc,
+                })
+
+            expect(status).toBe(200)
+            expect(body).toHaveProperty("results")
+            expect(body).toHaveProperty("metadata")
+            const { results, metadata } = body
+            expect(metadata.count).toBe(2)
+            expect(results).toStrictEqual([
+                {
+                    ...post2025,
+                    tags: [],
+                    commentsCount: 0,
+                },
+                {
+                    ...post2024,
+                    tags: [],
+                    commentsCount: 0,
+                },
+            ])
+        })
+
+        // eslint-disable-next-line
+        it("should respond 401 if the authorization header is invalid or missing", async () =>
+            await testAuthenticationHeader("/users/me/posts", adminUser))
     })
 })
