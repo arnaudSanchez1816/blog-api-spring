@@ -51,6 +51,9 @@ describe("usersService", () => {
                 data: expect.objectContaining({
                     password: HASHED_PASSWORD,
                 }),
+                include: {
+                    roles: true,
+                },
             })
         })
     })
