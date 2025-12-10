@@ -3,6 +3,7 @@ import * as UsersController from "../users/usersController.js"
 import * as PostsService from "../posts/postsService.js"
 import * as UsersService from "../users/usersService.js"
 import createHttpError from "http-errors"
+import { PermissionType } from "@prisma/client"
 
 vi.mock(import("../posts/postsService.js"))
 vi.mock(import("../users/usersService.js"))
@@ -36,6 +37,46 @@ describe("usersController", () => {
                 id: 1,
                 name: "username",
                 email: "email",
+            })
+        })
+
+        it("should omit permissions details from the user roles definitions", async () => {
+            request.user = {
+                id: 1,
+                name: "username",
+                email: "email",
+                password: "password",
+                roles: [
+                    {
+                        id: 1,
+                        name: "admin",
+                        permissions: [
+                            {
+                                id: 1,
+                                type: PermissionType.CREATE,
+                            },
+                            {
+                                id: 2,
+                                type: PermissionType.READ,
+                            },
+                        ],
+                    },
+                ],
+            }
+
+            await UsersController.getCurrentUser(request, response, next)
+
+            expect(response.status).toBeCalledWith(200)
+            expect(response.json).toBeCalledWith({
+                id: 1,
+                name: "username",
+                email: "email",
+                roles: [
+                    {
+                        id: 1,
+                        name: "admin",
+                    },
+                ],
             })
         })
 
