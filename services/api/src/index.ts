@@ -21,7 +21,7 @@ server.on("SIGTERM", async () => {
 /**
  * Event listener for HTTP server "error" event.
  */
-function onError(error) {
+function onError(error: NodeJS.ErrnoException) {
     if (error.syscall !== "listen") {
         throw error
     }
@@ -48,6 +48,10 @@ function onError(error) {
  */
 function onListening() {
     var addr = server.address()
+    if (addr === null) {
+        pino.error("Server address is null")
+        return
+    }
     var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port
     pino.info("Listening on " + bind)
 }

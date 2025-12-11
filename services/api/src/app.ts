@@ -5,7 +5,7 @@ config({
 import cookieParser from "cookie-parser"
 import express from "express"
 import helmet from "helmet"
-import pinoHttp from "pino-http"
+import { pinoHttp } from "pino-http"
 import { pino } from "./config/pino.js"
 import createHttpError from "http-errors"
 import signupRouter from "./signup/signupRouter.js"
@@ -18,7 +18,7 @@ import passport from "./config/passport.js"
 import cors from "cors"
 import { errorHandler } from "./middlewares/errorHandler.js"
 
-const app = express()
+const app: express.Express = express()
 
 app.use(pinoHttp({ logger: pino }))
 app.disable("x-powered-by")
@@ -27,7 +27,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser(process.env.SIGNED_COOKIE_SECRET))
 app.use(
-    cors({ origin: process.env.CORS_ORIGIN_URL.split(","), credentials: true })
+    cors({ origin: process.env.CORS_ORIGIN_URL?.split(","), credentials: true })
 )
 // Passport
 app.use(passport.initialize())
