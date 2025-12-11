@@ -1,7 +1,4 @@
-import { config } from "dotenv"
-config({
-    path: [`.env.${process.env.NODE_ENV}`, ".env"],
-})
+import "./config/env.js"
 import cookieParser from "cookie-parser"
 import express from "express"
 import helmet from "helmet"
