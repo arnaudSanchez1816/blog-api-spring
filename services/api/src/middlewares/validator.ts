@@ -1,19 +1,40 @@
-import { ZodError, ZodObject } from "zod"
+import z, { ZodError } from "zod"
+import type { ZodObject, ZodRawShape } from "zod"
 import _ from "lodash"
 import { ValidationError } from "../lib/errors.js"
 import type { Request, Response, NextFunction } from "express"
 
-interface ZodRequestObject extends ZodObject<any> {
+interface ZodRequestObject extends ZodObject<z.ZodRawShape> {
     shape: {
-        body?: ZodObject<any>
-        params?: ZodObject<any>
-        query?: ZodObject<any>
+        body?: z.ZodObject<z.ZodRawShape>
+        params?: z.ZodObject<z.ZodRawShape>
+        query?: z.ZodObject<z.ZodRawShape>
     }
 }
 
 export const validateRequest =
-    (validator: ZodRequestObject) =>
-    async (req: Request, res: Response, next: NextFunction) => {
+    <
+        SParams extends z.ZodObject<z.ZodRawShape> | undefined,
+        SBody extends z.ZodObject<z.ZodRawShape> | undefined,
+        SQuery extends z.ZodObject<z.ZodRawShape> | undefined,
+        // The ternary statement here handles the possibility of the S[Type] being undefined
+        TParams extends z.infer<
+            SParams extends z.ZodObject<z.ZodRawShape> ? SParams : any
+        >,
+        TQuery extends z.infer<
+            SQuery extends z.ZodObject<z.ZodRawShape> ? SQuery : any
+        >,
+        TBody extends z.infer<
+            SBody extends z.ZodObject<z.ZodRawShape> ? SBody : any
+        >,
+    >(
+        validator: ZodRequestObject
+    ) =>
+    async (
+        req: Request<TParams, any, TQuery, TBody, any>,
+        res: Response,
+        next: NextFunction
+    ) => {
         try {
             const data = await validator.parseAsync({
                 body: req.body,
@@ -51,7 +72,10 @@ export const validateRequest =
 
 // This only modifies req.query when it must change due to validation.
 // `req.query` remains immutable after changing it here.
-function updateQuery(req: Request, value: Record<string, any>) {
+function updateQuery<T extends z.infer<ZodRequestObject>>(
+    req: Request<T>,
+    value: Record<string, any>
+) {
     Object.defineProperty(req, "query", {
         ...Object.getOwnPropertyDescriptor(req, "query"),
         writable: false,
