@@ -629,3 +629,5 @@ $RECYCLE.BIN/
 *.swp
 
 appsettings.secret.json
+
+!packages/*
