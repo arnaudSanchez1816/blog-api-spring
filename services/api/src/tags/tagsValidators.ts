@@ -20,6 +20,8 @@ export const deleteTagValidator = z.object({
     }),
 })
 
+type test = z.infer<typeof deleteTagValidator>
+
 export const editTagValidator = z.object({
     params: tagSchema.pick({
         id: true,

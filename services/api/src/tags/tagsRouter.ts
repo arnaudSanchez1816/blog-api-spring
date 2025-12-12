@@ -17,7 +17,7 @@ import {
 } from "./tagsValidators.js"
 import { checkPermission } from "../middlewares/checkPermission.js"
 
-const router = Router()
+const router: Router = Router()
 
 router.get("/", getTags)
 router.post(
