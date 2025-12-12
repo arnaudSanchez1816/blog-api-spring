@@ -1,6 +1,7 @@
+import type { Prisma } from "@prisma/client"
 import { prisma } from "../config/prisma.js"
 
-export const getComment = async (commentId) => {
+export const getComment = async (commentId: number) => {
     const comment = await prisma.comment.findUnique({
         where: {
             id: commentId,
@@ -10,7 +11,19 @@ export const getComment = async (commentId) => {
     return comment
 }
 
-export const createComment = async ({ postId, username, body }) => {
+type CreateCommentDto = Prisma.CommentGetPayload<{
+    select: {
+        postId: true
+        username: true
+        body: true
+    }
+}>
+
+export const createComment = async ({
+    postId,
+    username,
+    body,
+}: CreateCommentDto) => {
     const createdComment = await prisma.comment.create({
         data: {
             postId,
@@ -22,7 +35,7 @@ export const createComment = async ({ postId, username, body }) => {
     return createdComment
 }
 
-export const deleteComment = async (commentId) => {
+export const deleteComment = async (commentId: number) => {
     const deletedComment = await prisma.comment.delete({
         where: {
             id: commentId,
@@ -32,10 +45,22 @@ export const deleteComment = async (commentId) => {
     return deletedComment
 }
 
-export const updateComment = async ({ commentId, username, body }) => {
+type UpdateCommentDto = Prisma.CommentGetPayload<{
+    select: {
+        id: true
+        username: true
+        body: true
+    }
+}>
+
+export const updateComment = async ({
+    id,
+    username,
+    body,
+}: UpdateCommentDto) => {
     const updatedComment = await prisma.comment.update({
         where: {
-            id: commentId,
+            id,
         },
         data: {
             username,

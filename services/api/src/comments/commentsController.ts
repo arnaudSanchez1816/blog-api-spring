@@ -1,7 +1,19 @@
+import type z from "zod"
 import * as commentsService from "./commentsService.js"
 import createHttpError from "http-errors"
+import type {
+    deleteCommentValidator,
+    editCommentValidator,
+    getCommentValidator,
+} from "./commentsValidators.js"
+import type { Request, Response, NextFunction } from "express"
 
-export const getComment = async (req, res, next) => {
+type GetCommentSchema = z.infer<typeof getCommentValidator>
+export const getComment = async (
+    req: Request<GetCommentSchema["params"]>,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const { id: commentId } = req.params
         const comment = await commentsService.getComment(commentId)
@@ -15,7 +27,12 @@ export const getComment = async (req, res, next) => {
     }
 }
 
-export const deleteComment = async (req, res, next) => {
+type DeleteCommentSchema = z.infer<typeof deleteCommentValidator>
+export const deleteComment = async (
+    req: Request<DeleteCommentSchema["params"]>,
+    res: Response,
+    next: NextFunction
+) => {
     try {
         const { id: commentId } = req.params
         const comment = await commentsService.getComment(commentId)
@@ -31,18 +48,23 @@ export const deleteComment = async (req, res, next) => {
     }
 }
 
-export const editComment = async (req, res, next) => {
+type EditCommentSchema = z.infer<typeof editCommentValidator>
+export const editComment = async (
+    req: Request<EditCommentSchema["params"], any, EditCommentSchema["body"]>,
+    res: Response,
+    next: NextFunction
+) => {
     try {
-        const { id: commentId } = req.params
+        const { id } = req.params
         const { username, body } = req.body
 
-        const comment = await commentsService.getComment(commentId)
+        const comment = await commentsService.getComment(id)
         if (!comment) {
             throw new createHttpError.NotFound()
         }
 
         const updatedComment = await commentsService.updateComment({
-            commentId,
+            id,
             username,
             body,
         })

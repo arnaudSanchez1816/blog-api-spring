@@ -11,7 +11,7 @@ import {
 import { checkPermission } from "../middlewares/checkPermission.js"
 import { PermissionType } from "@prisma/client"
 
-const router = Router()
+const router: Router = Router()
 router
     .route("/:id")
     .all(passport.authenticate(strategies.jwt, { session: false }))
@@ -26,5 +26,4 @@ router
         validateRequest(deleteCommentValidator),
         deleteComment
     )
-
 export default router
