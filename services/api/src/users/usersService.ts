@@ -67,8 +67,10 @@ export const createUser = async ({
                 },
             },
         },
-        select: {
+        include: {
             roles: true,
+        },
+        omit: {
             password: true,
         },
     })
