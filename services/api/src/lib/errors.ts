@@ -1,8 +1,8 @@
 export class BaseError extends Error {
     statusCode
     constructor(
-        errorMessage,
-        statusCode,
+        errorMessage: string,
+        statusCode: number,
         { name = "BaseError", cause = null }
     ) {
         super(errorMessage, { cause })
