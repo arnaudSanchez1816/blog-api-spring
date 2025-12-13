@@ -94,6 +94,7 @@ export const createUser = async (
             roleName: role,
         })
 
+        // @ts-expect-error
         const { password: hashedPassword, ...userDetails } = newUser
 
         return res.status(201).json(userDetails)
