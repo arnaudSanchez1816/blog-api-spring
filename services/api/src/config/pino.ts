@@ -1,7 +1,7 @@
-import pinoMake from "pino"
+import pinoMake, { type LoggerOptions } from "pino"
 import { prettyFactory } from "pino-pretty"
 
-let hooks = undefined
+let hooks: { streamWrite: (s: string) => string } | undefined
 
 if (process.env.NODE_ENV === "test") {
     const prettify = prettyFactory({ sync: true, colorize: true })
@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === "test") {
     }
 }
 
-const options = {
+const options: Partial<LoggerOptions> = {
     level: process.env.PINO_LOG_LEVEL || "info",
 }
 if (hooks) {
