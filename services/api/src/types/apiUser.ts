@@ -1,4 +1,4 @@
-import { type User, type Role, type Permission, Prisma } from "@prisma/client"
+import { Prisma } from "@prisma/client"
 
 const userWithRoles = Prisma.validator<Prisma.UserDefaultArgs>()({
     include: {
@@ -10,6 +10,4 @@ const userWithRoles = Prisma.validator<Prisma.UserDefaultArgs>()({
     },
 })
 
-type UserWithRoles = Prisma.UserGetPayload<typeof userWithRoles>
-
-export interface ApiUser extends UserWithRoles {}
+export interface ApiUser extends Prisma.UserGetPayload<typeof userWithRoles> {}
