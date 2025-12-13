@@ -1,17 +1,31 @@
+import type { Prisma } from "@prisma/client"
 import jwt from "jsonwebtoken"
+import type { SignOptions } from "jsonwebtoken"
+
+type UserDetails = Prisma.UserGetPayload<{
+    select: {
+        id: true
+        name: true
+        email: true
+    }
+}>
+
+interface GenerateTokenOptions {
+    expiresIn?: SignOptions["expiresIn"]
+}
 
 export const generateAccessToken = async (
-    user,
-    { expiresIn = "1 day" } = {}
+    user: UserDetails,
+    { expiresIn = "1 day" }: GenerateTokenOptions = {}
 ) => {
-    const accessToken = await new Promise((resolve, reject) => {
+    const accessToken: string = await new Promise((resolve, reject) => {
         jwt.sign(
             {
                 sub: user.id,
                 name: user.name,
                 email: user.email,
             },
-            process.env.JWT_ACCESS_SECRET,
+            process.env.JWT_ACCESS_SECRET!,
             {
                 expiresIn,
                 algorithm: "HS256",
@@ -21,7 +35,7 @@ export const generateAccessToken = async (
                     return reject(error)
                 }
 
-                resolve(encodedToken)
+                resolve(encodedToken!)
             }
         )
     })
@@ -30,19 +44,19 @@ export const generateAccessToken = async (
 }
 
 export const generateRefreshToken = async (
-    user,
-    { expiresIn = "30 days" } = {}
+    user: UserDetails,
+    { expiresIn = "30 days" }: GenerateTokenOptions = {}
 ) => {
-    const refreshToken = await new Promise((resolve, reject) => {
+    const refreshToken: string = await new Promise((resolve, reject) => {
         jwt.sign(
             {
                 sub: user.id,
                 name: user.name,
                 email: user.email,
             },
-            process.env.JWT_REFRESH_SECRET,
+            process.env.JWT_REFRESH_SECRET!,
             {
-                expiresIn: expiresIn,
+                expiresIn,
                 algorithm: "HS256",
             },
             (err, encodedToken) => {
@@ -50,7 +64,7 @@ export const generateRefreshToken = async (
                     return reject(err)
                 }
 
-                resolve(encodedToken)
+                resolve(encodedToken!)
             }
         )
     })

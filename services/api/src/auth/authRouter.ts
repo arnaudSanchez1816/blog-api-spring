@@ -5,7 +5,7 @@ import { strategies } from "../config/passport.js"
 import { validateRequest } from "../middlewares/validator.js"
 import { loginValidator } from "./authValidators.js"
 
-const router = Router()
+const router: Router = Router()
 
 router.get(
     "/token",
