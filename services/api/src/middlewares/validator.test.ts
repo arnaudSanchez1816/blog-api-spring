@@ -1,17 +1,18 @@
 import { z } from "zod"
-import { validateRequest } from "./validator"
+import { validateRequest } from "@/middlewares/validator.js"
 import { describe, it, vi, beforeEach, expect } from "vitest"
-import { ValidationError } from "../lib/errors"
+import { ValidationError } from "@/lib/errors.js"
+import type { Request, Response, NextFunction } from "express"
 
 describe("validator", () => {
-    let request
-    let response
-    const next = vi.fn()
+    let request: Request
+    let response: Response
+    const next: NextFunction = vi.fn()
 
     beforeEach(() => {
-        vi.resetAllMocks()
-        request = {}
-        response = {}
+        vi.restoreAllMocks()
+        request = {} as unknown as Request
+        response = {} as Response
     })
 
     it("should call next if validation was successful", async () => {
@@ -27,19 +28,27 @@ describe("validator", () => {
                 pValue: z.string(),
             }),
         })
-        request.body = {
+
+        type SchemaType = z.infer<typeof schema>
+        const req: Request<
+            SchemaType["params"],
+            any,
+            SchemaType["body"],
+            SchemaType["query"]
+        > = {} as any
+        req.body = {
             title: "nice title",
             content: "content string",
         }
-        request.query = {
+        req.query = {
             qValue: "query",
         }
-        request.params = {
+        req.params = {
             pValue: "params",
         }
 
         const middleware = validateRequest(schema)
-        await middleware(request, response, next)
+        await middleware(req, response, next)
 
         expect(next).toHaveBeenCalled()
     })
@@ -56,26 +65,35 @@ describe("validator", () => {
                 lower: z.string().toLowerCase(),
             }),
         })
-        request.body = {
+        type SchemaType = z.infer<typeof schema>
+        const req: Request<
+            SchemaType["params"],
+            any,
+            SchemaType["body"],
+            SchemaType["query"]
+        > = {} as any
+
+        req.body = {
+            //@ts-expect-error
             number: "54",
         }
-        request.query = {
+        req.query = {
             upper: "uppercase",
         }
-        request.params = {
+        req.params = {
             lower: "LOWERCASE",
         }
 
         const middleware = validateRequest(schema)
-        await middleware(request, response, next)
+        await middleware(req, response, next)
 
-        expect(request.body).toStrictEqual({
+        expect(req.body).toStrictEqual({
             number: 54,
         })
-        expect(request.query).toStrictEqual({
+        expect(req.query).toStrictEqual({
             upper: "UPPERCASE",
         })
-        expect(request.params).toStrictEqual({
+        expect(req.params).toStrictEqual({
             lower: "lowercase",
         })
     })
@@ -93,7 +111,8 @@ describe("validator", () => {
         const middleware = validateRequest(schema)
         const promise = vi.fn(() => middleware(request, response, next))
         await expect(promise).rejects.toThrow(ValidationError)
-        const error = promise.mock.settledResults[0].value
+        const error = promise.mock.settledResults[0]?.value
+        expect(error).not.toBeUndefined()
         expect(error.details).toStrictEqual({
             title: expect.any(String),
         })
@@ -116,7 +135,8 @@ describe("validator", () => {
         const middleware = validateRequest(schema)
         const promise = vi.fn(() => middleware(request, response, next))
         await expect(promise).rejects.toThrow(ValidationError)
-        const error = promise.mock.settledResults[0].value
+        const error = promise.mock.settledResults[0]?.value
+        expect(error).not.toBeUndefined()
         expect(error.details).toStrictEqual({
             title: expect.any(String),
             number: expect.any(String),

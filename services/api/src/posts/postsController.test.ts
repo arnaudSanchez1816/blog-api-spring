@@ -1,37 +1,38 @@
 import { describe, vi, it, expect, beforeEach } from "vitest"
-import * as PostsService from "./postsService.js"
-import * as PostsController from "./postsController.js"
-import * as CommentsService from "../comments/commentsService.js"
+import * as PostsService from "@/posts/postsService.js"
+import * as PostsController from "@/posts/postsController.js"
+import * as CommentsService from "@/comments/commentsService.js"
 import createHttpError from "http-errors"
 import { result, sortBy } from "lodash"
+import type { Request, Response, NextFunction } from "express"
+import { generatePostDetails } from "@/tests/helpers/tests-helpers.js"
 
 vi.mock(import("./postsService.js"))
 vi.mock(import("../comments/commentsService.js"))
 
 describe("postsController", () => {
-    let request = {}
-    let response = {}
+    let request: Request<any, any, any, any>
+    let response: Response
     const next = vi.fn()
 
     beforeEach(() => {
         vi.resetAllMocks()
-        request = {}
+        request = {} as Request
         response = {
             status: vi.fn().mockReturnThis(),
             json: vi.fn(),
             send: vi.fn(),
-        }
+        } as unknown as Response
     })
 
     describe("getPost", () => {
         it("should respond with 200 and send the post details", async () => {
-            const postDetails = {
-                id: 50,
+            const postDetails = generatePostDetails({
+                id: 1,
                 authorId: 1,
                 body: "body",
                 title: "title",
-                description: "description",
-            }
+            })
             vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
                 postDetails
             )
@@ -53,13 +54,13 @@ describe("postsController", () => {
         })
 
         it("should fetch the post details using the id in the request params", async () => {
-            const postDetails = {
+            const postDetails = generatePostDetails({
                 id: 50,
                 authorId: 1,
                 body: "body",
                 title: "title",
                 description: "description",
-            }
+            })
             vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
                 postDetails
             )
@@ -96,10 +97,12 @@ describe("postsController", () => {
         })
 
         it("should throw a 403 error if the user cannot view the post", async () => {
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 1,
-                title: "post",
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 1,
+                    title: "post",
+                })
+            )
             vi.mocked(PostsService.userCanViewPost).mockReturnValueOnce(false)
 
             request.params = {
@@ -118,20 +121,20 @@ describe("postsController", () => {
     describe("getPosts", () => {
         it("should respond 200 and send the posts data", async () => {
             const expectedPosts = [
-                {
+                generatePostDetails({
                     id: 1,
                     title: "title",
                     body: "body",
                     authorId: 1,
                     commentsCount: 50,
-                },
-                {
+                }),
+                generatePostDetails({
                     id: 2,
                     title: "title",
                     body: "body",
                     authorId: 1,
                     commentsCount: 10,
-                },
+                }),
             ]
             vi.mocked(PostsService.getPosts).mockResolvedValueOnce({
                 posts: expectedPosts,
@@ -308,12 +311,12 @@ describe("postsController", () => {
 
             request.user = { id: 1 }
 
-            const expectedPost = {
+            const expectedPost = generatePostDetails({
                 id: 1,
                 body: "body",
                 title: "title",
                 authorId: 1,
-            }
+            })
             vi.mocked(PostsService.createPost).mockResolvedValueOnce(
                 expectedPost
             )
@@ -335,12 +338,15 @@ describe("postsController", () => {
                 body: "body",
                 title: "title",
                 authorId: 1,
+                description: "desc",
+                publishedAt: null,
+                readingTime: 1,
             })
 
             await PostsController.createPost(request, response, next)
             expect(PostsService.createPost).toHaveBeenCalledWith(
                 request.body.title,
-                request.user.id
+                1
             )
         })
     })
@@ -360,17 +366,22 @@ describe("postsController", () => {
                 id: 1,
             }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 10,
-                authorId: 1,
-                title: "old title",
-                body: "old body",
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 10,
+                    authorId: 1,
+                    title: "old title",
+                    body: "old body",
+                })
+            )
 
             const expectedPost = {
                 id: 10,
                 body: "body",
                 title: "title",
+                description: "desc",
+                readingTime: 1,
+                tags: [],
             }
             vi.mocked(PostsService.updatePost).mockResolvedValueOnce(
                 expectedPost
@@ -397,17 +408,22 @@ describe("postsController", () => {
                 id: 1,
             }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 10,
-                authorId: 1,
-                title: "old title",
-                body: "old body",
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 10,
+                    authorId: 1,
+                    title: "old title",
+                    body: "old body",
+                })
+            )
 
             vi.mocked(PostsService.updatePost).mockResolvedValueOnce({
                 id: 10,
                 body: "body",
                 title: "title",
+                description: "desc",
+                readingTime: 1,
+                tags: [],
             })
 
             await PostsController.updatePost(request, response, next)
@@ -450,10 +466,12 @@ describe("postsController", () => {
                 id: 1,
             }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 9999,
-                authorId: 70,
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 9999,
+                    authorId: 70,
+                })
+            )
             await PostsController.updatePost(request, response, next)
             expect(next).toHaveBeenCalledWith(expect.any(createHttpError[403]))
         })
@@ -471,10 +489,12 @@ describe("postsController", () => {
                 id: 1,
             }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 100,
-                authorId: 1,
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 100,
+                    authorId: 1,
+                })
+            )
             await PostsController.updatePost(request, response, next)
             expect(PostsService.getPostDetails).toHaveBeenCalledWith(100)
             expect(PostsService.updatePost).toHaveBeenCalledWith(
@@ -495,11 +515,11 @@ describe("postsController", () => {
                 id: 1,
             }
 
-            const expectedPost = {
+            const expectedPost = generatePostDetails({
                 id: 10,
                 authorId: 1,
                 title: "title",
-            }
+            })
             vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
                 expectedPost
             )
@@ -522,11 +542,11 @@ describe("postsController", () => {
                 id: 1,
             }
 
-            const expectedPost = {
+            const expectedPost = generatePostDetails({
                 id: 10,
                 authorId: 1,
                 title: "title",
-            }
+            })
             vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
                 expectedPost
             )
@@ -567,10 +587,12 @@ describe("postsController", () => {
                 id: 1,
             }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 10,
-                authorId: 150,
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 10,
+                    authorId: 150,
+                })
+            )
 
             await PostsController.deletePost(request, response, next)
             expect(next).toHaveBeenCalledWith(expect.any(createHttpError[403]))
@@ -584,12 +606,14 @@ describe("postsController", () => {
             }
             request.user = { id: 1 }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 20,
-                authorId: 1,
-                title: "title",
-                publishedAt: null,
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 20,
+                    authorId: 1,
+                    title: "title",
+                    publishedAt: null,
+                })
+            )
 
             await PostsController.publishPost(request, response, next)
 
@@ -620,10 +644,12 @@ describe("postsController", () => {
             }
             request.user = { id: 1 }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 20,
-                authorId: 62,
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 20,
+                    authorId: 62,
+                })
+            )
 
             await PostsController.publishPost(request, response, next)
 
@@ -636,11 +662,13 @@ describe("postsController", () => {
             }
             request.user = { id: 1 }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 20,
-                authorId: 1,
-                publishedAt: new Date(),
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 20,
+                    authorId: 1,
+                    publishedAt: new Date(),
+                })
+            )
 
             await PostsController.publishPost(request, response, next)
 
@@ -655,10 +683,12 @@ describe("postsController", () => {
             }
             request.user = { id: 1 }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 20,
-                authorId: 1,
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 20,
+                    authorId: 1,
+                })
+            )
 
             await PostsController.publishPost(request, response, next)
 
@@ -675,12 +705,14 @@ describe("postsController", () => {
             }
             request.user = { id: 1 }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 20,
-                authorId: 1,
-                title: "title",
-                publishedAt: new Date(),
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 20,
+                    authorId: 1,
+                    title: "title",
+                    publishedAt: new Date(),
+                })
+            )
 
             await PostsController.hidePost(request, response, next)
 
@@ -711,11 +743,13 @@ describe("postsController", () => {
             }
             request.user = { id: 1 }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 20,
-                authorId: 62,
-                publishedAt: new Date(),
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 20,
+                    authorId: 62,
+                    publishedAt: new Date(),
+                })
+            )
 
             await PostsController.hidePost(request, response, next)
 
@@ -728,11 +762,13 @@ describe("postsController", () => {
             }
             request.user = { id: 1 }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 20,
-                authorId: 1,
-                publishedAt: null,
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 20,
+                    authorId: 1,
+                    publishedAt: null,
+                })
+            )
 
             await PostsController.hidePost(request, response, next)
 
@@ -747,11 +783,13 @@ describe("postsController", () => {
             }
             request.user = { id: 1 }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 20,
-                authorId: 1,
-                publishedAt: new Date(),
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 20,
+                    authorId: 1,
+                    publishedAt: new Date(),
+                })
+            )
 
             await PostsController.hidePost(request, response, next)
 
@@ -776,16 +814,19 @@ describe("postsController", () => {
                     username: "user",
                     postId: 1,
                     body: "comment",
+                    createdAt: new Date(),
                 },
             ]
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 1,
-                authorId: 1,
-                title: "title",
-                publishedAt: new Date(),
-                comments: expectedComments,
-                commentsCount: expectedComments.length,
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 1,
+                    authorId: 1,
+                    title: "title",
+                    publishedAt: new Date(),
+                    comments: expectedComments,
+                    commentsCount: expectedComments.length,
+                })
+            )
             vi.mocked(PostsService.userCanViewPost).mockReturnValueOnce(true)
 
             await PostsController.getPostComments(request, response, next)
@@ -841,12 +882,14 @@ describe("postsController", () => {
                 id: 1,
             }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 1,
-                authorId: 10,
-                comments: [],
-                commentsCount: 0,
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 1,
+                    authorId: 10,
+                    comments: [],
+                    commentsCount: 0,
+                })
+            )
             vi.mocked(PostsService.userCanViewPost).mockReturnValueOnce(false)
 
             await PostsController.getPostComments(request, response, next)
@@ -866,12 +909,14 @@ describe("postsController", () => {
                 body: "comment",
             }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 1,
-                authorId: 1,
-                comments: [],
-                commentsCount: 0,
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 1,
+                    authorId: 1,
+                    comments: [],
+                    commentsCount: 0,
+                })
+            )
 
             vi.mocked(PostsService.userCanViewPost).mockReturnValueOnce(true)
             const expectedComment = {
@@ -879,6 +924,7 @@ describe("postsController", () => {
                 body: request.body.body,
                 username: request.body.username,
                 postId: 1,
+                createdAt: new Date(),
             }
             vi.mocked(CommentsService.createComment).mockResolvedValueOnce(
                 expectedComment
@@ -900,12 +946,14 @@ describe("postsController", () => {
                 body: "comment",
             }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({
-                id: 1,
-                authorId: 1,
-                comments: [],
-                commentsCount: 0,
-            })
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 1,
+                    authorId: 1,
+                    comments: [],
+                    commentsCount: 0,
+                })
+            )
 
             vi.mocked(PostsService.userCanViewPost).mockReturnValueOnce(true)
             const expectedComment = {
@@ -913,6 +961,7 @@ describe("postsController", () => {
                 body: request.body.body,
                 username: request.body.username,
                 postId: 1,
+                createdAt: new Date(),
             }
             vi.mocked(CommentsService.createComment).mockResolvedValueOnce(
                 expectedComment
@@ -952,7 +1001,11 @@ describe("postsController", () => {
                 body: "comment",
             }
 
-            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce({})
+            vi.mocked(PostsService.getPostDetails).mockResolvedValueOnce(
+                generatePostDetails({
+                    id: 1,
+                })
+            )
             vi.mocked(PostsService.userCanViewPost).mockReturnValueOnce(false)
 
             await PostsController.createPostComment(request, response, next)

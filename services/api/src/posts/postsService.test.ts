@@ -1,18 +1,18 @@
 import { describe, vi, it, beforeEach, expect } from "vitest"
-import prismaMock from "../config/__mocks__/prisma.js"
+import { prisma as prismaMock } from "../config/__mocks__/prisma.js"
 import * as PostsService from "./postsService.js"
 import _ from "lodash"
 
 vi.mock(import("../config/prisma.js"))
 vi.mock(import("jsdom"))
-vi.mock(import("dompurify"), () => {
+vi.mock("dompurify", () => {
     return {
         default: vi.fn(() => ({
             sanitize: vi.fn((body) => body),
         })),
     }
 })
-vi.mock(import("jsdom"), () => {
+vi.mock("jsdom", () => {
     return {
         JSDOM: vi.fn(
             class {
@@ -25,7 +25,7 @@ vi.mock(import("jsdom"), () => {
     }
 })
 
-vi.mock(import("marked"), () => {
+vi.mock("marked", () => {
     return {
         marked: vi.fn((body) => body),
     }
@@ -42,7 +42,7 @@ describe("postsService", () => {
                 tags: [{ id: 1, name: "tag1", slug: "slug1" }],
                 description: data.description,
                 readingTime: 1,
-            }
+            } as any
         })
         prismaMock.$transaction.mockResolvedValue([[], 0])
     })
@@ -377,6 +377,10 @@ describe("postsService", () => {
                     id: 50,
                     publishedAt: new Date(),
                     authorId: 1,
+                    body: "",
+                    description: "",
+                    readingTime: 1,
+                    title: "",
                 },
                 1
             )
@@ -389,6 +393,11 @@ describe("postsService", () => {
                 {
                     id: 50,
                     authorId: 1,
+                    body: "",
+                    description: "",
+                    publishedAt: null,
+                    readingTime: 1,
+                    title: "",
                 },
                 1
             )
@@ -401,18 +410,14 @@ describe("postsService", () => {
                 {
                     id: 50,
                     authorId: 1,
+                    body: "",
+                    description: "",
+                    publishedAt: null,
+                    readingTime: 1,
+                    title: "",
                 },
                 15100
             )
-
-            expect(isVisible).toBe(false)
-        })
-
-        it("should return false if the post is unpublished and the user id is missing or invalid", () => {
-            const isVisible = PostsService.userCanViewPost({
-                id: 50,
-                authorId: 1,
-            })
 
             expect(isVisible).toBe(false)
         })

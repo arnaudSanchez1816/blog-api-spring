@@ -1,12 +1,13 @@
 import { describe, vi, expect, it, beforeEach } from "vitest"
-import * as AuthController from "../auth/authController.js"
+import * as AuthController from "@/auth/authController.js"
 import createHttpError from "http-errors"
+import type { Request, Response, NextFunction } from "express"
 
 const { ACCESS_TOKEN_VALUE, REFRESH_TOKEN_VALUE } = vi.hoisted(() => ({
     ACCESS_TOKEN_VALUE: "accessToken",
     REFRESH_TOKEN_VALUE: "refreshToken",
 }))
-vi.mock(import("../auth/authService.js"), () => {
+vi.mock("@/auth/authService.js", () => {
     return {
         generateAccessToken: vi.fn(() => ACCESS_TOKEN_VALUE),
         generateRefreshToken: vi.fn(() => REFRESH_TOKEN_VALUE),
@@ -14,17 +15,17 @@ vi.mock(import("../auth/authService.js"), () => {
 })
 
 describe("authController", () => {
-    let request = {}
-    let response = {}
-    const next = vi.fn()
+    let request: Request
+    let response: Response
+    const next: NextFunction = vi.fn()
     beforeEach(() => {
-        vi.resetAllMocks()
-        request = {}
+        vi.restoreAllMocks()
+        request = {} as Request
         response = {
             status: vi.fn().mockReturnThis(),
             json: vi.fn(),
             cookie: vi.fn(),
-        }
+        } as unknown as Response
     })
 
     describe("login", () => {

@@ -1,17 +1,18 @@
 import { beforeEach } from "vitest"
 import { describe, vi, it, expect } from "vitest"
-import { checkPermission } from "./checkPermission"
+import { checkPermission } from "@/middlewares/checkPermission.js"
 import createHttpError from "http-errors"
+import type { Request, Response, NextFunction } from "express"
 
 describe("checkPermission", () => {
-    let response
-    let request
-    const next = vi.fn()
+    let response: Response
+    let request: Request
+    const next: NextFunction = vi.fn()
 
     beforeEach(() => {
-        vi.resetAllMocks()
-        response = {}
-        request = {}
+        vi.restoreAllMocks()
+        response = {} as unknown as Response
+        request = {} as Request
     })
 
     it("should call next if user permissions are valid", () => {

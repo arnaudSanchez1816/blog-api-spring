@@ -217,7 +217,10 @@ export const updatePost = async ({ id, title, body, tags }: UpdatePostDto) => {
         ...(title && { title }),
         ...(body && { body }),
     }
-    const querySelect: Prisma.PostSelect = {
+    const querySelect: Pick<
+        Prisma.PostSelect,
+        "id" | "title" | "body" | "description" | "readingTime" | "tags"
+    > = {
         id: true,
         title: !!title,
         body: !!body,
@@ -326,11 +329,28 @@ export const hidePost = async (postId: number) => {
     return publishedPost
 }
 
+export interface PostDetails
+    extends Prisma.PostGetPayload<{
+        include: {
+            comments: true
+            tags: true
+            author: {
+                select: {
+                    id: true
+                    email: true
+                    name: true
+                }
+            }
+        }
+    }> {
+    commentsCount: number
+}
+
 export const getPostDetails = async (
     postId: number,
     { includeComments = false, includeTags = false } = {}
-) => {
-    const { _count, ...post } = await prisma.post.findUniqueOrThrow({
+): Promise<PostDetails | null> => {
+    const postResult = await prisma.post.findUnique({
         where: {
             id: postId,
         },
@@ -355,6 +375,12 @@ export const getPostDetails = async (
             }),
         },
     })
+
+    if (!postResult) {
+        return null
+    }
+
+    const { _count, ...post } = postResult
 
     return { ...post, commentsCount: _count.comments }
 }

@@ -1,25 +1,26 @@
 import { describe, vi, expect, it, beforeEach } from "vitest"
-import * as UsersController from "../users/usersController.js"
+import * as UsersController from "@/users/usersController.js"
 import * as PostsService from "../posts/postsService.js"
-import * as UsersService from "../users/usersService.js"
+import * as UsersService from "@/users/usersService.js"
 import createHttpError from "http-errors"
 import { PermissionType } from "@prisma/client"
+import type { Request, Response, NextFunction } from "express"
 
 vi.mock(import("../posts/postsService.js"))
-vi.mock(import("../users/usersService.js"))
+vi.mock(import("./usersService.js"))
 
 describe("usersController", () => {
-    let response = {}
-    let request = {}
-    const next = vi.fn()
+    let response: Response
+    let request: Request
+    const next: NextFunction = vi.fn()
 
     beforeEach(() => {
-        vi.resetAllMocks()
+        vi.restoreAllMocks()
         response = {
             status: vi.fn().mockReturnThis(),
             json: vi.fn(),
-        }
-        request = {}
+        } as unknown as Response
+        request = {} as Request
     })
     describe("getCurrentUser", () => {
         it("should return the current user data", async () => {
@@ -110,8 +111,10 @@ describe("usersController", () => {
                 email: "email",
                 password: "password",
             }
+
             request.query = {
                 q: "query",
+                sortBy: "-id",
             }
 
             const expectedPosts = [
@@ -119,7 +122,7 @@ describe("usersController", () => {
                 { id: 2, title: "post title 2", content: "content2" },
             ]
             vi.mocked(PostsService.getPosts).mockResolvedValueOnce({
-                posts: expectedPosts,
+                posts: expectedPosts as any,
                 count: expectedPosts.length,
             })
 
@@ -149,13 +152,19 @@ describe("usersController", () => {
                 email: "email",
                 name: "name",
                 password: "password",
+                roleName: "user",
             }
 
             vi.mocked(UsersService.createUser).mockResolvedValueOnce({
                 id: 1,
                 name: "name",
                 email: "email",
-                password: "password",
+                roles: [
+                    {
+                        id: 1,
+                        name: "user",
+                    },
+                ],
             })
 
             await UsersController.createUser(request, response, next)
@@ -164,6 +173,12 @@ describe("usersController", () => {
                 id: 1,
                 name: "name",
                 email: "email",
+                roles: [
+                    {
+                        id: 1,
+                        name: "user",
+                    },
+                ],
             })
         })
     })

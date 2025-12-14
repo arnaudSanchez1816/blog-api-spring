@@ -1,22 +1,23 @@
 import { describe, vi, expect, beforeEach, it } from "vitest"
-import * as CommentsController from "../comments/commentsController.js"
-import * as CommentsService from "../comments/commentsService.js"
+import * as CommentsController from "@/comments/commentsController.js"
+import * as CommentsService from "@/comments/commentsService.js"
 import createHttpError from "http-errors"
+import type { Request, Response, NextFunction } from "express"
 
-vi.mock(import("../comments/commentsService.js"))
+vi.mock(import("@/comments/commentsService.js"))
 
 describe("commentsController", () => {
-    let request = {}
-    let response = {}
-    const next = vi.fn()
+    let request: Request<any, any, any, any>
+    let response: Response
+    const next: NextFunction = vi.fn()
 
     beforeEach(() => {
-        vi.resetAllMocks()
-        request = {}
+        vi.restoreAllMocks()
+        request = {} as Request
         response = {
             status: vi.fn().mockReturnThis(),
             json: vi.fn(),
-        }
+        } as unknown as Response
     })
 
     describe("getComment", () => {

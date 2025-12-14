@@ -1,8 +1,8 @@
 import { describe, vi, it, beforeEach, expect } from "vitest"
-import * as AuthService from "../auth/authService.js"
+import * as AuthService from "@/auth/authService.js"
 import jwt from "jsonwebtoken"
 
-vi.mock(import("jsonwebtoken"), () => {
+vi.mock("jsonwebtoken", () => {
     return {
         default: {
             sign: vi.fn((a, b, c, callback) => {
@@ -14,7 +14,7 @@ vi.mock(import("jsonwebtoken"), () => {
 
 describe("autService", () => {
     beforeEach(() => {
-        vi.resetAllMocks()
+        vi.restoreAllMocks()
         vi.unstubAllEnvs()
     })
     describe("generateAccessToken", () => {
@@ -52,7 +52,7 @@ describe("autService", () => {
             vi.stubEnv("JWT_ACCESS_SECRET", accessTokenSecret)
 
             vi.mocked(jwt).sign.mockImplementationOnce((a, b, c, callback) => {
-                callback({ name: "Error" }, null)
+                callback({ name: "Error", message: "error" })
             })
 
             const user = {
@@ -103,7 +103,7 @@ describe("autService", () => {
             vi.stubEnv("JWT_REFRESH_SECRET", refreshTokenSecret)
 
             vi.mocked(jwt).sign.mockImplementationOnce((a, b, c, callback) => {
-                callback({ name: "Error" }, null)
+                callback({ name: "Error", message: "error" })
             })
 
             const user = {

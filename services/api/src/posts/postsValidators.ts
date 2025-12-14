@@ -8,18 +8,9 @@ export const getPostsValidator = z.object({
         q: z.string().optional(),
         sortBy: z
             .enum(Object.entries(SortByValues).map(([k, v]) => v))
-            .optional()
-            .default(SortByValues.publishedAtDesc)
-            .catch(SortByValues.publishedAtDesc),
-        page: z.coerce.number().int().min(0).optional().default(1).catch(1),
-        pageSize: z.coerce
-            .number()
-            .int()
-            .min(1)
-            .max(50)
-            .optional()
-            .default(20)
-            .catch(20),
+            .optional(),
+        page: z.coerce.number().int().min(0).optional(),
+        pageSize: z.coerce.number().int().min(1).max(50).optional(),
         tags: z
             .preprocess((val) => {
                 if (typeof val === "string") {
@@ -27,10 +18,8 @@ export const getPostsValidator = z.object({
                 }
                 return val
             }, postSchema.shape.tags)
-            .optional()
-            .default([])
-            .catch([]),
-        unpublished: z.transform(() => true).default(false),
+            .optional(),
+        unpublished: z.transform(() => true).optional(),
     }),
 })
 
