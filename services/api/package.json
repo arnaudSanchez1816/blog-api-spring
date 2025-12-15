@@ -60,6 +60,7 @@
         "@repo/typescript-config": "workspace:*",
         "@repo/zod-schemas": "workspace:*",
         "@types/cookie-parser": "^1.4.10",
+        "@types/cookie-signature": "^1.1.2",
         "@types/cors": "^2.8.19",
         "@types/http-errors": "^2.0.5",
         "@types/jsdom": "^27.0.0",
