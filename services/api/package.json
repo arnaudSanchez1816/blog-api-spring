@@ -65,6 +65,7 @@
         "@types/jsdom": "^27.0.0",
         "@types/lodash": "^4.17.21",
         "@types/passport": "^1.0.17",
+        "@types/supertest": "^6.0.3",
         "@vitest/eslint-plugin": "^1.4.2",
         "cookie-signature": "^1.2.2",
         "cookiejar": "^2.1.4",
