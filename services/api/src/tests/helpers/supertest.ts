@@ -4,7 +4,7 @@ import { normalize } from "path"
 
 export const api = supertest(app)
 
-export function v1Api(route) {
+export function v1Api(route: string) {
     const apiRoute = `/api/v1/${route}`
 
     return normalize(apiRoute)
