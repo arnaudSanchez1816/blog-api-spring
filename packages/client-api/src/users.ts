@@ -1,13 +1,15 @@
 import { FetchPostsParams, PostDetails } from "./posts"
 
+export interface UserRole {
+    id: number
+    name: string
+}
+
 export interface UserDetails {
     id: number
     name: string
     email: string
-    roles: {
-        id: number
-        name: string
-    }[]
+    roles: UserRole[]
 }
 
 export const fetchCurrentUser = async (token: string): Promise<UserDetails> => {
