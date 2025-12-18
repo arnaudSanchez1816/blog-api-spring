@@ -8,6 +8,8 @@
     },
     "exports": {
         "./base": "./base.json",
-        "./node": "./node.json"
+        "./node": "./node.json",
+        "./react": "./react.json",
+        "./vite": "./vite.json"
     }
 }
