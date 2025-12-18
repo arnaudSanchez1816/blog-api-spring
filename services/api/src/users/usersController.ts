@@ -19,23 +19,10 @@ export const getCurrentUser = async (
             throw new createHttpError.Unauthorized()
         }
 
-        // Omit password
-        const { password, ...userDetails } = req.user as ApiUser
+        const user = req.user as ApiUser
+        const userDetails = usersService.GetUserPersonnalDetails(user)
 
-        // Map roles to omit Permissions details
-        let userRoles: { id: number; name: string }[] = []
-        if (userDetails.roles) {
-            userRoles = userDetails.roles.map((role) => ({
-                id: role.id,
-                name: role.name,
-            }))
-        }
-        const userDetailsToSend = {
-            ...userDetails,
-            roles: userRoles,
-        }
-
-        return res.status(200).json(userDetailsToSend)
+        return res.status(200).json(userDetails)
     } catch (error) {
         next(error)
     }

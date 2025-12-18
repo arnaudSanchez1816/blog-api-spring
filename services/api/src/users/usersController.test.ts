@@ -43,15 +43,20 @@ describe("usersController", () => {
                 ],
             }
 
-            await UsersController.getCurrentUser(request, response, next)
-
-            expect(response.status).toBeCalledWith(200)
-            expect(response.json).toBeCalledWith({
+            const expectedUserDetails = {
                 id: 1,
                 name: "username",
                 email: "email",
                 roles: [{ id: 1, name: "admin" }],
-            })
+            }
+            vi.mocked(UsersService.GetUserPersonnalDetails).mockReturnValueOnce(
+                expectedUserDetails
+            )
+
+            await UsersController.getCurrentUser(request, response, next)
+
+            expect(response.status).toBeCalledWith(200)
+            expect(response.json).toBeCalledWith(expectedUserDetails)
         })
 
         it("should omit permissions details from the user roles definitions", async () => {
@@ -78,20 +83,20 @@ describe("usersController", () => {
                 ],
             }
 
-            await UsersController.getCurrentUser(request, response, next)
-
-            expect(response.status).toBeCalledWith(200)
-            expect(response.json).toBeCalledWith({
+            const expectedUserDetails = {
                 id: 1,
                 name: "username",
                 email: "email",
-                roles: [
-                    {
-                        id: 1,
-                        name: "admin",
-                    },
-                ],
-            })
+                roles: [{ id: 1, name: "admin" }],
+            }
+            vi.mocked(UsersService.GetUserPersonnalDetails).mockReturnValueOnce(
+                expectedUserDetails
+            )
+
+            await UsersController.getCurrentUser(request, response, next)
+
+            expect(response.status).toBeCalledWith(200)
+            expect(response.json).toBeCalledWith(expectedUserDetails)
         })
 
         it("should throw 401 error if no user is provided", async () => {

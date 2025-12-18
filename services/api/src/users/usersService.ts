@@ -1,5 +1,7 @@
+import type { Prisma } from "@prisma/client"
 import { prisma } from "../config/prisma.js"
 import bcrypt from "bcryptjs"
+import type { ApiUser } from "@/types/apiUser.js"
 
 export const getUserByEmail = async (
     email: string,
@@ -8,6 +10,11 @@ export const getUserByEmail = async (
     const user = await prisma.user.findUnique({
         where: {
             email: email,
+        },
+        include: {
+            roles: {
+                include: { permissions: true },
+            },
         },
         omit: {
             password: !includePassword,
@@ -76,4 +83,34 @@ export const createUser = async ({
     })
 
     return createdUser
+}
+
+export type UserPersonnalDetails = Prisma.UserGetPayload<{
+    include: {
+        roles: {
+            select: {
+                id: true
+                name: true
+            }
+        }
+    }
+    omit: {
+        password: true
+    }
+}>
+
+export const GetUserPersonnalDetails = (
+    userDetails: ApiUser
+): UserPersonnalDetails => {
+    console.log(userDetails)
+
+    return {
+        id: userDetails.id,
+        name: userDetails.name,
+        email: userDetails.email,
+        roles: userDetails.roles.map((role) => ({
+            id: role.id,
+            name: role.name,
+        })),
+    }
 }

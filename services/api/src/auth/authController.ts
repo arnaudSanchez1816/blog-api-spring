@@ -1,6 +1,7 @@
 import createHttpError from "http-errors"
 import { REFRESH_TOKEN_COOKIE } from "../config/passport.js"
 import * as authService from "./authService.js"
+import { GetUserPersonnalDetails } from "@/users/usersService.js"
 import _ from "lodash"
 import type { Request, Response, NextFunction } from "express"
 import type { ApiUser } from "../types/apiUser.js"
@@ -36,8 +37,10 @@ export const login = async (
             signed: true,
         })
 
+        const userDetails = GetUserPersonnalDetails(req.user as ApiUser)
+
         return res.status(200).json({
-            user: _.omit(user, "password"),
+            user: userDetails,
             accessToken: accessToken,
         })
     } catch (error) {

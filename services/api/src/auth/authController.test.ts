@@ -2,6 +2,7 @@ import { describe, vi, expect, it, beforeEach } from "vitest"
 import * as AuthController from "@/auth/authController.js"
 import createHttpError from "http-errors"
 import type { Request, Response, NextFunction } from "express"
+import type { ApiUser } from "@/types/apiUser.js"
 
 const { ACCESS_TOKEN_VALUE, REFRESH_TOKEN_VALUE } = vi.hoisted(() => ({
     ACCESS_TOKEN_VALUE: "accessToken",
@@ -30,30 +31,60 @@ describe("authController", () => {
 
     describe("login", () => {
         it("should respond with 200 and send the user data and a jwt access token", async () => {
-            request.user = {
+            const user: ApiUser = {
                 id: 1,
                 name: "username",
                 password: "omitPassword",
+                email: "email",
+                roles: [
+                    {
+                        id: 1,
+                        name: "admin",
+                        permissions: [
+                            {
+                                id: 1,
+                                type: "READ",
+                            },
+                        ],
+                    },
+                ],
             }
+            request.user = user
 
             await AuthController.login(request, response, next)
 
             expect(response.status).toHaveBeenCalledWith(200)
             expect(response.json).toHaveBeenCalledWith({
                 user: {
-                    id: 1,
-                    name: "username",
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    roles: [{ id: 1, name: "admin" }],
                 },
                 accessToken: ACCESS_TOKEN_VALUE,
             })
         })
 
         it("should set a http only cookie containing the jwt refresh token", async () => {
-            request.user = {
+            const user: ApiUser = {
                 id: 1,
                 name: "username",
                 password: "omitPassword",
+                email: "email",
+                roles: [
+                    {
+                        id: 1,
+                        name: "admin",
+                        permissions: [
+                            {
+                                id: 1,
+                                type: "READ",
+                            },
+                        ],
+                    },
+                ],
             }
+            request.user = user
 
             await AuthController.login(request, response, next)
 

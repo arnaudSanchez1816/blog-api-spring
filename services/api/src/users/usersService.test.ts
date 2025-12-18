@@ -2,6 +2,7 @@ import { expect, describe, vi, it, beforeEach } from "vitest"
 import { prisma } from "../config/__mocks__/prisma.js"
 import * as UsersService from "@/users/usersService.js"
 import bcrypt from "bcryptjs"
+import type { ApiUser } from "@/types/apiUser.js"
 
 const HASHED_PASSWORD = "hashedPassword"
 vi.mock(import("../config/prisma.js"))
@@ -50,6 +51,39 @@ describe("usersService", () => {
                     }),
                 })
             )
+        })
+    })
+
+    describe("GetUserPersonnalDetails", () => {
+        it("should return the personnal details of the given user", async () => {
+            const createdUser: ApiUser = {
+                id: 1,
+                email: "email@email.com",
+                name: "name",
+                password: "Password",
+                roles: [
+                    {
+                        id: 1,
+                        name: "admin",
+                        permissions: [{ id: 1, type: "READ" }],
+                    },
+                ],
+            }
+
+            const personnalDetails =
+                UsersService.GetUserPersonnalDetails(createdUser)
+
+            expect(personnalDetails).toStrictEqual({
+                id: 1,
+                email: "email@email.com",
+                name: "name",
+                roles: [
+                    {
+                        id: 1,
+                        name: "admin",
+                    },
+                ],
+            })
         })
     })
 })
