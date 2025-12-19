@@ -1,10 +1,11 @@
 import { useContext } from "react"
 import { AuthContext } from "./AuthProvider"
 
-/**
- *
- * @returns {import("./AuthProvider").AuthContextType}
- */
 export default function useAuth() {
-    return useContext(AuthContext)
+    const authContext = useContext(AuthContext)
+    if (!authContext) {
+        throw new Error("useAuth has to be used within <AuthProvider.Provider>")
+    }
+
+    return authContext
 }
