@@ -5,7 +5,7 @@ import tseslint from "typescript-eslint"
 
 export default defineConfig([
     ...config,
-    tseslint.configs.recommended,
+    ...tseslint.configs.recommended,
     {
         files: ["src/**/*.test.js", "src/**/*.test.ts"],
         plugins: {
