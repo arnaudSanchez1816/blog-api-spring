@@ -7,9 +7,9 @@ import { useLocation, useResolvedPath } from "react-router"
 
 export interface NavLinkProps
     extends Omit<ComponentPropsWithRef<typeof Link>, "className"> {
-    className: string | ((isActive: boolean) => string)
+    className?: string | ((isActive: boolean) => string)
     href: string
-    relative: ComponentProps<typeof ReactRouterLink>["relative"]
+    relative?: ComponentProps<typeof ReactRouterLink>["relative"]
 }
 
 export default function NavLink({
