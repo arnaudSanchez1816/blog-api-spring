@@ -27,17 +27,14 @@ export default function CommentReplyForm({
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        const formData = new FormData(e.currentTarget)
+        const form = e.currentTarget
+        const formData = new FormData(form)
         const { username, body } = Object.fromEntries(formData)
 
         setSubmitting(true)
         try {
             if (isNaN(Number(postId))) {
                 throw new Error("Invalid post id")
-            }
-
-            if (!accessToken) {
-                throw new Error("access token is invalid")
             }
 
             await postComment(
@@ -57,7 +54,7 @@ export default function CommentReplyForm({
                 variant: "solid",
                 color: "success",
             })
-            e.currentTarget.reset()
+            form.reset()
         } catch (error) {
             console.error(error)
             addToast({
