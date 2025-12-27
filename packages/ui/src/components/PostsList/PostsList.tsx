@@ -5,21 +5,25 @@ import useTwBreakpoint from "@repo/ui/hooks/useTwBreakpoint"
 import { PostDetails } from "@repo/client-api/posts"
 import { ComponentPropsWithRef, ReactNode } from "react"
 
-function defaultRenderItem(post: PostDetails) {
+type PostDetailsWithoutBody = Omit<PostDetails, "body">
+
+function defaultRenderItem(post: PostDetailsWithoutBody) {
     return <PostItem post={post} key={post.id} className="[&+*]:mt-12" />
 }
 
-export type PostsListRenderItemCallback = (post: PostDetails) => ReactNode
+export type PostsListRenderItemCallback = (
+    post: PostDetailsWithoutBody
+) => ReactNode
 
 export interface PostsListProps extends ComponentPropsWithRef<"div"> {
-    posts: PostDetails[]
+    posts: PostDetailsWithoutBody[]
     pagination?: {
         currentPage: number
         setCurrentPage: (newPage: number) => void
         count: number
         pageSize: number
     }
-    renderItem: PostsListRenderItemCallback
+    renderItem?: PostsListRenderItemCallback
 }
 
 export default function PostsList({
