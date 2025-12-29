@@ -26,32 +26,30 @@ function onError(error: NodeJS.ErrnoException) {
         throw error
     }
 
-    var bind = typeof port === "string" ? "Pipe " + port : "Port " + port
+    const bind = typeof port === "string" ? "Pipe " + port : "Port " + port
 
     // handle specific listen errors with friendly messages
     switch (error.code) {
         case "EACCES":
             pino.error(bind + " requires elevated privileges")
-            process.exit(1)
             break
         case "EADDRINUSE":
             pino.error(bind + " is already in use")
-            process.exit(1)
             break
-        default:
-            throw error
     }
+
+    throw error
 }
 
 /**
  * Event listener for HTTP server "listening" event.
  */
 function onListening() {
-    var addr = server.address()
+    const addr = server.address()
     if (addr === null) {
         pino.error("Server address is null")
         return
     }
-    var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port
+    const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port
     pino.info("Listening on " + bind)
 }
