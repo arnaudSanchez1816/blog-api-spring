@@ -10,8 +10,8 @@ import { fetchCurrentUser, UserDetails } from "@repo/client-api/users"
 import type { ReactNode } from "react"
 
 export interface AuthContextProps {
-    user?: UserDetails | null | undefined
-    accessToken?: string | null | undefined
+    user: UserDetails | null
+    accessToken: string | null
     login: ({ email, password }: LoginParams) => Promise<{
         user?: UserDetails
         error?: string
@@ -33,9 +33,9 @@ export const AuthProvider = ({
     children: ReactNode
     loaderComponent: React.ReactElement
 }) => {
-    const [user, setUser] = useState<UserDetails | undefined | null>(undefined)
-    const [accessToken, setAccessToken] = useState<string | undefined | null>(
-        undefined
+    const [user, setUser] = useState<UserDetails | null | undefined>(null)
+    const [accessToken, setAccessToken] = useState<string | null | undefined>(
+        null
     )
 
     useLayoutEffect(() => {
@@ -132,13 +132,13 @@ export const AuthProvider = ({
         setAccessToken(null)
     }, [])
 
+    if (user === undefined || accessToken === undefined) {
+        return loaderComponent || <div>Loading</div>
+    }
+
     const providerValue = useMemo(() => {
         return { user, accessToken, login, logout }
     }, [user, accessToken, login, logout])
-
-    if (user === undefined) {
-        return loaderComponent || <div>Loading</div>
-    }
 
     return (
         <AuthContext.Provider value={providerValue}>
