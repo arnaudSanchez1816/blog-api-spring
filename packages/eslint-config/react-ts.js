@@ -7,8 +7,7 @@ import eslintConfigPrettier from "eslint-config-prettier/flat"
 import tseslint from "typescript-eslint"
 
 export const config = [
-    ...tseslint.configs.recommended,
-    { ignores: ["dist", "eslint.config.mjs"] },
+    { ignores: ["dist", "eslint.config.js"] },
     {
         files: ["**/*.{js,jsx,mjs,cjs,ts,tsx}"],
         languageOptions: {
@@ -33,12 +32,14 @@ export const config = [
             ...react.configs.flat["jsx-runtime"].rules,
             ...reactHooks.configs.recommended.rules,
             "react/prop-types": "off",
-            "no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]" }],
+            "no-unused-vars": "off",
+            "@typescript-eslint/no-unused-vars": ["error"],
             "react-refresh/only-export-components": [
                 "warn",
                 { allowConstantExport: true },
             ],
         },
     },
+    ...tseslint.configs.recommended,
     eslintConfigPrettier,
 ]
