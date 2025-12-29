@@ -1,0 +1,20 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+        "declaration": true,
+        "declarationMap": true,
+        "esModuleInterop": true,
+        "incremental": true,
+        "isolatedModules": true,
+        "module": "nodenext",
+        "verbatimModuleSyntax": true,
+        "moduleDetection": "force",
+        "noUncheckedIndexedAccess": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "types": ["node", "express"],
+        "lib": ["ES2022"]
+    }
+}

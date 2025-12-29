@@ -5,7 +5,7 @@ import vitest from "@vitest/eslint-plugin"
 export default defineConfig([
     ...config,
     {
-        files: ["src/**/*.test.js"],
+        files: ["src/**/*.test.js", "src/**/*.test.ts"],
         plugins: {
             vitest,
         },

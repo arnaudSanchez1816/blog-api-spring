@@ -4,13 +4,14 @@
     "type": "module",
     "private": true,
     "exports": {
-        "./*": "./src/*.js"
+        "./*": "./src/*.ts"
     },
     "scripts": {
         "lint": "eslint . --max-warnings 0"
     },
     "devDependencies": {
         "@repo/eslint-config": "workspace:*",
+        "@repo/typescript-config": "workspace:*",
         "eslint": "^9.34.0"
     }
 }

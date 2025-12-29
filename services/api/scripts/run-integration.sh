@@ -10,7 +10,7 @@ echo '🟢 - Database is ready!'
 npx prisma migrate dev --name init
 if [ "$#" -eq  "0" ]
   then
-    vitest run -c ./vitest.config.integration.js
+    vitest run -c ./vitest.config.integration.ts
 else
-    vitest run -c ./vitest.config.integration.js --ui
+    vitest run -c ./vitest.config.integration.ts --ui
 fi

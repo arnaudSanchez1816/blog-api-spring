@@ -4,8 +4,8 @@
     "type": "module",
     "private": true,
     "exports": {
-        "./useAuth": "./src/useAuth.js",
-        "./AuthProvider": "./src/AuthProvider.jsx"
+        "./useAuth": "./src/useAuth.ts",
+        "./AuthProvider": "./src/AuthProvider.tsx"
     },
     "scripts": {
         "lint": "eslint . --max-warnings 0"
@@ -15,8 +15,11 @@
         "react-dom": "^19.1.1"
     },
     "devDependencies": {
-        "@repo/eslint-config": "workspace:*",
         "@repo/client-api": "workspace:*",
+        "@repo/eslint-config": "workspace:*",
+        "@repo/typescript-config": "workspace:*",
+        "@types/react": "^19.1.10",
+        "@types/react-dom": "^19.1.7",
         "eslint": "^9.34.0"
     }
 }
