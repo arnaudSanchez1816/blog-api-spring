@@ -1,6 +1,6 @@
 import { beforeEach } from "vitest"
 import { describe, vi, it, expect } from "vitest"
-import { checkPermission } from "@/middlewares/checkPermission.js"
+import { checkPermission } from "#middlewares/checkPermission.js"
 import createHttpError from "http-errors"
 import type { Request, Response, NextFunction } from "express"
 

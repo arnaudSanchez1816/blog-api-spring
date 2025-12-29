@@ -1,7 +1,7 @@
 import createHttpError from "http-errors"
 import { REFRESH_TOKEN_COOKIE } from "../config/passport.js"
 import * as authService from "./authService.js"
-import { GetUserPersonnalDetails } from "@/users/usersService.js"
+import { GetUserPersonnalDetails } from "../users/usersService.js"
 import _ from "lodash"
 import type { Request, Response, NextFunction } from "express"
 import type { ApiUser } from "../types/apiUser.js"

@@ -359,7 +359,7 @@ describe("/users", () => {
         })
 
         it("should filter posts according to the q query parameter", async () => {
-            const [ignoredPost, expectedPost] = await createPosts([
+            const [, expectedPost] = await createPosts([
                 {
                     title: "An interesting title",
                     body: "post content",

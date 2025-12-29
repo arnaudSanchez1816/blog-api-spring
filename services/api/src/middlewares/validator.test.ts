@@ -1,7 +1,7 @@
 import { z } from "zod"
-import { validateRequest } from "@/middlewares/validator.js"
+import { validateRequest } from "#middlewares/validator.js"
 import { describe, it, vi, beforeEach, expect } from "vitest"
-import { ValidationError } from "@/lib/errors.js"
+import { ValidationError } from "#lib/errors.js"
 import type { Request, Response, NextFunction } from "express"
 
 describe("validator", () => {

@@ -1,11 +1,11 @@
 import { describe, vi, it, expect, beforeEach } from "vitest"
-import * as PostsService from "@/posts/postsService.js"
-import * as PostsController from "@/posts/postsController.js"
-import * as CommentsService from "@/comments/commentsService.js"
+import * as PostsService from "#posts/postsService.js"
+import * as PostsController from "#posts/postsController.js"
+import * as CommentsService from "#comments/commentsService.js"
 import createHttpError from "http-errors"
 import { result, sortBy } from "lodash"
 import type { Request, Response, NextFunction } from "express"
-import { generatePostDetails } from "@/tests/helpers/tests-helpers.js"
+import { generatePostDetails } from "#tests/helpers/tests-helpers.js"
 
 vi.mock(import("./postsService.js"))
 vi.mock(import("../comments/commentsService.js"))

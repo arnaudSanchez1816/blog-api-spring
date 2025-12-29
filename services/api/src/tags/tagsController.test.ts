@@ -1,9 +1,9 @@
 import { describe, vi, it, beforeEach, expect } from "vitest"
-import * as TagsController from "@/tags/tagsController.js"
-import * as TagsService from "@/tags/tagsService.js"
+import * as TagsController from "#tags/tagsController.js"
+import * as TagsService from "#tags/tagsService.js"
 import createHttpError from "http-errors"
-import { handlePrismaKnownErrors } from "@/helpers/errors.js"
-import { UniqueConstraintError, ValidationError } from "@/lib/errors.js"
+import { handlePrismaKnownErrors } from "#helpers/errors.js"
+import { UniqueConstraintError, ValidationError } from "#lib/errors.js"
 import type { Request, Response, NextFunction } from "express"
 
 vi.mock(import("./tagsService.js"))

@@ -3,7 +3,6 @@ import * as signupService from "./signupService.js"
 import { validateRequest } from "../middlewares/validator.js"
 import type { Request, Response, NextFunction } from "express"
 import z from "zod"
-import { GetUserPersonnalDetails } from "@/users/usersService.js"
 
 type SignupSchema = z.infer<typeof signupValidator>
 export const signup = [

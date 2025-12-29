@@ -7,8 +7,9 @@
     "private": true,
     "scripts": {
         "dev": "NODE_ENV=development tsx --watch ./src/index.ts | pnpx pino-pretty",
-        "build": "tsc | pnpm run prisma:generate",
-        "start": "NODE_ENV=production node ./dist/index.js | pnpx pino-pretty",
+        "check-types": "tsc --noEmit",
+        "build": "pnpm run check-types && tsdown | pnpm run prisma:generate",
+        "start": "NODE_ENV=production node ./dist/index.mjs | pnpx pino-pretty",
         "lint": "eslint ./src",
         "test:unit": "NODE_ENV=test vitest run -c ./vitest.config.unit.ts",
         "test:unit:watch": "NODE_ENV=test vitest --watch -c ./vitest.config.unit.ts",
@@ -53,6 +54,7 @@
         "passport-local": "^1.0.0",
         "pino": "^9.9.0",
         "pino-http": "^10.5.0",
+        "tsconfig-paths": "^4.2.0",
         "zod": "^4.1.5"
     },
     "devDependencies": {
@@ -75,6 +77,7 @@
         "pino-pretty": "^13.1.1",
         "prisma": "~6.14",
         "supertest": "^7.1.4",
+        "tsdown": "^0.18.3",
         "tsx": "^4.21.0",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.49.0",
@@ -83,5 +86,8 @@
     },
     "engines": {
         "node": ">=18"
+    },
+    "imports": {
+        "#*": "./src/*"
     }
 }

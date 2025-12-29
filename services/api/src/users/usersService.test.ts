@@ -1,8 +1,8 @@
 import { expect, describe, vi, it, beforeEach } from "vitest"
 import { prisma } from "../config/__mocks__/prisma.js"
-import * as UsersService from "@/users/usersService.js"
+import * as UsersService from "#users/usersService.js"
 import bcrypt from "bcryptjs"
-import type { ApiUser } from "@/types/apiUser.js"
+import type { ApiUser } from "#types/apiUser.js"
 
 const HASHED_PASSWORD = "hashedPassword"
 vi.mock(import("../config/prisma.js"))

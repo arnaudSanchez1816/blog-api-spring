@@ -2,9 +2,9 @@ import { expect } from "vitest"
 import { api, v1Api } from "./supertest.js"
 import jwt, { type SignOptions } from "jsonwebtoken"
 import prisma from "./prisma.js"
-import type { PostDetails } from "@/posts/postsService.js"
+import type { PostDetails } from "#posts/postsService.js"
 import type { Prisma } from "@prisma/client"
-import type { ApiUser } from "@/types/apiUser.js"
+import type { ApiUser } from "#types/apiUser.js"
 
 export const testAuthenticationHeader = async (
     route: string,

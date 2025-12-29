@@ -1,8 +1,8 @@
 import { describe, vi, expect, it, beforeEach } from "vitest"
-import * as AuthController from "@/auth/authController.js"
+import * as AuthController from "#auth/authController.js"
 import createHttpError from "http-errors"
 import type { Request, Response, NextFunction } from "express"
-import type { ApiUser } from "@/types/apiUser.js"
+import type { ApiUser } from "#types/apiUser.js"
 
 const { ACCESS_TOKEN_VALUE, REFRESH_TOKEN_VALUE } = vi.hoisted(() => ({
     ACCESS_TOKEN_VALUE: "accessToken",

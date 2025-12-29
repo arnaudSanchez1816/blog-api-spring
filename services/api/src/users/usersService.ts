@@ -1,7 +1,7 @@
 import type { Prisma } from "@prisma/client"
 import { prisma } from "../config/prisma.js"
 import bcrypt from "bcryptjs"
-import type { ApiUser } from "@/types/apiUser.js"
+import type { ApiUser } from "#types/apiUser.js"
 
 export const getUserByEmail = async (
     email: string,

@@ -10,12 +10,10 @@
         "outDir": "dist",
         "composite": true,
         "baseUrl": ".",
-        "paths": {
-            "@/*": ["./src/*"]
-        },
         "sourceMap": true,
-        "allowJs": true,
-        "checkJs": false
+        "allowJs": false,
+        "checkJs": false,
+        "noEmit": true,
     },
     "include": ["src"],
     "exclude": ["node_modules", "dist"]

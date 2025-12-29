@@ -1,10 +1,10 @@
 import { describe, vi, expect, beforeEach, it } from "vitest"
-import * as CommentsController from "@/comments/commentsController.js"
-import * as CommentsService from "@/comments/commentsService.js"
+import * as CommentsController from "#comments/commentsController.js"
+import * as CommentsService from "#comments/commentsService.js"
 import createHttpError from "http-errors"
 import type { Request, Response, NextFunction } from "express"
 
-vi.mock(import("@/comments/commentsService.js"))
+vi.mock(import("#comments/commentsService.js"))
 
 describe("commentsController", () => {
     let request: Request<any, any, any, any>

@@ -1,5 +1,5 @@
 import { describe, vi, it, beforeEach, expect } from "vitest"
-import * as AuthService from "@/auth/authService.js"
+import * as AuthService from "#auth/authService.js"
 import jwt from "jsonwebtoken"
 
 vi.mock("jsonwebtoken", () => {
