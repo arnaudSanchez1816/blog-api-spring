@@ -8,7 +8,7 @@
     "scripts": {
         "dev": "NODE_ENV=development tsx --watch ./src/index.ts | pnpx pino-pretty",
         "check-types": "tsc --noEmit",
-        "build": "pnpm run prisma:generate | pnpm run check-types && tsdown",
+        "build": "pnpm run prisma:generate && pnpm run check-types && tsdown",
         "start": "NODE_ENV=production node ./dist/index.mjs | pnpx pino-pretty",
         "lint": "eslint ./src",
         "test:unit": "NODE_ENV=test vitest run -c ./vitest.config.unit.ts",
