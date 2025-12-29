@@ -1,9 +1,9 @@
-import { ReactElement } from "react"
+import { ReactNode } from "react"
 
 export interface ThreeColumnLayoutProps {
-    left?: ReactElement
-    center?: ReactElement
-    right?: ReactElement
+    left?: ReactNode
+    center?: ReactNode
+    right?: ReactNode
 }
 
 export default function ThreeColumnLayout({
