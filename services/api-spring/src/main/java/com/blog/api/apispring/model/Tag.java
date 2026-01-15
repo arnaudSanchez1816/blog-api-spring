@@ -2,12 +2,8 @@ package com.blog.api.apispring.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "tags")
