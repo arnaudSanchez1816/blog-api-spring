@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "blog-api.security.enable",
+      "type": "java.lang.Boolean",
+      "description": "Enable/disable spring security."
+    }
+  ]
+}
