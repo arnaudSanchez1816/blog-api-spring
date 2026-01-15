@@ -13,48 +13,48 @@ import java.util.List;
 @Table(name = "users")
 public class User extends BaseEntity {
 
-    @Column(unique = true)
-    @NotNull
-    private String email;
+	@Column(unique = true)
+	@NotNull
+	private String email;
 
-    @NotNull
-    private String name;
+	@NotNull
+	private String name;
 
-    @NotNull
-    private String password;
+	@NotNull
+	private String password;
 
-    @OneToMany(mappedBy = "author")
-    private List<Post> posts = new ArrayList<>();
+	@OneToMany(mappedBy = "author")
+	private List<Post> posts = new ArrayList<>();
 
-    public String getEmail() {
-        return email;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	public String getPassword() {
+		return password;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    public List<Post> getPosts() {
-        return posts;
-    }
+	public List<Post> getPosts() {
+		return posts;
+	}
 
-    public void addPost(Post post) {
-        getPosts().add(post);
-    }
+	public void addPost(Post post) {
+		getPosts().add(post);
+	}
 }
