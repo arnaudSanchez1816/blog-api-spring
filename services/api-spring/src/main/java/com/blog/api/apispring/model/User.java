@@ -1,5 +1,6 @@
 package com.blog.api.apispring.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -21,10 +22,20 @@ public class User extends BaseEntity {
 	private String name;
 
 	@NotNull
+	@JsonIgnore
 	private String password;
 
 	@OneToMany(mappedBy = "author")
 	private List<Post> posts = new ArrayList<>();
+
+	public User() {
+	}
+
+	public User(String email, String name, String password) {
+		this.email = email;
+		this.name = name;
+		this.password = password;
+	}
 
 	public String getEmail() {
 		return email;

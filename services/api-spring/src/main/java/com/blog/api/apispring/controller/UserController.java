@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 public class UserController {
 
-	@GetMapping
+	@GetMapping("/me")
 	public ResponseEntity<String> getCurrentUser() {
 		return ResponseEntity.ok("hello");
 	}

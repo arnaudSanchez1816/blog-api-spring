@@ -4,6 +4,16 @@
       "name": "blog-api.security.enable",
       "type": "java.lang.Boolean",
       "description": "Enable/disable spring security."
+    },
+    {
+      "name": "blog-api.security.jwt.accessSecret",
+      "type": "java.lang.String",
+      "description": "Access token secret."
+    },
+    {
+      "name": "blog-api.security.jwt.refreshSecret",
+      "type": "java.lang.String",
+      "description": "Refresh token secret."
     }
   ]
 }
