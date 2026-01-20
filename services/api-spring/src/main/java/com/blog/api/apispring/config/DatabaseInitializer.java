@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile(value = {"dev"})
+@Profile(value = {"dev", "!test"})
 public class DatabaseInitializer implements ApplicationRunner
 {
 
