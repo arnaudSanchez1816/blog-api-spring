@@ -20,9 +20,11 @@ import static com.blog.api.apispring.security.filter.RefreshJwtAuthenticationFil
 @RequestMapping("/auth")
 class AuthController
 {
-
 	private final AuthenticationManager authenticationManager;
 	private final JwtService jwtService;
+
+	// 30 days
+	private static final int REFRESH_COOKIE_MAX_AGE = 30 * 24 * 60 * 60;
 
 	public AuthController(AuthenticationManager authenticationManager, JwtService jwtService)
 	{
@@ -51,6 +53,7 @@ class AuthController
 		Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE, refreshToken);
 		refreshTokenCookie.setHttpOnly(true);
 		refreshTokenCookie.setSecure(true);
+		refreshTokenCookie.setMaxAge(REFRESH_COOKIE_MAX_AGE);
 		response.addCookie(refreshTokenCookie);
 
 		// Generate access token
