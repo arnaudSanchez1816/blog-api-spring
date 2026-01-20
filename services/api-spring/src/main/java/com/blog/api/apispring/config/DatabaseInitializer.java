@@ -1,8 +1,11 @@
 package com.blog.api.apispring.config;
 
+import com.blog.api.apispring.model.Tag;
 import com.blog.api.apispring.model.User;
+import com.blog.api.apispring.service.TagService;
 import com.blog.api.apispring.service.UserService;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
@@ -16,6 +19,7 @@ public class DatabaseInitializer implements ApplicationRunner
 
 	private final UserService userService;
 	private final PasswordEncoder passwordEncoder;
+	private TagService tagService;
 
 	public DatabaseInitializer(UserService userService, PasswordEncoder passwordEncoder)
 	{
@@ -23,11 +27,19 @@ public class DatabaseInitializer implements ApplicationRunner
 		this.passwordEncoder = passwordEncoder;
 	}
 
+	@Autowired
+	public void setTagService(TagService tagService)
+	{
+		this.tagService = tagService;
+	}
+
 	@Override
 	public void run(@NonNull ApplicationArguments args)
 	{
 		System.out.println("Initializing database...");
 		userService.saveUser(new User("admin@blog.com", "admin", passwordEncoder.encode("AdminPassword10")));
+		tagService.saveTag(new Tag("Javascript", "js"));
+		tagService.saveTag(new Tag("Java Spring", "spring"));
 		System.out.println("Initializing database done!");
 	}
 }

@@ -1,0 +1,155 @@
+package com.blog.api.apispring.exception.handler;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.net.URI;
+import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
+@RestControllerAdvice
+public class GlobalExceptionHandler
+{
+
+	private ProblemDetail base(HttpStatus status, String title, String detail, String errorCode)
+	{
+		ProblemDetail pd = ProblemDetail.forStatusAndDetail(status, detail);
+		pd.setTitle(title);
+		pd.setType(URI.create("about:blank"));
+		pd.setProperty("timestamp", OffsetDateTime.now()
+												  .toString());
+		pd.setProperty("errorCode", errorCode);
+		return pd;
+	}
+
+	// 400 - Bean Validation
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ProblemDetail handleValidationException(MethodArgumentNotValidException ex)
+	{
+		Map<String, String> errors = new HashMap<>();
+		ex.getBindingResult()
+		  .getFieldErrors()
+		  .forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
+
+		log.warn("Validation error: {}", errors);
+		ProblemDetail pd = base(HttpStatus.BAD_REQUEST, "Validation failed", "One or more fields are invalid",
+								"VAL_400");
+		pd.setProperty("errors", errors);
+		return pd;
+	}
+
+	// 403 - Authorization denied
+	@ExceptionHandler(AuthorizationDeniedException.class)
+	public ProblemDetail handleAuthorizationDeniedException(AuthorizationDeniedException ex)
+	{
+		log.warn("Authorization denied: {}", ex.getMessage());
+		return base(HttpStatus.FORBIDDEN, "Access denied", "You do not have permission to access this resource",
+					"AUTH_403_DENIED");
+	}
+
+	// 409 - Version conflict (optimistic locking)
+	@ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+	public ProblemDetail handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException ex)
+	{
+		log.error("Optimistic locking failure: {}", ex.getMessage(), ex);
+		return base(HttpStatus.CONFLICT, "Conflict", "The resource was modified by another transaction. Please retry.",
+					"DATA_409_OPTIMISTIC_LOCK");
+	}
+
+	// 400 - Parsing JSON
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ProblemDetail handleParsingException(HttpMessageNotReadableException ex)
+	{
+		log.warn("Parsing error: {}", ex.getMessage());
+		return base(HttpStatus.BAD_REQUEST, "Malformed JSON request", "Body could not be parsed", "JSON_400");
+	}
+
+//	// 404 - Resource not found
+//	@ExceptionHandler(ResourceNotFoundException.class)
+//	public ProblemDetail handleResourceNotFoundException(ResourceNotFoundException ex)
+//	{
+//		log.info("Resource not found: {}", ex.getMessage());
+//		return base(HttpStatus.NOT_FOUND, "Resource not found", "The requested resource does not exist", "RES_404");
+//	}
+//
+//	// 409 - Conflict
+//	@ExceptionHandler(ResourceAlreadyExistsException.class)
+//	public ProblemDetail handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex)
+//	{
+//		log.info("Resource already exists: {}", ex.getMessage());
+//		return base(HttpStatus.CONFLICT, "Resource already exists",
+//					"A resource with the same identifier already exists", "RES_409");
+//	}
+
+	// 409 - Integrity violation (es. FK, unique constraint)
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public ProblemDetail onDataIntegrity(DataIntegrityViolationException ex)
+	{
+		log.error("Data integrity violation: {}", ex.getMessage());
+		return base(HttpStatus.CONFLICT, "Data integrity violation", "A data integrity error occurred",
+					"DATA_409_INTEGRITY");
+	}
+
+	// 401 - Wrong credentials
+	@ExceptionHandler(BadCredentialsException.class)
+	public ProblemDetail handleBadCredentialsException(BadCredentialsException ex)
+	{
+		log.info("Bad credentials: {}", ex.getMessage());
+		return base(HttpStatus.UNAUTHORIZED, "Invalid username or password", "Unauthorized",
+					"AUTH_401_BAD_CREDENTIALS");
+	}
+
+//	// 401 - JWT auth error
+//	@ExceptionHandler(JwtAuthenticationException.class)
+//	public ProblemDetail handleJwtAuthenticationException(JwtAuthenticationException ex)
+//	{
+//		log.info("JWT authentication error: {}", ex.getMessage());
+//		return base(HttpStatus.UNAUTHORIZED, "Unauthorized", "JWT authentication failed", "AUTH_401_JWT");
+//	}
+
+	// 400 - Not allowed arguments
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ProblemDetail handleIllegalArgumentException(IllegalArgumentException ex)
+	{
+		log.error("Illegal argument: {}", ex.getMessage(), ex);
+		return base(HttpStatus.BAD_REQUEST, "Bad request", ex.getMessage(), "GEN_400_ILLARG");
+	}
+
+	// 500 - Illegal state
+	@ExceptionHandler(IllegalStateException.class)
+	public ProblemDetail handleIllegalStateException(IllegalStateException ex)
+	{
+		log.error("Illegal state: {}", ex.getMessage(), ex);
+		return base(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", "An unexpected error occurred",
+					"GEN_500_ILLSTATE");
+	}
+
+	// 500 - Runtime
+	@ExceptionHandler(RuntimeException.class)
+	public ProblemDetail handleRuntimeException(RuntimeException ex)
+	{
+		log.error("Runtime error: {}", ex.getMessage(), ex);
+		return base(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", "An unexpected error occurred",
+					"GEN_500_RUNTIME");
+	}
+
+	// 500 - Fallback
+	@ExceptionHandler(Exception.class)
+	public ProblemDetail handleGenericException(Exception ex)
+	{
+		log.error("Generic error: {}", ex.getMessage(), ex);
+		return base(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", "An unexpected error occurred",
+					"GEN_500");
+	}
+}

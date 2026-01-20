@@ -7,7 +7,8 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "tags")
-public class Tag extends BaseEntity {
+public class Tag extends BaseEntity
+{
 
 	@NotNull
 	@Column(length = 64)
@@ -17,19 +18,33 @@ public class Tag extends BaseEntity {
 	@Column(unique = true, length = 64)
 	private String slug;
 
-	public String getName() {
+	public Tag()
+	{
+	}
+
+	public Tag(String name, String slug)
+	{
+		this.name = name;
+		this.slug = slug;
+	}
+
+	public String getName()
+	{
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(String name)
+	{
 		this.name = name;
 	}
 
-	public String getSlug() {
+	public String getSlug()
+	{
 		return slug;
 	}
 
-	public void setSlug(String slug) {
+	public void setSlug(String slug)
+	{
 		this.slug = slug;
 	}
 }

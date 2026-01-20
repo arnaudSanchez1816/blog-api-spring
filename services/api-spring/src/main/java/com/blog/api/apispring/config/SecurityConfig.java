@@ -53,30 +53,34 @@ public class SecurityConfig
 		http.httpBasic(AbstractHttpConfigurer::disable);
 		http.formLogin(AbstractHttpConfigurer::disable);
 		http.authorizeHttpRequests(authorize ->
-								   {
-									   authorize.requestMatchers(HttpMethod.POST, "/auth/login")
-												.permitAll();
-									   authorize.requestMatchers(HttpMethod.GET, "/auth/token")
-												.authenticated();
-									   authorize.requestMatchers(HttpMethod.GET, "/users/me")
-												.authenticated();
-									   authorize.anyRequest()
-												.permitAll();
-								   });
+		{
+			authorize.requestMatchers(HttpMethod.POST, "/auth/login")
+					 .permitAll();
+			authorize.requestMatchers(HttpMethod.GET, "/auth/token")
+					 .authenticated();
+			authorize.requestMatchers(HttpMethod.GET, "/users/me")
+					 .authenticated();
+			authorize.requestMatchers(HttpMethod.GET, "/tags/*")
+					 .permitAll();
+			authorize.requestMatchers("/tags/**")
+					 .authenticated();
+			authorize.anyRequest()
+					 .permitAll();
+		});
 
 		// === Error handling JSON ===
 		http.exceptionHandling(ex ->
-							   {
-								   ex.authenticationEntryPoint(restAuthenticationEntryPoint)
-									 .accessDeniedHandler(restAccessDeniedHandler);
-							   });
+		{
+			ex.authenticationEntryPoint(restAuthenticationEntryPoint)
+			  .accessDeniedHandler(restAccessDeniedHandler);
+		});
 
 		// === JWT Filters ===
 		AuthenticationManager authenticationManager = authenticationManager(userDetailsService);
 		http.addFilterBefore(new RefreshJwtAuthenticationFilter(jwtService, authenticationManager),
-							 UsernamePasswordAuthenticationFilter.class);
+				UsernamePasswordAuthenticationFilter.class);
 		http.addFilterBefore(new AccessJwtAuthenticationFilter(jwtService, authenticationManager),
-							 RefreshJwtAuthenticationFilter.class);
+				RefreshJwtAuthenticationFilter.class);
 		return http.build();
 	}
 
