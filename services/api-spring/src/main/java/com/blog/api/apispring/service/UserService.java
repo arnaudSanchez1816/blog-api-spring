@@ -1,7 +1,9 @@
 package com.blog.api.apispring.service;
 
+import com.blog.api.apispring.model.Role;
 import com.blog.api.apispring.model.User;
 import com.blog.api.apispring.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,12 +12,13 @@ import java.util.Optional;
 @Service
 public class UserService
 {
-
 	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
-	public UserService(UserRepository userRepository)
+	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder)
 	{
 		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	public Optional<User> findById(Long id)
@@ -28,14 +31,27 @@ public class UserService
 		return userRepository.findByEmail(email);
 	}
 
+	public User createUser(String email, String name, String password, Role role)
+	{
+		String encodedPassword = passwordEncoder.encode(password);
+
+		User user = new User();
+		user.setEmail(email);
+		user.setName(name);
+		user.setPassword(encodedPassword);
+		user.addRole(role);
+
+		return userRepository.save(user);
+	}
+
 	@Transactional
-	public void saveUser(User user)
+	public User saveUser(User user)
 	{
 		if (user == null)
 		{
 			throw new IllegalArgumentException("Given user is null");
 		}
 
-		userRepository.save(user);
+		return userRepository.save(user);
 	}
 }

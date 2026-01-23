@@ -2,6 +2,7 @@ package com.blog.api.apispring.config;
 
 import com.blog.api.apispring.exception.handler.RestAccessDeniedHandler;
 import com.blog.api.apispring.exception.handler.RestAuthenticationEntryPoint;
+import com.blog.api.apispring.security.authorities.PermissionType;
 import com.blog.api.apispring.security.filter.AccessJwtAuthenticationFilter;
 import com.blog.api.apispring.security.filter.RefreshJwtAuthenticationFilter;
 import com.blog.api.apispring.security.provider.JwtAuthenticationProvider;
@@ -11,9 +12,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
+import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -60,10 +67,16 @@ public class SecurityConfig
 					 .authenticated();
 			authorize.requestMatchers(HttpMethod.GET, "/users/me")
 					 .authenticated();
+			// Tags route
 			authorize.requestMatchers(HttpMethod.GET, "/tags/*")
 					 .permitAll();
-			authorize.requestMatchers("/tags/**")
-					 .authenticated();
+			authorize.requestMatchers(HttpMethod.POST, "/tags/**")
+					 .hasAuthority(PermissionType.WRITE.name());
+			authorize.requestMatchers(HttpMethod.DELETE, "/tags/**")
+					 .hasAuthority(PermissionType.DELETE.name());
+			authorize.requestMatchers(HttpMethod.PUT, "/tags/**")
+					 .hasAuthority(PermissionType.UPDATE.name());
+			// Any
 			authorize.anyRequest()
 					 .permitAll();
 		});
@@ -92,6 +105,24 @@ public class SecurityConfig
 		JwtAuthenticationProvider jwtAuthenticationProvider = new JwtAuthenticationProvider(userDetailsService);
 
 		return new ProviderManager(usernamePasswordAuthProvider, jwtAuthenticationProvider);
+	}
+
+	@Bean
+	<T> AuthorizationManagerFactory<T> authorizationManagerFactory()
+	{
+		DefaultAuthorizationManagerFactory<T> authorizationManagerFactory = new DefaultAuthorizationManagerFactory<>();
+		authorizationManagerFactory.setRoleHierarchy(roleHierarchy());
+
+		return authorizationManagerFactory;
+	}
+
+	@Bean
+	public RoleHierarchy roleHierarchy()
+	{
+		return RoleHierarchyImpl.withDefaultRolePrefix()
+								.role("ADMIN")
+								.implies("USER")
+								.build();
 	}
 
 	@Bean

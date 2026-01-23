@@ -36,9 +36,9 @@ public class TagService
 		return tagRepository.findAll();
 	}
 
-	public void saveTag(Tag tag)
+	public Tag saveTag(Tag tag)
 	{
-		tagRepository.save(tag);
+		return tagRepository.save(tag);
 	}
 
 	@Transactional

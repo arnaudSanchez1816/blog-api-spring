@@ -1,11 +1,13 @@
 package com.blog.api.apispring.security.provider;
 
+import com.blog.api.apispring.exception.UserNotFoundException;
 import com.blog.api.apispring.security.authentication.JwtAuthenticationToken;
 import com.blog.api.apispring.security.userdetails.service.BlogUserDetailsService;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,17 +36,23 @@ public class JwtAuthenticationProvider implements AuthenticationProvider
 	public @Nullable Authentication authenticate(@NonNull Authentication authentication) throws AuthenticationException
 	{
 		Assert.isInstanceOf(JwtAuthenticationToken.class, authentication,
-							() -> "Only JwtAuthenticationToken is supported");
-		JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) authentication;
-		Long userId = (Long) jwtAuthenticationToken.getCredentials();
-		UserDetails user = userDetailsService.loadUserById(userId);
-		if (user == null)
+				() -> "Only JwtAuthenticationToken is supported");
+		try
 		{
-			throw new InternalAuthenticationServiceException(
-					"UserDetailsService returned null, which is an interface contract violation");
-		}
+			JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) authentication;
+			Long userId = (Long) jwtAuthenticationToken.getCredentials();
+			UserDetails user = userDetailsService.loadUserById(userId);
+			if (user == null)
+			{
+				throw new InternalAuthenticationServiceException(
+						"UserDetailsService returned null, which is an interface contract violation");
+			}
 
-		return createSuccessAuthentication(user, authentication, user);
+			return createSuccessAuthentication(user, authentication, user);
+		} catch (UserNotFoundException e)
+		{
+			throw new BadCredentialsException("Invalid credentials", e);
+		}
 	}
 
 	@Override
@@ -59,8 +67,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider
 		Collection<GrantedAuthority> authorities = new LinkedHashSet<>(user.getAuthorities());
 		authorities.add(FactorGrantedAuthority.fromAuthority(AUTHORITY));
 		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken.authenticated(principal,
-																									   authentication.getCredentials(),
-																									   authorities);
+				authentication.getCredentials(), authorities);
 		log.debug("Authenticated user");
 		return result;
 	}

@@ -1,14 +1,13 @@
 package com.blog.api.apispring.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -28,6 +27,10 @@ public class User extends BaseEntity
 
 	@OneToMany(mappedBy = "author")
 	private List<Post> posts = new ArrayList<>();
+
+	@ManyToMany
+	@JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles;
 
 	public User()
 	{
@@ -78,5 +81,24 @@ public class User extends BaseEntity
 	public void addPost(Post post)
 	{
 		getPosts().add(post);
+	}
+
+	public void addRole(Role role)
+	{
+		if (roles == null)
+		{
+			roles = new HashSet<>();
+		}
+		roles.add(role);
+	}
+
+	public void setRoles(Set<Role> roles)
+	{
+		this.roles = roles;
+	}
+
+	public Set<Role> getRoles()
+	{
+		return roles;
 	}
 }

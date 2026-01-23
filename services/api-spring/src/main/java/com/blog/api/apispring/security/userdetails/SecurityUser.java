@@ -5,17 +5,23 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class SecurityUser implements BlogUserDetails
 {
-
 	private final User user;
+	private final Set<GrantedAuthority> authorities;
 
 	public SecurityUser(User user)
 	{
 		this.user = user;
+		this.authorities = Set.of();
+	}
+
+	public SecurityUser(User user, Collection<? extends GrantedAuthority> authorities)
+	{
+		this.user = user;
+		this.authorities = Set.copyOf(authorities);
 	}
 
 	@Override
@@ -47,6 +53,6 @@ public class SecurityUser implements BlogUserDetails
 	@NullMarked
 	public Collection<? extends GrantedAuthority> getAuthorities()
 	{
-		return List.of();
+		return this.authorities;
 	}
 }
