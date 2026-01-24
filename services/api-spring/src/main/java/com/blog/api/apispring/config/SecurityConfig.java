@@ -12,8 +12,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,10 +26,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 @EnableWebSecurity
@@ -71,7 +67,7 @@ public class SecurityConfig
 			authorize.requestMatchers(HttpMethod.GET, "/tags/*")
 					 .permitAll();
 			authorize.requestMatchers(HttpMethod.POST, "/tags/**")
-					 .hasAuthority(PermissionType.WRITE.name());
+					 .hasAuthority(PermissionType.CREATE.name());
 			authorize.requestMatchers(HttpMethod.DELETE, "/tags/**")
 					 .hasAuthority(PermissionType.DELETE.name());
 			authorize.requestMatchers(HttpMethod.PUT, "/tags/**")
