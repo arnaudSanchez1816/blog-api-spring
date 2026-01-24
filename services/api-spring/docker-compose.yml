@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: postgres:16.11-bookworm
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=blog-api-spring
+    profiles:
+      - postgres
