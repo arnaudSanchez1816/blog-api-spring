@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-@Profile(value = {"dev", "!test"})
+@Profile(value = {"dev & !test"})
 public class DatabaseInitializer implements ApplicationRunner
 {
 
@@ -64,11 +64,11 @@ public class DatabaseInitializer implements ApplicationRunner
 
 		// Permissions
 		Permission read = createPermissionIfNotFound(PermissionType.READ);
-		Permission write = createPermissionIfNotFound(PermissionType.WRITE);
+		Permission create = createPermissionIfNotFound(PermissionType.CREATE);
 		Permission delete = createPermissionIfNotFound(PermissionType.DELETE);
 		Permission update = createPermissionIfNotFound(PermissionType.UPDATE);
 
-		Set<Permission> allPermissions = new HashSet<>(Arrays.asList(read, write, delete, update));
+		Set<Permission> allPermissions = new HashSet<>(Arrays.asList(read, create, delete, update));
 		// Roles
 		Role adminRole = createRoleIfNotFound("ROLE_ADMIN", allPermissions);
 		Role userRole = createRoleIfNotFound("ROLE_USER", Collections.singleton(read));
