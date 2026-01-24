@@ -6,12 +6,14 @@ import com.blog.api.apispring.dto.tag.UpdateTagRequest;
 import com.blog.api.apispring.model.Tag;
 import com.blog.api.apispring.service.TagService;
 import com.blog.api.apispring.validation.TagSlug;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Pattern;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -57,7 +59,7 @@ public class TagController
 	}
 
 	@PostMapping(produces = "application/json")
-	public ResponseEntity<Tag> createTag(@RequestBody CreateTagRequest createTagDto, UriComponentsBuilder ucb)
+	public ResponseEntity<Tag> createTag(@Valid @RequestBody CreateTagRequest createTagDto, UriComponentsBuilder ucb)
 	{
 		Tag newTag = tagService.createTag(createTagDto);
 		URI tagLocation = ucb.path("/tags/{id}")
@@ -68,7 +70,8 @@ public class TagController
 	}
 
 	@PutMapping("/{idOrSlug}")
-	public ResponseEntity<Tag> updateTag(@PathVariable String idOrSlug, @RequestBody UpdateTagRequest updateTagDto)
+	public ResponseEntity<Tag> updateTag(@PathVariable String idOrSlug,
+										 @Valid @RequestBody UpdateTagRequest updateTagDto)
 	{
 		return handleTagIdOrSlug(idOrSlug, id ->
 		{
