@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "tags")
 public class Tag extends BaseEntity
@@ -46,5 +48,19 @@ public class Tag extends BaseEntity
 	public void setSlug(String slug)
 	{
 		this.slug = slug;
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (o == null || getClass() != o.getClass()) return false;
+		Tag tag = (Tag) o;
+		return Objects.equals(name, tag.name) && Objects.equals(slug, tag.slug);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(name, slug);
 	}
 }
