@@ -1,6 +1,8 @@
 package com.blog.api.apispring.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -19,6 +21,8 @@ import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
+// ResponseEntityExceptionHandler
 public class GlobalExceptionHandler
 {
 
@@ -44,7 +48,7 @@ public class GlobalExceptionHandler
 
 		log.warn("Validation error: {}", errors);
 		ProblemDetail pd = base(HttpStatus.BAD_REQUEST, "Validation failed", "One or more fields are invalid",
-								"VAL_400");
+				"VAL_400");
 		pd.setProperty("errors", errors);
 		return pd;
 	}
@@ -55,7 +59,7 @@ public class GlobalExceptionHandler
 	{
 		log.warn("Authorization denied: {}", ex.getMessage());
 		return base(HttpStatus.FORBIDDEN, "Access denied", "You do not have permission to access this resource",
-					"AUTH_403_DENIED");
+				"AUTH_403_DENIED");
 	}
 
 	// 409 - Version conflict (optimistic locking)
@@ -64,7 +68,7 @@ public class GlobalExceptionHandler
 	{
 		log.error("Optimistic locking failure: {}", ex.getMessage(), ex);
 		return base(HttpStatus.CONFLICT, "Conflict", "The resource was modified by another transaction. Please retry.",
-					"DATA_409_OPTIMISTIC_LOCK");
+				"DATA_409_OPTIMISTIC_LOCK");
 	}
 
 	// 400 - Parsing JSON
@@ -98,7 +102,7 @@ public class GlobalExceptionHandler
 	{
 		log.error("Data integrity violation: {}", ex.getMessage());
 		return base(HttpStatus.CONFLICT, "Data integrity violation", "A data integrity error occurred",
-					"DATA_409_INTEGRITY");
+				"DATA_409_INTEGRITY");
 	}
 
 	// 401 - Wrong credentials
@@ -107,7 +111,7 @@ public class GlobalExceptionHandler
 	{
 		log.info("Bad credentials: {}", ex.getMessage());
 		return base(HttpStatus.UNAUTHORIZED, "Invalid username or password", "Unauthorized",
-					"AUTH_401_BAD_CREDENTIALS");
+				"AUTH_401_BAD_CREDENTIALS");
 	}
 
 //	// 401 - JWT auth error
@@ -132,7 +136,7 @@ public class GlobalExceptionHandler
 	{
 		log.error("Illegal state: {}", ex.getMessage(), ex);
 		return base(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", "An unexpected error occurred",
-					"GEN_500_ILLSTATE");
+				"GEN_500_ILLSTATE");
 	}
 
 	// 500 - Runtime
@@ -141,7 +145,7 @@ public class GlobalExceptionHandler
 	{
 		log.error("Runtime error: {}", ex.getMessage(), ex);
 		return base(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", "An unexpected error occurred",
-					"GEN_500_RUNTIME");
+				"GEN_500_RUNTIME");
 	}
 
 	// 500 - Fallback
@@ -150,6 +154,6 @@ public class GlobalExceptionHandler
 	{
 		log.error("Generic error: {}", ex.getMessage(), ex);
 		return base(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", "An unexpected error occurred",
-					"GEN_500");
+				"GEN_500");
 	}
 }
