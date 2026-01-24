@@ -12,7 +12,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = TagSlugImpl.class)
-@Max(30)
 public @interface TagSlug
 {
 	String message() default "The value of path variable must be String";

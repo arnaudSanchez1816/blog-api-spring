@@ -10,6 +10,10 @@ public class TagSlugImpl implements ConstraintValidator<TagSlug, String>
 	@Override
 	public boolean isValid(String value, ConstraintValidatorContext context)
 	{
+		if (value == null || value.isBlank())
+		{
+			return false;
+		}
 		return value.matches(SLUG_REGEX);
 	}
 }
