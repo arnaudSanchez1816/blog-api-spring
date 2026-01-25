@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WebAppConfiguration
 @AutoConfigureMockMvc
 @ExtendWith(ClearDatabaseExtension.class)
-class TagControllerTest
+class TagControllerTests
 {
 	// https://blog.jetbrains.com/idea/2025/04/a-practical-guide-to-testing-spring-controllers-with-mockmvctester/
 	@Autowired
