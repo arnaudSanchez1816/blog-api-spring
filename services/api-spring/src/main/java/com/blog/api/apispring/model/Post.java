@@ -9,14 +9,12 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Table(name = "posts")
 @Entity
-public class Post extends BaseEntity {
+public class Post extends BaseEntity
+{
 
 	@NotBlank(message = "Post title cannot be empty.")
 	private String title;
@@ -38,74 +36,95 @@ public class Post extends BaseEntity {
 	@JdbcTypeCode(SqlTypes.TIMESTAMP_WITH_TIMEZONE)
 	private OffsetDateTime publishedAt;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "author_id")
 	private User author;
 
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Comment> comments = new ArrayList<>();
+	private Set<Comment> comments = new HashSet<>();
 
 	@ManyToMany
 	@JoinTable(name = "posts_tags", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
 	private Set<Tag> tags = new LinkedHashSet<>();
 
-	public String getTitle() {
+	public String getTitle()
+	{
 		return title;
 	}
 
-	public void setTitle(String title) {
+	public void setTitle(String title)
+	{
 		this.title = title;
 	}
 
-	public String getDescription() {
+	public String getDescription()
+	{
 		return description;
 	}
 
-	public void setDescription(String description) {
+	public void setDescription(String description)
+	{
 		this.description = description;
 	}
 
-	public String getBody() {
+	public String getBody()
+	{
 		return body;
 	}
 
-	public void setBody(String body) {
+	public void setBody(String body)
+	{
 		this.body = body;
 	}
 
-	public int getReadingTime() {
+	public int getReadingTime()
+	{
 		return readingTime;
 	}
 
-	public void setReadingTime(int readingTime) {
+	public void setReadingTime(int readingTime)
+	{
 		this.readingTime = readingTime;
 	}
 
-	public OffsetDateTime getPublishedAt() {
+	public OffsetDateTime getPublishedAt()
+	{
 		return publishedAt;
 	}
 
-	public void setPublishedAt(OffsetDateTime publishedAt) {
+	public void setPublishedAt(OffsetDateTime publishedAt)
+	{
 		this.publishedAt = publishedAt;
 	}
 
-	public User getAuthor() {
+	public User getAuthor()
+	{
 		return author;
 	}
 
-	public void setAuthor(User author) {
+	public void setAuthor(User author)
+	{
 		this.author = author;
 	}
 
-	public List<Comment> getComments() {
+	public Set<Comment> getComments()
+	{
 		return comments;
 	}
 
-	public Set<Tag> getTags() {
+	public Set<Tag> getTags()
+	{
 		return tags;
 	}
 
-	public void addTag(Tag newTag) {
+	public void addTag(Tag newTag)
+	{
 		getTags().add(newTag);
+	}
+
+	public void addComment(Comment comment)
+	{
+		getComments().add(comment);
+		comment.setPost(this);
 	}
 }
