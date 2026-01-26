@@ -23,7 +23,7 @@ public class UserService
 
 	public Optional<User> findById(Long id)
 	{
-		return userRepository.findById(id);
+		return userRepository.findWithRolesById(id);
 	}
 
 	public Optional<User> findByEmail(String email)
