@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -240,5 +243,63 @@ class PostRepositoryTests
 		Optional<PostInfoWithAuthorTagsComments> result = postRepository.findWithTagsAndCommentsById(99999L);
 
 		assertThat(result).isEmpty();
+	}
+
+	@Test
+	void findAllWithTags_ReturnsPagedPostsWithAuthorAndTags()
+	{
+		Pageable pageable = PageRequest.of(0, 10);
+
+		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllWithTags(pageable);
+
+		assertThat(result).isNotNull();
+		assertThat(result.getTotalElements()).isEqualTo(2);
+		assertThat(result.getTotalPages()).isEqualTo(1);
+		assertThat(result.getContent()).hasSize(2);
+		PostInfoWithAuthorAndTags firstPost = result.getContent()
+													.get(0);
+		assertThat(firstPost.getId()).isNotNull();
+		assertThat(firstPost.getTitle()).isNotNull();
+		assertThat(firstPost.getAuthor()).isNotNull();
+		assertThat(firstPost.getAuthor()
+							.getName()).isEqualTo("Test Author");
+	}
+
+	@Test
+	void findAllWithTags_ReturnsEmptyPage_WhenNoPostsExist()
+	{
+		postRepository.deleteAll();
+		Pageable pageable = PageRequest.of(0, 10);
+
+		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllWithTags(pageable);
+
+		assertThat(result).isNotNull();
+		assertThat(result.getTotalElements()).isEqualTo(0);
+		assertThat(result.getContent()).isEmpty();
+	}
+
+	@Test
+	void findAllWithTags_ReturnsPaginatedResults_WithMultiplePages()
+	{
+		Pageable firstPage = PageRequest.of(0, 1);
+
+		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllWithTags(firstPage);
+
+		assertThat(result).isNotNull();
+		assertThat(result.getTotalElements()).isEqualTo(2);
+		assertThat(result.getTotalPages()).isEqualTo(2);
+		assertThat(result.getContent()).hasSize(1);
+		assertThat(result.hasNext()).isTrue();
+	}
+
+	@Test
+	void findAllWithTags_ReturnsCorrectPageSize()
+	{
+		Pageable pageable = PageRequest.of(0, 1);
+
+		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllWithTags(pageable);
+
+		assertThat(result.getSize()).isEqualTo(1);
+		assertThat(result.getContent()).hasSize(1);
 	}
 }

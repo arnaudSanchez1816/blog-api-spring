@@ -1,11 +1,11 @@
 package com.blog.api.apispring.repository;
 
 import com.blog.api.apispring.model.Post;
-import com.blog.api.apispring.projection.PostInfoWithAuthor;
-import com.blog.api.apispring.projection.PostInfoWithAuthorAndComments;
-import com.blog.api.apispring.projection.PostInfoWithAuthorAndTags;
-import com.blog.api.apispring.projection.PostInfoWithAuthorTagsComments;
+import com.blog.api.apispring.projection.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -14,8 +14,9 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface PostRepository extends CrudRepository<Post, Long>, PagingAndSortingRepository<Post, Long>
+public interface PostRepository extends CrudRepository<Post, Long>
 {
+
 	@EntityGraph(attributePaths = {"author"})
 	Optional<PostInfoWithAuthor> findWithAuthorById(@Param("id") long id);
 
@@ -25,6 +26,17 @@ public interface PostRepository extends CrudRepository<Post, Long>, PagingAndSor
 	@EntityGraph(attributePaths = {"author", "tags"})
 	Optional<PostInfoWithAuthorAndTags> findWithTagsById(@Param("id") long id);
 
-	@EntityGraph(attributePaths = {"author", "comments", "tags"})
+	@EntityGraph(attributePaths = {"author", "tags", "comments"})
 	Optional<PostInfoWithAuthorTagsComments> findWithTagsAndCommentsById(@Param("id") long id);
+
+	@Query(value = """
+				select p
+				from Post p
+				left join fetch p.author
+				left join fetch p.tags
+			""", countQuery = """
+				select count(p.id)
+				from Post p
+			""")
+	Page<PostInfoWithAuthorAndTags> findAllWithTags(Pageable pageable);
 }
