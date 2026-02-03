@@ -4,18 +4,23 @@ import com.blog.api.apispring.dto.metadata.Metadata;
 import com.blog.api.apispring.dto.posts.GetPostsRequest;
 import com.blog.api.apispring.dto.posts.GetPostsResponse;
 import com.blog.api.apispring.dto.posts.PostDto;
+import com.blog.api.apispring.model.Post;
 import com.blog.api.apispring.projection.PostInfoWithAuthor;
 import com.blog.api.apispring.projection.PostInfoWithAuthorAndTags;
+import com.blog.api.apispring.security.userdetails.BlogUserDetails;
 import com.blog.api.apispring.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,9 +93,27 @@ class PostController
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<PostInfoWithAuthor> deletePost(@PathVariable long id)
+	public ResponseEntity<PostDto> deletePost(@PathVariable long id,
+											  @AuthenticationPrincipal BlogUserDetails userDetails)
 	{
-		return ResponseEntity.ok(null);
+		Optional<PostInfoWithAuthor> optionalPost = postService.getPost(id);
+		if (optionalPost.isEmpty())
+		{
+			return ResponseEntity.notFound()
+								 .build();
+		}
+
+		PostInfoWithAuthor post = optionalPost.get();
+		if (!userDetails.getId()
+						.equals(post.getId()))
+		{
+			return ResponseEntity.status(HttpStatus.FORBIDDEN)
+								 .build();
+		}
+
+		postService.deletePost(id);
+
+		return ResponseEntity.ok(new PostDto(post));
 	}
 
 	@GetMapping("/{id}/comments")

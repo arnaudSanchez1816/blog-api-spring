@@ -67,4 +67,9 @@ public class PostService
 
 		return postRepository.countCommentsByIds(postIds);
 	}
+
+	public void deletePost(long id)
+	{
+		postRepository.deleteById(id);
+	}
 }

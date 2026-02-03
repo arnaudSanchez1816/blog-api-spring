@@ -20,7 +20,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -351,5 +354,17 @@ class PostRepositoryTests
 	{
 		Map<Long, Long> comments = postRepository.countCommentsByIds(Collections.emptyList());
 		assertThat(comments.size()).isEqualTo(0);
+	}
+
+	@Test
+	void deleteById_RemovesPostFromDatabase_WhenPostExists()
+	{
+		long postId = post1.getId();
+
+		postRepository.deleteById(postId);
+
+		Optional<PostInfoWithAuthor> result = postRepository.findWithAuthorById(postId);
+		assertThat(result).isEmpty();
+		assertThat(postRepository.count()).isEqualTo(1);
 	}
 }
