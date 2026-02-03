@@ -248,7 +248,8 @@ class PostRepositoryTests
 	@Test
 	void findAllWithTags_ReturnsPagedPostsWithAuthorAndTags()
 	{
-		Pageable pageable = PageRequest.of(0, 10);
+		Pageable pageable = PageRequest.of(0, 10, Sort.by("id")
+													  .ascending());
 
 		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllWithTags(pageable);
 
@@ -257,12 +258,16 @@ class PostRepositoryTests
 		assertThat(result.getTotalPages()).isEqualTo(1);
 		assertThat(result.getContent()).hasSize(2);
 		PostInfoWithAuthorAndTags firstPost = result.getContent()
-													.get(0);
+													.getFirst();
 		assertThat(firstPost.getId()).isNotNull();
+		assertThat(firstPost.getId()).isEqualTo(post1.getId());
 		assertThat(firstPost.getTitle()).isNotNull();
 		assertThat(firstPost.getAuthor()).isNotNull();
 		assertThat(firstPost.getAuthor()
 							.getName()).isEqualTo("Test Author");
+		assertThat(firstPost.getTags()).hasSize(2);
+		assertThat(firstPost.getTags()).extracting(Tag::getName)
+									   .containsExactlyInAnyOrder("Java", "Spring");
 	}
 
 	@Test
