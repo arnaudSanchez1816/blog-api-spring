@@ -9,6 +9,8 @@ import com.blog.api.apispring.model.User;
 import com.blog.api.apispring.repository.PostRepository;
 import com.blog.api.apispring.repository.TagRepository;
 import com.blog.api.apispring.repository.UserRepository;
+import com.blog.api.apispring.security.userdetails.SecurityUser;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
@@ -24,6 +28,7 @@ import java.time.OffsetDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 /**
  * Test class for PostController.
@@ -537,5 +542,115 @@ class PostControllerTests
 									.extractingPath("$.metadata.pageSize")
 									.isEqualTo(3);
 							});
+	}
+
+	/**
+	 * Test deletePost returns 200 OK when authenticated user deletes their own post.
+	 */
+	@Test
+	void deletePost_IsOk_WhenAuthenticatedUserDeletesOwnPost()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Post to Delete");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post = postRepository.save(post);
+
+		MvcTestResult response = mockMvc.delete()
+										.with(user(new SecurityUser(author)))
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/" + post.getId())
+										.exchange();
+
+		Post finalPost = post;
+		assertThat(response).hasStatusOk()
+							.hasContentType(MediaType.APPLICATION_JSON)
+							.bodyJson()
+							.convertTo(PostDto.class)
+							.satisfies(dto ->
+							{
+								assertThat(dto.getId()).isEqualTo(finalPost.getId());
+								assertThat(dto.getTitle()).isEqualTo("Post to Delete");
+							});
+
+		assertThat(postRepository.findById(finalPost.getId())).isEmpty();
+	}
+
+	/**
+	 * Test deletePost returns 404 NOT FOUND when post ID does not exist.
+	 */
+	@Test
+	@WithMockUser(value = "admin", authorities = "DELETE")
+	void deletePost_Is404_WhenPostIdDoesNotExist()
+	{
+		MvcTestResult response = mockMvc.delete()
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/999999")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * Test deletePost returns 403 FORBIDDEN when authenticated user tries to delete another user's post.
+	 */
+	@Test
+	// TODO : @WithMockUser custom implementation that instantiate a SecurityUser instead of User
+	void deletePost_Is403_WhenUserTriesToDeleteAnotherUsersPost()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		User otherUser = new User("other@example.com", "Other User", "password456");
+		otherUser = userRepository.save(otherUser);
+
+		Post post = new Post();
+		post.setTitle("Post to Delete");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post = postRepository.save(post);
+
+		MvcTestResult response = mockMvc.delete()
+										.with(user(new SecurityUser(otherUser)))
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/" + post.getId())
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.FORBIDDEN);
+	}
+
+	/**
+	 * Test deletePost returns 404 NOT FOUND when given negative post ID.
+	 */
+	@Test
+	@WithMockUser(value = "admin", authorities = "DELETE")
+	void deletePost_Is404_WhenGivenNegativePostId()
+	{
+		MvcTestResult response = mockMvc.delete()
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/-1")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * Test deletePost returns 404 NOT FOUND when given zero as post ID.
+	 */
+	@Test
+	@WithMockUser(value = "admin", authorities = "DELETE")
+	void deletePost_Is404_WhenGivenZeroAsPostId()
+	{
+		MvcTestResult response = mockMvc.delete()
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/0")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
 	}
 }

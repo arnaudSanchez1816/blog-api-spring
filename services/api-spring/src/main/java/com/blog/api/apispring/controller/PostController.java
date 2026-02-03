@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -100,8 +101,8 @@ class PostController
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<PostDto> deletePost(@PathVariable long id,
-											  @AuthenticationPrincipal BlogUserDetails userDetails)
+	@PreAuthorize("hasAuthority('DELETE') || #id == authentication.principal.id")
+	public ResponseEntity<PostDto> deletePost(@PathVariable long id)
 	{
 		Optional<PostInfoWithAuthor> optionalPost = postService.getPost(id);
 		if (optionalPost.isEmpty())
@@ -111,13 +112,6 @@ class PostController
 		}
 
 		PostInfoWithAuthor post = optionalPost.get();
-		if (!userDetails.getId()
-						.equals(post.getId()))
-		{
-			return ResponseEntity.status(HttpStatus.FORBIDDEN)
-								 .build();
-		}
-
 		postService.deletePost(id);
 
 		return ResponseEntity.ok(new PostDto(post));

@@ -77,8 +77,8 @@ public class SecurityConfig
 					 .permitAll();
 			authorize.requestMatchers(HttpMethod.POST, "/posts/**")
 					 .hasAuthority(PermissionType.CREATE.name());
-			authorize.requestMatchers(HttpMethod.DELETE, "/posts/**")
-					 .hasAuthority(PermissionType.DELETE.name());
+//			authorize.requestMatchers(HttpMethod.DELETE, "/posts/**")
+//					 .hasAuthority(PermissionType.DELETE.name());
 			authorize.requestMatchers(HttpMethod.PUT, "/posts/**")
 					 .hasAuthority(PermissionType.UPDATE.name());
 			// Any
