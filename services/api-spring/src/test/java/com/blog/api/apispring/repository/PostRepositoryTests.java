@@ -17,9 +17,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.OffsetDateTime;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -306,5 +307,49 @@ class PostRepositoryTests
 
 		assertThat(result.getSize()).isEqualTo(1);
 		assertThat(result.getContent()).hasSize(1);
+	}
+
+	@Test
+	void countCommentsById_ReturnCorrectValue()
+	{
+		long commentsCount = postRepository.countCommentsById(post1.getId());
+		assertThat(commentsCount).isEqualTo(1L);
+
+		commentsCount = postRepository.countCommentsById(post2.getId());
+		assertThat(commentsCount).isEqualTo(0L);
+	}
+
+	@Test
+	void countCommentsById_ReturnZeroNoPostExists()
+	{
+		long commentsCount = postRepository.countCommentsById(99999L);
+		assertThat(commentsCount).isEqualTo(0);
+	}
+
+	@Test
+	void countCommentsByIds_ReturnCorrectNumberOfComments()
+	{
+		Map<Long, Long> comments = postRepository.countCommentsByIds(Arrays.asList(post1.getId(), post2.getId()));
+		assertThat(comments.size()).isEqualTo(2);
+		assertThat(comments.containsKey(post1.getId())).isTrue();
+		assertThat(comments.get(post1.getId())).isEqualTo(1);
+		assertThat(comments.containsKey(post2.getId())).isTrue();
+		assertThat(comments.get(post2.getId())).isEqualTo(0);
+	}
+
+	@Test
+	void countCommentsByIds_OnlyReturnCountForListedPost()
+	{
+		Map<Long, Long> comments = postRepository.countCommentsByIds(Collections.singletonList(post1.getId()));
+		assertThat(comments.size()).isEqualTo(1);
+		assertThat(comments.containsKey(post1.getId())).isTrue();
+		assertThat(comments.get(post1.getId())).isEqualTo(1);
+	}
+
+	@Test
+	void countCommentsByIds_ReturnEmptyWhenGivenEmptyList()
+	{
+		Map<Long, Long> comments = postRepository.countCommentsByIds(Collections.emptyList());
+		assertThat(comments.size()).isEqualTo(0);
 	}
 }

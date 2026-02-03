@@ -7,14 +7,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
-public interface PostRepository extends CrudRepository<Post, Long>
+public interface PostRepository extends CrudRepository<Post, Long>, PostRepositoryExtension
 {
 
 	@EntityGraph(attributePaths = {"author"})
@@ -32,11 +33,18 @@ public interface PostRepository extends CrudRepository<Post, Long>
 	@Query(value = """
 				select p
 				from Post p
-				left join fetch p.author
-				left join fetch p.tags
 			""", countQuery = """
 				select count(p.id)
 				from Post p
 			""")
+	@EntityGraph(attributePaths = {"author", "tags"})
 	Page<PostInfoWithAuthorAndTags> findAllWithTags(Pageable pageable);
+
+	@Query(value = """
+				select count(c)
+				from Post p
+				left join Comment c on c.post = p
+				where p.id = :id
+			""")
+	long countCommentsById(@Param("id") Long id);
 }
