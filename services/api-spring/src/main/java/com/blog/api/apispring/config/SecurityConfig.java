@@ -72,6 +72,15 @@ public class SecurityConfig
 					 .hasAuthority(PermissionType.DELETE.name());
 			authorize.requestMatchers(HttpMethod.PUT, "/tags/**")
 					 .hasAuthority(PermissionType.UPDATE.name());
+			// Posts route
+			authorize.requestMatchers(HttpMethod.GET, "/posts/*")
+					 .permitAll();
+			authorize.requestMatchers(HttpMethod.POST, "/posts/**")
+					 .hasAuthority(PermissionType.CREATE.name());
+			authorize.requestMatchers(HttpMethod.DELETE, "/posts/**")
+					 .hasAuthority(PermissionType.DELETE.name());
+			authorize.requestMatchers(HttpMethod.PUT, "/posts/**")
+					 .hasAuthority(PermissionType.UPDATE.name());
 			// Any
 			authorize.anyRequest()
 					 .permitAll();
