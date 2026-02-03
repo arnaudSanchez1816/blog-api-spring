@@ -15,18 +15,17 @@ import java.util.*;
 @Entity
 public class Post extends BaseEntity
 {
-
 	@NotBlank(message = "Post title cannot be empty.")
 	private String title;
 
 	@NotNull
 	@ColumnDefault("")
 	@Column(length = Length.LONG32)
-	private String description;
+	private String description = "";
 
 	@NotNull
 	@Column(length = Length.LONG32)
-	private String body;
+	private String body = "New post body";
 
 	@ColumnDefault("1")
 	@NotNull

@@ -1,6 +1,7 @@
 package com.blog.api.apispring.controller;
 
 import com.blog.api.apispring.dto.metadata.Metadata;
+import com.blog.api.apispring.dto.posts.CreatePostRequest;
 import com.blog.api.apispring.dto.posts.GetPostsRequest;
 import com.blog.api.apispring.dto.posts.GetPostsResponse;
 import com.blog.api.apispring.dto.posts.PostDto;
@@ -17,10 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -80,10 +80,17 @@ class PostController
 	}
 
 	@PostMapping
-	public ResponseEntity<PostInfoWithAuthor> createPost() throws URISyntaxException
+	public ResponseEntity<PostDto> createPost(@Valid CreatePostRequest createPostRequest,
+											  @AuthenticationPrincipal BlogUserDetails userDetails)
 	{
-		return ResponseEntity.created(new URI("/"))
-							 .build();
+		Post newPost = postService.createPost(createPostRequest.title(), userDetails.getId());
+
+		URI location = UriComponentsBuilder.newInstance()
+										   .path("/posts/{id}")
+										   .buildAndExpand(newPost.getId())
+										   .toUri();
+		return ResponseEntity.created(location)
+							 .body(new PostDto(newPost));
 	}
 
 	@PutMapping("/{id}")

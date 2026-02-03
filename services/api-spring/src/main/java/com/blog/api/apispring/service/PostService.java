@@ -1,12 +1,16 @@
 package com.blog.api.apispring.service;
 
 import com.blog.api.apispring.model.Post;
+import com.blog.api.apispring.model.User;
 import com.blog.api.apispring.projection.*;
 import com.blog.api.apispring.repository.PostRepository;
+import jakarta.persistence.EntityManager;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,10 +21,12 @@ import java.util.Optional;
 public class PostService
 {
 	private final PostRepository postRepository;
+	private final EntityManager entityManager;
 
-	public PostService(PostRepository postRepository)
+	public PostService(PostRepository postRepository, EntityManager entityManager)
 	{
 		this.postRepository = postRepository;
+		this.entityManager = entityManager;
 	}
 
 	public Optional<PostInfoWithAuthor> getPost(long id)
@@ -71,5 +77,16 @@ public class PostService
 	public void deletePost(long id)
 	{
 		postRepository.deleteById(id);
+	}
+
+	public Post createPost(String title, long authorId)
+	{
+		User author = entityManager.getReference(User.class, authorId);
+
+		Post newPost = new Post();
+		newPost.setTitle(HtmlUtils.htmlEscape(title));
+		newPost.setAuthor(author);
+
+		return postRepository.save(newPost);
 	}
 }
