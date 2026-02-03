@@ -1,10 +1,8 @@
 package com.blog.api.apispring.config;
 
-import com.blog.api.apispring.model.Permission;
-import com.blog.api.apispring.model.Role;
-import com.blog.api.apispring.model.Tag;
-import com.blog.api.apispring.model.User;
+import com.blog.api.apispring.model.*;
 import com.blog.api.apispring.repository.PermissionRepository;
+import com.blog.api.apispring.repository.PostRepository;
 import com.blog.api.apispring.repository.RoleRepository;
 import com.blog.api.apispring.security.authorities.PermissionType;
 import com.blog.api.apispring.service.TagService;
@@ -18,6 +16,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @Component
@@ -31,12 +30,19 @@ public class DatabaseInitializer implements ApplicationRunner
 	private TagService tagService;
 	private PermissionRepository permissionRepository;
 	private RoleRepository roleRepository;
+	private PostRepository postRepository;
 
 	public DatabaseInitializer(Environment environment, UserService userService, PasswordEncoder passwordEncoder)
 	{
 		this.environment = environment;
 		this.userService = userService;
 		this.passwordEncoder = passwordEncoder;
+	}
+
+	@Autowired
+	public void setPostRepository(PostRepository postRepository)
+	{
+		this.postRepository = postRepository;
 	}
 
 	@Autowired
@@ -83,6 +89,40 @@ public class DatabaseInitializer implements ApplicationRunner
 		// Tags
 		Tag jsTag = createTagIfNotFound("Javascript", "js");
 		Tag springTag = createTagIfNotFound("Java Spring", "spring");
+
+		// Posts
+		Optional<Post> optionalPost = postRepository.findById(1L);
+		if (optionalPost.isEmpty())
+		{
+			Post post = new Post();
+			post.setTitle("Title");
+			post.setBody("Body");
+			post.setDescription("Description");
+			post.setAuthor(adminUser);
+			post.setReadingTime(5);
+			post.setPublishedAt(OffsetDateTime.now());
+			post.addTag(jsTag);
+			postRepository.save(post);
+		}
+		Optional<Post> optionalPost2 = postRepository.findById(2L);
+		if (optionalPost2.isEmpty())
+		{
+			Post post = new Post();
+			post.setTitle("Title 2");
+			post.setBody("Body 2");
+			post.setDescription("Description 2");
+			post.setAuthor(adminUser);
+			post.setReadingTime(2);
+			post.setPublishedAt(OffsetDateTime.now());
+			post.addTag(jsTag);
+			post.addTag(springTag);
+			Comment comment = new Comment();
+			comment.setUsername("username");
+			comment.setCreatedAt(OffsetDateTime.now());
+			comment.setBody("Comment body");
+			post.addComment(comment);
+			postRepository.save(post);
+		}
 
 		System.out.println("Initializing database done!");
 	}
