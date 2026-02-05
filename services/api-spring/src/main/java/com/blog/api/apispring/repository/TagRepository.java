@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface TagRepository extends CrudRepository<Tag, Long>
@@ -29,10 +30,13 @@ public interface TagRepository extends CrudRepository<Tag, Long>
 	@Transactional
 	@Modifying
 	@Query("UPDATE Tag t set t.slug= :#{#tag.slug}, t.name= :#{#tag.name} WHERE t.slug= :slug")
-	Tag updateTag(@Param("slug") String slug, @Param("tag") Tag tag);
+	void updateTag(@Param("slug") String slug, @Param("tag") Tag tag);
 
 	@Transactional
 	@Modifying
 	@Query("UPDATE Tag t set t.slug= :#{#tag.slug}, t.name= :#{#tag.name} WHERE t.id= :id")
-	Tag updateTag(@Param("id") Long id, @Param("tag") Tag tag);
+	void updateTag(@Param("id") Long id, @Param("tag") Tag tag);
+
+	@Query("select t from Tag t where t.id in :ids or t.slug in :slugs")
+	Set<Tag> findAllByIdOrSlug(Iterable<Long> ids, Iterable<String> slugs);
 }
