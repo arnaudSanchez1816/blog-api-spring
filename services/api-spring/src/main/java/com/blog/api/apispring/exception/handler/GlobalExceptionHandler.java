@@ -1,6 +1,7 @@
 package com.blog.api.apispring.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,6 +14,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
@@ -34,6 +36,32 @@ public class GlobalExceptionHandler
 		pd.setProperty("timestamp", OffsetDateTime.now()
 												  .toString());
 		pd.setProperty("errorCode", errorCode);
+		return pd;
+	}
+
+	// 400 - Bean Validation
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ProblemDetail handleValidationException(MethodArgumentTypeMismatchException ex)
+	{
+		String paramName = ex.getName();
+		String invalidValue = ex.getValue() != null ? ex.getValue()
+														.toString() : "null";
+		String requiredType = ex.getRequiredType() != null ? ex.getRequiredType()
+															   .getSimpleName() : "unknown";
+
+		log.warn("Type mismatch for parameter '{}': expected type '{}' but got '{}'", paramName, requiredType,
+				invalidValue);
+
+		String rootCauseMessage = ExceptionUtils.getRootCause(ex)
+												.getMessage();
+
+		String details =
+				rootCauseMessage != null ? rootCauseMessage : String.format("Parameter '%s' should be of type '%s'",
+						paramName, requiredType);
+		ProblemDetail pd = base(HttpStatus.BAD_REQUEST, "Type mismatch", details, "VAL_400_TYPE_MISMATCH");
+		pd.setProperty("parameter", paramName);
+		pd.setProperty("invalidValue", invalidValue);
+		pd.setProperty("requiredType", requiredType);
 		return pd;
 	}
 
