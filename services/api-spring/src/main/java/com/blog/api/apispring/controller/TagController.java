@@ -2,9 +2,11 @@ package com.blog.api.apispring.controller;
 
 import com.blog.api.apispring.dto.tag.CreateTagRequest;
 import com.blog.api.apispring.dto.tag.GetTagsResponse;
+import com.blog.api.apispring.dto.tag.TagIdOrSlug;
 import com.blog.api.apispring.dto.tag.UpdateTagRequest;
 import com.blog.api.apispring.model.Tag;
 import com.blog.api.apispring.service.TagService;
+import com.blog.api.apispring.utils.TagUtils;
 import com.blog.api.apispring.validation.TagSlug;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -41,7 +43,7 @@ public class TagController
 	}
 
 	@GetMapping("/{idOrSlug}")
-	public ResponseEntity<Tag> getTag(@PathVariable String idOrSlug)
+	public ResponseEntity<Tag> getTag(@PathVariable TagIdOrSlug idOrSlug)
 	{
 		return handleTagIdOrSlug(idOrSlug, id ->
 		{
@@ -70,7 +72,7 @@ public class TagController
 	}
 
 	@PutMapping("/{idOrSlug}")
-	public ResponseEntity<Tag> updateTag(@PathVariable String idOrSlug,
+	public ResponseEntity<Tag> updateTag(@PathVariable TagIdOrSlug idOrSlug,
 										 @Valid @RequestBody UpdateTagRequest updateTagDto)
 	{
 		return handleTagIdOrSlug(idOrSlug, id ->
@@ -98,7 +100,7 @@ public class TagController
 	}
 
 	@DeleteMapping("/{idOrSlug}")
-	public ResponseEntity<Tag> deleteTag(@PathVariable String idOrSlug)
+	public ResponseEntity<Tag> deleteTag(@PathVariable TagIdOrSlug idOrSlug)
 	{
 		return handleTagIdOrSlug(idOrSlug, id ->
 		{
@@ -115,26 +117,16 @@ public class TagController
 		});
 	}
 
-	private static <T> ResponseEntity<T> handleTagIdOrSlug(String idOrSlug, Function<Long, ResponseEntity<T>> idHandler,
+	private static <T> ResponseEntity<T> handleTagIdOrSlug(TagIdOrSlug idOrSlug,
+														   Function<Long, ResponseEntity<T>> idHandler,
 														   Function<String, ResponseEntity<T>> slugHandler)
 	{
-		try
+		if (idOrSlug.isId())
 		{
-			long id = Long.parseLong(idOrSlug);
-			return idHandler.apply(id);
-		} catch (NumberFormatException e)
+			return idHandler.apply(idOrSlug.getId());
+		} else
 		{
-			if (isSlug(idOrSlug))
-			{
-				return slugHandler.apply(idOrSlug);
-			}
+			return slugHandler.apply(idOrSlug.getSlug());
 		}
-		return ResponseEntity.notFound()
-							 .build();
-	}
-
-	private static boolean isSlug(@NonNull String slug)
-	{
-		return slug.length() <= 30 && slug.matches("^[a-z0-9]+(?:-[a-z0-9]+)*$");
 	}
 }

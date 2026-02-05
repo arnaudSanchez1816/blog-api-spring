@@ -104,6 +104,16 @@ class TagControllerTests
 	}
 
 	@Test
+	void getTag_Is400_WhenGivenAnInvalidSlugs()
+	{
+		assertThat(mockMvc.get()
+						  .contentType(MediaType.APPLICATION_JSON)
+						  .uri("/tags/" + TAG_SLUG_INVALID)
+
+		).hasStatus(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
 	void getTag_Is404_WhenGivenAnInvalidId()
 	{
 		MvcTestResult response = mockMvc.get()
@@ -114,11 +124,11 @@ class TagControllerTests
 	}
 
 	@Test
-	void getTag_Is404_WhenGivenAnInvalidSlug()
+	void getTag_Is404_WhenGivenASlugThatDoesNotExists()
 	{
 		MvcTestResult response = mockMvc.get()
 										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/tags/tag-invalid-slug")
+										.uri("/tags/tag-missing-slug")
 										.exchange();
 		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
 	}
@@ -403,6 +413,17 @@ class TagControllerTests
 
 	@Test
 	@WithMockUser(authorities = "UPDATE")
+	void updateTag_Is400_WhenSlugParamIsInvalid()
+	{
+		UpdateTagRequest updateTagRequest = new UpdateTagRequest("tagName", "tag-slug");
+		assertThat(mockMvc.put()
+						  .contentType(MediaType.APPLICATION_JSON)
+						  .uri("/tags/" + TAG_SLUG_INVALID)
+						  .content(JsonUtils.asJsonString(updateTagRequest))).hasStatus(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	@WithMockUser(authorities = "UPDATE")
 	void updateTag_Is404_WhenTagIdNotFound()
 	{
 		UpdateTagRequest updateTagRequest = new UpdateTagRequest("tagName", "tag-slug");
@@ -476,6 +497,14 @@ class TagControllerTests
 	{
 		assertThat(mockMvc.delete()
 						  .uri("/tags/1")).hasStatus(HttpStatus.FORBIDDEN);
+	}
+
+	@Test
+	@WithMockUser(authorities = "DELETE")
+	void deleteTag_Is400_WhenSlugParamIsInvalid()
+	{
+		assertThat(mockMvc.delete()
+						  .uri("/tags/" + TAG_SLUG_INVALID)).hasStatus(HttpStatus.BAD_REQUEST);
 	}
 
 	@Test
