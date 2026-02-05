@@ -7,6 +7,7 @@ import com.blog.api.apispring.repository.RoleRepository;
 import com.blog.api.apispring.security.authorities.PermissionType;
 import com.blog.api.apispring.service.TagService;
 import com.blog.api.apispring.service.UserService;
+import org.flywaydb.core.Flyway;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -31,6 +32,7 @@ public class DatabaseInitializer implements ApplicationRunner
 	private PermissionRepository permissionRepository;
 	private RoleRepository roleRepository;
 	private PostRepository postRepository;
+	private Flyway flyway;
 
 	public DatabaseInitializer(Environment environment, UserService userService, PasswordEncoder passwordEncoder)
 	{
@@ -63,10 +65,23 @@ public class DatabaseInitializer implements ApplicationRunner
 		this.tagService = tagService;
 	}
 
+	@Autowired
+	public void setFlyway(Flyway flyway)
+	{
+		this.flyway = flyway;
+	}
+
 	@Override
 	public void run(@NonNull ApplicationArguments args)
 	{
 		System.out.println("Initializing database...");
+
+		if (environment.matchesProfiles("dev"))
+		{
+			// Clear database
+			flyway.clean();
+			flyway.migrate();
+		}
 
 		// Permissions
 		Permission read = createPermissionIfNotFound(PermissionType.READ);
