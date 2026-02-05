@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.HtmlUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class TagService
@@ -34,6 +36,21 @@ public class TagService
 	public List<Tag> getAllTags()
 	{
 		return tagRepository.findAll();
+	}
+
+	public Set<Tag> getAllTagsById(Iterable<Long> ids)
+	{
+		return tagRepository.findAllByIdOrSlug(ids, Collections.emptyList());
+	}
+
+	public Set<Tag> getAllTagsBySlug(Iterable<String> slugs)
+	{
+		return tagRepository.findAllByIdOrSlug(Collections.emptyList(), slugs);
+	}
+
+	public Set<Tag> getAllTagsByIdOrSlug(Iterable<Long> ids, Iterable<String> slugs)
+	{
+		return tagRepository.findAllByIdOrSlug(ids, slugs);
 	}
 
 	public Tag saveTag(Tag tag)

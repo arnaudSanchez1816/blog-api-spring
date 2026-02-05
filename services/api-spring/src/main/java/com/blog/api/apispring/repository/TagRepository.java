@@ -1,6 +1,7 @@
 package com.blog.api.apispring.repository;
 
 import com.blog.api.apispring.model.Tag;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -38,5 +39,5 @@ public interface TagRepository extends CrudRepository<Tag, Long>
 	void updateTag(@Param("id") Long id, @Param("tag") Tag tag);
 
 	@Query("select t from Tag t where t.id in :ids or t.slug in :slugs")
-	Set<Tag> findAllByIdOrSlug(Iterable<Long> ids, Iterable<String> slugs);
+	Set<Tag> findAllByIdOrSlug(@NonNull Iterable<Long> ids, @NonNull Iterable<String> slugs);
 }
