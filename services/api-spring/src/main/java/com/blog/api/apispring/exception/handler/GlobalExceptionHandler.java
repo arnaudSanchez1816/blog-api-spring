@@ -12,6 +12,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -156,6 +157,13 @@ public class GlobalExceptionHandler
 	{
 		log.error("Illegal argument: {}", ex.getMessage(), ex);
 		return base(HttpStatus.BAD_REQUEST, "Bad request", ex.getMessage(), "GEN_400_ILLARG");
+	}
+
+	@ExceptionHandler(MissingPathVariableException.class)
+	public ProblemDetail handleMissingPathVariableException(MissingPathVariableException ex)
+	{
+		log.error("Missing path variable: {}", ex.getMessage(), ex);
+		return base(HttpStatus.NOT_FOUND, "Not found", ex.getMessage(), "RES_404");
 	}
 
 	// 500 - Illegal state
