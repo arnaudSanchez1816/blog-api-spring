@@ -1,20 +1,18 @@
 package com.blog.api.apispring.controller;
 
 import com.blog.api.apispring.dto.metadata.Metadata;
-import com.blog.api.apispring.dto.posts.CreatePostRequest;
-import com.blog.api.apispring.dto.posts.GetPostsRequest;
-import com.blog.api.apispring.dto.posts.GetPostsResponse;
-import com.blog.api.apispring.dto.posts.PostDto;
+import com.blog.api.apispring.dto.posts.*;
+import com.blog.api.apispring.dto.tag.TagIdOrSlug;
 import com.blog.api.apispring.model.Post;
 import com.blog.api.apispring.projection.PostInfoWithAuthor;
 import com.blog.api.apispring.projection.PostInfoWithAuthorAndTags;
 import com.blog.api.apispring.security.userdetails.BlogUserDetails;
 import com.blog.api.apispring.service.PostService;
 import jakarta.validation.Valid;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,9 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/posts")
@@ -95,24 +91,24 @@ class PostController
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<PostInfoWithAuthor> updatePost(@PathVariable long id)
+	@PreAuthorize("hasAuthority('UPDATE') || @postSecurity.isOwner(authentication, #post)")
+	public ResponseEntity<PostInfoWithAuthorAndTags> updatePost(@PathVariable("id") @NonNull Post post,
+																@Valid @RequestBody UpdatePostRequest updatePostRequest)
 	{
-		return ResponseEntity.ok(null);
+		String title = updatePostRequest.title();
+		String body = updatePostRequest.body();
+		Set<TagIdOrSlug> tags = updatePostRequest.tags();
+
+		PostInfoWithAuthorAndTags updatedPost = postService.updatePost(post, title, body, tags);
+
+		return ResponseEntity.ok(updatedPost);
 	}
 
 	@DeleteMapping("/{id}")
-	@PreAuthorize("hasAuthority('DELETE') || #id == authentication.principal.id")
-	public ResponseEntity<PostDto> deletePost(@PathVariable long id)
+	@PreAuthorize("hasAuthority('DELETE') || @postSecurity.isOwner(authentication, #post)")
+	public ResponseEntity<PostDto> deletePost(@PathVariable("id") @NonNull Post post)
 	{
-		Optional<PostInfoWithAuthor> optionalPost = postService.getPost(id);
-		if (optionalPost.isEmpty())
-		{
-			return ResponseEntity.notFound()
-								 .build();
-		}
-
-		PostInfoWithAuthor post = optionalPost.get();
-		postService.deletePost(id);
+		postService.deletePost(post.getId());
 
 		return ResponseEntity.ok(new PostDto(post));
 	}

@@ -116,6 +116,11 @@ public class Post extends BaseEntity
 		return tags;
 	}
 
+	public void setTags(Set<Tag> tags)
+	{
+		this.tags = tags;
+	}
+
 	public void addTag(Tag newTag)
 	{
 		getTags().add(newTag);
