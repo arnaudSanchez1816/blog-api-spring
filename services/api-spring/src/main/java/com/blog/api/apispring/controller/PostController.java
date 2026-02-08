@@ -39,7 +39,7 @@ class PostController
 		int page = getPostsRequest.page();
 		int pageSize = getPostsRequest.pageSize();
 		Pageable pageable = PageRequest.of(page, pageSize);
-		Page<PostInfoWithAuthorAndTags> postsPage = postService.getPosts(pageable);
+		Page<PostInfoWithAuthorAndTags> postsPage = postService.getPostsInfo(pageable);
 		List<PostInfoWithAuthorAndTags> postsContent = postsPage.getContent();
 		Map<Long, Long> commentsCount = postService.getCommentsCount(postsContent.stream()
 																				 .map(PostInfoWithAuthor::getId)
@@ -63,7 +63,7 @@ class PostController
 	@GetMapping("/{id}")
 	public ResponseEntity<PostDto> getPost(@PathVariable long id)
 	{
-		Optional<PostInfoWithAuthorAndTags> optionalPost = postService.getPostWithTags(id);
+		Optional<PostInfoWithAuthorAndTags> optionalPost = postService.getPostInfoWithTags(id);
 		if (optionalPost.isEmpty())
 		{
 			return ResponseEntity.notFound()

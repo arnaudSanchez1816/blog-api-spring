@@ -29,34 +29,34 @@ public class PostService
 		this.entityManager = entityManager;
 	}
 
-	public Optional<PostInfoWithAuthor> getPost(long id)
+	public Optional<PostInfoWithAuthor> getPostInfo(long id)
 	{
-		return postRepository.findWithAuthorById(id);
+		return postRepository.findInfoWithAuthorById(id);
 	}
 
-	public Optional<PostInfoWithAuthorAndTags> getPostWithTags(long id)
+	public Optional<PostInfoWithAuthorAndTags> getPostInfoWithTags(long id)
 	{
-		return postRepository.findWithTagsById(id);
+		return postRepository.findInfoWithTagsById(id);
 	}
 
-	public Optional<PostInfoWithAuthorAndComments> getPostWithComments(long id)
+	public Optional<PostInfoWithAuthorAndComments> getPostInfoWithComments(long id)
 	{
-		return postRepository.findWithCommentsById(id);
+		return postRepository.findInfoWithCommentsById(id);
 	}
 
-	public Optional<PostInfoWithAuthorTagsComments> getPostsWithTagsComments(long id)
+	public Optional<PostInfoWithAuthorTagsComments> getPostsInfoWithTagsComments(long id)
 	{
-		return postRepository.findWithTagsAndCommentsById(id);
+		return postRepository.findInfoWithTagsAndCommentsById(id);
 	}
 
-	public Page<PostInfoWithAuthorAndTags> getPosts(Pageable pageable)
+	public Page<PostInfoWithAuthorAndTags> getPostsInfo(Pageable pageable)
 	{
 		if (pageable == null)
 		{
 			pageable = Pageable.unpaged();
 		}
 
-		return postRepository.findAllWithTags(pageable);
+		return postRepository.findAllInfoWithTags(pageable);
 	}
 
 	public Long getCommentsCount(long id)
@@ -131,7 +131,7 @@ public class PostService
 
 		post = postRepository.save(post);
 		// TODO : Check if there is a way to have that projection without a query.
-		Optional<PostInfoWithAuthorAndTags> opUpdatedPost = postRepository.findWithTagsById(post.getId());
+		Optional<PostInfoWithAuthorAndTags> opUpdatedPost = postRepository.findInfoWithTagsById(post.getId());
 		if (opUpdatedPost.isEmpty())
 		{
 			throw new RuntimeException("Post is unexpectedly null. This should not happen");

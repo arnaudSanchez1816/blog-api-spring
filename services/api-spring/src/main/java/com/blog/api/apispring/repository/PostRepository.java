@@ -15,18 +15,20 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends CrudRepository<Post, Long>, PostRepositoryExtension
 {
+	@EntityGraph(attributePaths = {"comments"})
+	Optional<Post> findWithCommentsById(long id);
 
 	@EntityGraph(attributePaths = {"author"})
-	Optional<PostInfoWithAuthor> findWithAuthorById(@Param("id") long id);
+	Optional<PostInfoWithAuthor> findInfoWithAuthorById(@Param("id") long id);
 
 	@EntityGraph(attributePaths = {"author", "comments"})
-	Optional<PostInfoWithAuthorAndComments> findWithCommentsById(@Param("id") long id);
+	Optional<PostInfoWithAuthorAndComments> findInfoWithCommentsById(@Param("id") long id);
 
 	@EntityGraph(attributePaths = {"author", "tags"})
-	Optional<PostInfoWithAuthorAndTags> findWithTagsById(@Param("id") long id);
+	Optional<PostInfoWithAuthorAndTags> findInfoWithTagsById(@Param("id") long id);
 
 	@EntityGraph(attributePaths = {"author", "tags", "comments"})
-	Optional<PostInfoWithAuthorTagsComments> findWithTagsAndCommentsById(@Param("id") long id);
+	Optional<PostInfoWithAuthorTagsComments> findInfoWithTagsAndCommentsById(@Param("id") long id);
 
 	@Query(value = """
 				select p
@@ -36,7 +38,7 @@ public interface PostRepository extends CrudRepository<Post, Long>, PostReposito
 				from Post p
 			""")
 	@EntityGraph(attributePaths = {"author", "tags"})
-	Page<PostInfoWithAuthorAndTags> findAllWithTags(Pageable pageable);
+	Page<PostInfoWithAuthorAndTags> findAllInfoWithTags(Pageable pageable);
 
 	@Query(value = """
 				select count(c)

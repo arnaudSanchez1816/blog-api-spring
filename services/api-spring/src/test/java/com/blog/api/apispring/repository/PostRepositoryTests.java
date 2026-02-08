@@ -9,6 +9,7 @@ import com.blog.api.apispring.projection.PostInfoWithAuthor;
 import com.blog.api.apispring.projection.PostInfoWithAuthorAndComments;
 import com.blog.api.apispring.projection.PostInfoWithAuthorAndTags;
 import com.blog.api.apispring.projection.PostInfoWithAuthorTagsComments;
+import org.hibernate.LazyInitializationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SpringBootTest
 @ExtendWith(ClearDatabaseExtension.class)
@@ -85,9 +87,9 @@ class PostRepositoryTests
 	}
 
 	@Test
-	void findById_ReturnsPostInfoWithAuthor_WhenPostExists()
+	void findInfoWithAuthorById_ReturnsPostInfoWithAuthor_WhenPostExists()
 	{
-		Optional<PostInfoWithAuthor> result = postRepository.findWithAuthorById(post1.getId());
+		Optional<PostInfoWithAuthor> result = postRepository.findInfoWithAuthorById(post1.getId());
 
 		assertThat(result).isPresent();
 		PostInfoWithAuthor postInfo = result.get();
@@ -105,9 +107,9 @@ class PostRepositoryTests
 	}
 
 	@Test
-	void findById_ReturnsEmpty_WhenPostDoesNotExist()
+	void findInfoWithAuthorById_ReturnsEmpty_WhenPostDoesNotExist()
 	{
-		Optional<PostInfoWithAuthor> result = postRepository.findWithAuthorById(99999L);
+		Optional<PostInfoWithAuthor> result = postRepository.findInfoWithAuthorById(99999L);
 
 		assertThat(result).isEmpty();
 	}
@@ -140,7 +142,7 @@ class PostRepositoryTests
 	{
 		postRepository.delete(post1);
 
-		Optional<PostInfoWithAuthor> result = postRepository.findWithAuthorById(post1.getId());
+		Optional<PostInfoWithAuthor> result = postRepository.findInfoWithAuthorById(post1.getId());
 		assertThat(result).isEmpty();
 	}
 
@@ -179,7 +181,32 @@ class PostRepositoryTests
 	@Test
 	void findWithCommentsById_ReturnsPostWithComments_WhenPostExists()
 	{
-		Optional<PostInfoWithAuthorAndComments> result = postRepository.findWithCommentsById(post1.getId());
+		Optional<Post> result = postRepository.findWithCommentsById(post1.getId());
+
+		assertThat(result).isPresent();
+		Post post = result.get();
+		assertThat(post.getId()).isEqualTo(post1.getId());
+		assertThat(post.getTitle()).isEqualTo("First Post");
+		assertThat(post.getComments()).hasSize(1);
+		Comment comment = post.getComments()
+							  .iterator()
+							  .next();
+		assertThat(comment.getBody()).isEqualTo("Comment body");
+		assertThat(comment.getUsername()).isEqualTo("Username");
+	}
+
+	@Test
+	void findWithCommentsById_ReturnsEmpty_WhenPostDoesNotExist()
+	{
+		Optional<Post> result = postRepository.findWithCommentsById(99999L);
+
+		assertThat(result).isEmpty();
+	}
+
+	@Test
+	void findInfoWithCommentsById_ReturnsPostWithComments_WhenPostExists()
+	{
+		Optional<PostInfoWithAuthorAndComments> result = postRepository.findInfoWithCommentsById(post1.getId());
 
 		assertThat(result).isPresent();
 		PostInfoWithAuthorAndComments postInfo = result.get();
@@ -195,17 +222,17 @@ class PostRepositoryTests
 	}
 
 	@Test
-	void findWithCommentsById_ReturnsEmpty_WhenPostDoesNotExist()
+	void findInfoWithCommentsById_ReturnsEmpty_WhenPostDoesNotExist()
 	{
-		Optional<PostInfoWithAuthorAndComments> result = postRepository.findWithCommentsById(99999L);
+		Optional<PostInfoWithAuthorAndComments> result = postRepository.findInfoWithCommentsById(99999L);
 
 		assertThat(result).isEmpty();
 	}
 
 	@Test
-	void findWithTagsById_ReturnsPostWithTags_WhenPostExists()
+	void findInfoWithTagsById_ReturnsPostWithTags_WhenPostExists()
 	{
-		Optional<PostInfoWithAuthorAndTags> result = postRepository.findWithTagsById(post1.getId());
+		Optional<PostInfoWithAuthorAndTags> result = postRepository.findInfoWithTagsById(post1.getId());
 
 		assertThat(result).isPresent();
 		PostInfoWithAuthorAndTags postInfo = result.get();
@@ -218,17 +245,17 @@ class PostRepositoryTests
 	}
 
 	@Test
-	void findWithTagsById_ReturnsEmpty_WhenPostDoesNotExist()
+	void findInfoWithTagsById_ReturnsEmpty_WhenPostDoesNotExist()
 	{
-		Optional<PostInfoWithAuthorAndTags> result = postRepository.findWithTagsById(99999L);
+		Optional<PostInfoWithAuthorAndTags> result = postRepository.findInfoWithTagsById(99999L);
 
 		assertThat(result).isEmpty();
 	}
 
 	@Test
-	void findWithTagsAndCommentsById_ReturnsPostWithTagsAndComments_WhenPostExists()
+	void findInfoWithTagsAndCommentsById_ReturnsPostWithTagsAndComments_WhenPostExists()
 	{
-		Optional<PostInfoWithAuthorTagsComments> result = postRepository.findWithTagsAndCommentsById(post1.getId());
+		Optional<PostInfoWithAuthorTagsComments> result = postRepository.findInfoWithTagsAndCommentsById(post1.getId());
 
 		assertThat(result).isPresent();
 		PostInfoWithAuthorTagsComments postInfo = result.get();
@@ -242,20 +269,20 @@ class PostRepositoryTests
 	}
 
 	@Test
-	void findWithTagsAndCommentsById_ReturnsEmpty_WhenPostDoesNotExist()
+	void findInfoWithTagsAndCommentsById_ReturnsEmpty_WhenPostDoesNotExist()
 	{
-		Optional<PostInfoWithAuthorTagsComments> result = postRepository.findWithTagsAndCommentsById(99999L);
+		Optional<PostInfoWithAuthorTagsComments> result = postRepository.findInfoWithTagsAndCommentsById(99999L);
 
 		assertThat(result).isEmpty();
 	}
 
 	@Test
-	void findAllWithTags_ReturnsPagedPostsWithAuthorAndTags()
+	void findAllInfoWithTags_ReturnsPagedPostsWithAuthorAndTags()
 	{
 		Pageable pageable = PageRequest.of(0, 10, Sort.by("id")
 													  .ascending());
 
-		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllWithTags(pageable);
+		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllInfoWithTags(pageable);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getTotalElements()).isEqualTo(2);
@@ -275,12 +302,12 @@ class PostRepositoryTests
 	}
 
 	@Test
-	void findAllWithTags_ReturnsEmptyPage_WhenNoPostsExist()
+	void findAllInfoWithTags_ReturnsEmptyPage_WhenNoPostsExist()
 	{
 		postRepository.deleteAll();
 		Pageable pageable = PageRequest.of(0, 10);
 
-		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllWithTags(pageable);
+		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllInfoWithTags(pageable);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getTotalElements()).isEqualTo(0);
@@ -288,11 +315,11 @@ class PostRepositoryTests
 	}
 
 	@Test
-	void findAllWithTags_ReturnsPaginatedResults_WithMultiplePages()
+	void findAllInfoWithTags_ReturnsPaginatedResults_WithMultiplePages()
 	{
 		Pageable firstPage = PageRequest.of(0, 1);
 
-		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllWithTags(firstPage);
+		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllInfoWithTags(firstPage);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getTotalElements()).isEqualTo(2);
@@ -302,11 +329,11 @@ class PostRepositoryTests
 	}
 
 	@Test
-	void findAllWithTags_ReturnsCorrectPageSize()
+	void findAllInfoWithTags_ReturnsCorrectPageSize()
 	{
 		Pageable pageable = PageRequest.of(0, 1);
 
-		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllWithTags(pageable);
+		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllInfoWithTags(pageable);
 
 		assertThat(result.getSize()).isEqualTo(1);
 		assertThat(result.getContent()).hasSize(1);
@@ -363,7 +390,7 @@ class PostRepositoryTests
 
 		postRepository.deleteById(postId);
 
-		Optional<PostInfoWithAuthor> result = postRepository.findWithAuthorById(postId);
+		Optional<PostInfoWithAuthor> result = postRepository.findInfoWithAuthorById(postId);
 		assertThat(result).isEmpty();
 		assertThat(postRepository.count()).isEqualTo(1);
 	}
