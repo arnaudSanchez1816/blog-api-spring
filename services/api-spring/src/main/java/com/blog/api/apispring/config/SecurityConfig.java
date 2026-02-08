@@ -81,6 +81,10 @@ public class SecurityConfig
 //					 .hasAuthority(PermissionType.DELETE.name());
 //			authorize.requestMatchers(HttpMethod.PUT, "/posts/**")
 //					 .hasAuthority(PermissionType.UPDATE.name());
+			// Comments routes
+			// Authority check done with MethodSecutiry
+			authorize.requestMatchers("/comments/**")
+					 .authenticated();
 			// Any
 			authorize.anyRequest()
 					 .permitAll();
