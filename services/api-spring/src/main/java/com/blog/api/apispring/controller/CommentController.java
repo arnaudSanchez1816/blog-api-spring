@@ -37,7 +37,8 @@ class CommentController
 
 	@PutMapping("/{id}")
 	@PreAuthorize("hasAuthority('UPDATE')")
-	public ResponseEntity<CommentInfo> updateComment(@PathVariable long id, @Valid UpdateCommentRequest request)
+	public ResponseEntity<CommentInfo> updateComment(@PathVariable long id,
+													 @Valid @RequestBody UpdateCommentRequest request)
 	{
 		Optional<Comment> optionalComment = commentService.getComment(id);
 		if (optionalComment.isEmpty())
