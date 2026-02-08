@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,6 +32,7 @@ class CommentRepositoryTests
 
 	private User author;
 	private Post post;
+	private Post emptyPost;
 	private Comment comment1;
 	private Comment comment2;
 
@@ -60,6 +62,15 @@ class CommentRepositoryTests
 		post.addComment(comment1);
 		post.addComment(comment2);
 		post = postRepository.save(post);
+
+		emptyPost = new Post();
+		emptyPost.setTitle("Empty Post");
+		emptyPost.setDescription("Empty post description");
+		emptyPost.setBody("Empty post body content");
+		emptyPost.setReadingTime(5);
+		emptyPost.setPublishedAt(OffsetDateTime.now());
+		emptyPost.setAuthor(author);
+		emptyPost = postRepository.save(emptyPost);
 	}
 
 	@Test
@@ -82,5 +93,44 @@ class CommentRepositoryTests
 		Optional<CommentInfo> result = commentRepository.findCommentInfoById(123456789L);
 
 		assertThat(result).isEmpty();
+	}
+
+	@Test
+	void findAllInfoByPostId_ReturnsAllComments_WhenPostExists()
+	{
+		Set<CommentInfo> result = commentRepository.findAllInfoByPostId(post.getId());
+		assertThat(result.size()).isEqualTo(2);
+		assertThat(result
+				.stream()
+				.anyMatch(commentInfo -> commentInfo
+												 .getBody()
+												 .equals(comment1.getBody()) && commentInfo
+												 .getId()
+												 .equals(comment1.getId()) && commentInfo
+												 .getUsername()
+												 .equals(comment1.getUsername()))).isTrue();
+		assertThat(result
+				.stream()
+				.anyMatch(commentInfo -> commentInfo
+												 .getBody()
+												 .equals(comment2.getBody()) && commentInfo
+												 .getId()
+												 .equals(comment2.getId()) && commentInfo
+												 .getUsername()
+												 .equals(comment2.getUsername()))).isTrue();
+	}
+
+	@Test
+	void findAllInfoByPostId_ReturnsEmpty_WhenPostHasNoComment()
+	{
+		Set<CommentInfo> result = commentRepository.findAllInfoByPostId(emptyPost.getId());
+		assertThat(result.size()).isEqualTo(0);
+	}
+
+	@Test
+	void findAllInfoByPostId_ReturnsEmpty_WhenPostDoesNotExists()
+	{
+		Set<CommentInfo> result = commentRepository.findAllInfoByPostId(99999L);
+		assertThat(result.size()).isEqualTo(0);
 	}
 }
