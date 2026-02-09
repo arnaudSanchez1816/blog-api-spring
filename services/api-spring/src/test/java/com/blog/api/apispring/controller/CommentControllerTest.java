@@ -8,6 +8,8 @@ import com.blog.api.apispring.repository.CommentRepository;
 import com.blog.api.apispring.repository.PostRepository;
 import com.blog.api.apispring.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,256 +63,271 @@ class CommentControllerTest
 		post = postRepository.save(post);
 	}
 
-	@Test
-	@WithMockUser(username = "Admin")
-	void getComment_IsOk_WhenGivenValidCommentId()
+	@Nested
+	@DisplayName("getComment")
+	class GetComment
 	{
-		OffsetDateTime now = OffsetDateTime.now();
-		Comment comment = new Comment();
-		comment.setBody("Body");
-		comment.setUsername("Username");
-		comment.setCreatedAt(now);
-		comment.setPost(post);
-		comment = commentRepository.save(comment);
+		@Test
+		@WithMockUser(username = "Admin")
+		void getComment_IsOk_WhenGivenValidCommentId()
+		{
+			OffsetDateTime now = OffsetDateTime.now();
+			Comment comment = new Comment();
+			comment.setBody("Body");
+			comment.setUsername("Username");
+			comment.setCreatedAt(now);
+			comment.setPost(post);
+			comment = commentRepository.save(comment);
 
-		MvcTestResult response = mockMvc.get()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/comments/" + comment.getId())
-										.exchange();
-		Comment finalComment = comment;
-		assertThat(response).hasStatusOk()
-							.hasContentType(MediaType.APPLICATION_JSON)
-							.bodyJson()
-							.satisfies(json ->
-							{
-								json.assertThat()
-									.extractingPath("$.id")
-									.convertTo(Long.class)
-									.isEqualTo(finalComment.getId());
-								json.assertThat()
-									.extractingPath("$.body")
-									.isEqualTo("Body");
-								json.assertThat()
-									.extractingPath("$.username")
-									.isEqualTo("Username");
-								json.assertThat()
-									.extractingPath("$.createdAt")
-									.isNotNull();
-								json.assertThat()
-									.extractingPath("$.postId")
-									.convertTo(Long.class)
-									.isEqualTo(post.getId());
-							});
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/comments/" + comment.getId())
+											.exchange();
+			Comment finalComment = comment;
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.id")
+										.convertTo(Long.class)
+										.isEqualTo(finalComment.getId());
+									json.assertThat()
+										.extractingPath("$.body")
+										.isEqualTo("Body");
+									json.assertThat()
+										.extractingPath("$.username")
+										.isEqualTo("Username");
+									json.assertThat()
+										.extractingPath("$.createdAt")
+										.isNotNull();
+									json.assertThat()
+										.extractingPath("$.postId")
+										.convertTo(Long.class)
+										.isEqualTo(post.getId());
+								});
+		}
+
+		@Test
+		@WithMockUser(username = "Admin")
+		void getComment_Is404_WhenWrongCommentId()
+		{
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/comments/" + 9999L)
+											.exchange();
+			assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+		}
+
+		@Test
+		void getComment_Is401_WhenUnauthenticated()
+		{
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/comments/" + 1L)
+											.exchange();
+			assertThat(response).hasStatus(HttpStatus.UNAUTHORIZED);
+		}
 	}
 
-	@Test
-	@WithMockUser(username = "Admin")
-	void getComment_Is404_WhenWrongCommentId()
+	@Nested
+	@DisplayName("deleteComment")
+	class DeleteComment
 	{
-		MvcTestResult response = mockMvc.get()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/comments/" + 9999L)
-										.exchange();
-		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+		@Test
+		@WithMockUser(username = "Admin", authorities = "DELETE")
+		void deleteComment_IsOk_WhenGivenValidCommentId()
+		{
+			OffsetDateTime now = OffsetDateTime.now();
+			Comment comment = new Comment();
+			comment.setBody("Body");
+			comment.setUsername("Username");
+			comment.setCreatedAt(now);
+			comment.setPost(post);
+			comment = commentRepository.save(comment);
+
+			MvcTestResult response = mockMvc.delete()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/comments/" + comment.getId())
+											.exchange();
+			Comment finalComment = comment;
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.id")
+										.convertTo(Long.class)
+										.isEqualTo(finalComment.getId());
+									json.assertThat()
+										.extractingPath("$.body")
+										.isEqualTo("Body");
+									json.assertThat()
+										.extractingPath("$.username")
+										.isEqualTo("Username");
+									json.assertThat()
+										.extractingPath("$.createdAt")
+										.isNotNull();
+									json.assertThat()
+										.extractingPath("$.postId")
+										.convertTo(Long.class)
+										.isEqualTo(post.getId());
+								});
+
+			Optional<Comment> deletedComment = commentRepository.findById(finalComment.getId());
+			assertThat(deletedComment).isEmpty();
+		}
+
+		@Test
+		@WithMockUser(username = "Admin", authorities = "DELETE")
+		void deleteComment_Is404_WhenWrongCommentId()
+		{
+			MvcTestResult response = mockMvc.delete()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/comments/" + 9999L)
+											.exchange();
+			assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+		}
+
+		@Test
+		void deleteComment_Is401_WhenUnauthenticated()
+		{
+			MvcTestResult response = mockMvc.delete()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/comments/" + 1L)
+											.exchange();
+			assertThat(response).hasStatus(HttpStatus.UNAUTHORIZED);
+		}
+
+		@Test
+		@WithMockUser(username = "User")
+		void deleteComment_Is403_WhenUserLacksDeleteAuthority()
+		{
+			MvcTestResult response = mockMvc.delete()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/comments/" + 1L)
+											.exchange();
+			assertThat(response).hasStatus(HttpStatus.FORBIDDEN);
+		}
 	}
 
-	@Test
-	void getComment_Is401_WhenUnauthenticated()
+	@Nested
+	@DisplayName("updateComment")
+	class UpdateComment
 	{
-		MvcTestResult response = mockMvc.get()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/comments/" + 1L)
-										.exchange();
-		assertThat(response).hasStatus(HttpStatus.UNAUTHORIZED);
-	}
+		@Test
+		@WithMockUser(username = "Admin", authorities = "UPDATE")
+		void updateComment_IsOk_WhenGivenValidCommentIdAndRequest()
+		{
+			OffsetDateTime now = OffsetDateTime.now();
+			Comment comment = new Comment();
+			comment.setBody("Original Body");
+			comment.setUsername("Original Username");
+			comment.setCreatedAt(now);
+			comment.setPost(post);
+			comment = commentRepository.save(comment);
 
-	@Test
-	@WithMockUser(username = "Admin", authorities = "DELETE")
-	void deleteComment_IsOk_WhenGivenValidCommentId()
-	{
-		OffsetDateTime now = OffsetDateTime.now();
-		Comment comment = new Comment();
-		comment.setBody("Body");
-		comment.setUsername("Username");
-		comment.setCreatedAt(now);
-		comment.setPost(post);
-		comment = commentRepository.save(comment);
+			String requestBody = """
+					{
+						"username": "Updated Username",
+						"body": "Updated Body"
+					}
+					""";
 
-		MvcTestResult response = mockMvc.delete()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/comments/" + comment.getId())
-										.exchange();
-		Comment finalComment = comment;
-		assertThat(response).hasStatusOk()
-							.hasContentType(MediaType.APPLICATION_JSON)
-							.bodyJson()
-							.satisfies(json ->
-							{
-								json.assertThat()
-									.extractingPath("$.id")
-									.convertTo(Long.class)
-									.isEqualTo(finalComment.getId());
-								json.assertThat()
-									.extractingPath("$.body")
-									.isEqualTo("Body");
-								json.assertThat()
-									.extractingPath("$.username")
-									.isEqualTo("Username");
-								json.assertThat()
-									.extractingPath("$.createdAt")
-									.isNotNull();
-								json.assertThat()
-									.extractingPath("$.postId")
-									.convertTo(Long.class)
-									.isEqualTo(post.getId());
-							});
+			MvcTestResult response = mockMvc.put()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/comments/" + comment.getId())
+											.content(requestBody)
+											.exchange();
+			Comment finalComment = comment;
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.id")
+										.convertTo(Long.class)
+										.isEqualTo(finalComment.getId());
+									json.assertThat()
+										.extractingPath("$.body")
+										.isEqualTo("Updated Body");
+									json.assertThat()
+										.extractingPath("$.username")
+										.isEqualTo("Updated Username");
+									json.assertThat()
+										.extractingPath("$.createdAt")
+										.isNotNull();
+									json.assertThat()
+										.extractingPath("$.postId")
+										.convertTo(Long.class)
+										.isEqualTo(post.getId());
+								});
 
-		Optional<Comment> deletedComment = commentRepository.findById(finalComment.getId());
-		assertThat(deletedComment).isEmpty();
-	}
+			Optional<Comment> updatedComment = commentRepository.findById(finalComment.getId());
+			assertThat(updatedComment).isPresent();
+			assertThat(updatedComment.get()
+									 .getBody()).isEqualTo("Updated Body");
+			assertThat(updatedComment.get()
+									 .getUsername()).isEqualTo("Updated Username");
+		}
 
-	@Test
-	@WithMockUser(username = "Admin", authorities = "DELETE")
-	void deleteComment_Is404_WhenWrongCommentId()
-	{
-		MvcTestResult response = mockMvc.delete()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/comments/" + 9999L)
-										.exchange();
-		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
-	}
+		@Test
+		@WithMockUser(username = "Admin", authorities = "UPDATE")
+		void updateComment_Is404_WhenWrongCommentId()
+		{
+			String requestBody = """
+					{
+						"username": "Updated Username",
+						"body": "Updated Body"
+					}
+					""";
 
-	@Test
-	void deleteComment_Is401_WhenUnauthenticated()
-	{
-		MvcTestResult response = mockMvc.delete()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/comments/" + 1L)
-										.exchange();
-		assertThat(response).hasStatus(HttpStatus.UNAUTHORIZED);
-	}
+			MvcTestResult response = mockMvc.put()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/comments/" + 9999L)
+											.content(requestBody)
+											.exchange();
+			assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+		}
 
-	@Test
-	@WithMockUser(username = "User")
-	void deleteComment_Is403_WhenUserLacksDeleteAuthority()
-	{
-		MvcTestResult response = mockMvc.delete()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/comments/" + 1L)
-										.exchange();
-		assertThat(response).hasStatus(HttpStatus.FORBIDDEN);
-	}
+		@Test
+		void updateComment_Is401_WhenUnauthenticated()
+		{
+			String requestBody = """
+					{
+						"username": "Updated Username",
+						"body": "Updated Body"
+					}
+					""";
 
-	@Test
-	@WithMockUser(username = "Admin", authorities = "UPDATE")
-	void updateComment_IsOk_WhenGivenValidCommentIdAndRequest()
-	{
-		OffsetDateTime now = OffsetDateTime.now();
-		Comment comment = new Comment();
-		comment.setBody("Original Body");
-		comment.setUsername("Original Username");
-		comment.setCreatedAt(now);
-		comment.setPost(post);
-		comment = commentRepository.save(comment);
+			MvcTestResult response = mockMvc.put()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/comments/" + 1L)
+											.content(requestBody)
+											.exchange();
+			assertThat(response).hasStatus(HttpStatus.UNAUTHORIZED);
+		}
 
-		String requestBody = """
-				{
-					"username": "Updated Username",
-					"body": "Updated Body"
-				}
-				""";
+		@Test
+		@WithMockUser(username = "User")
+		void updateComment_Is403_WhenUserLacksUpdateAuthority()
+		{
+			String requestBody = """
+					{
+						"username": "Updated Username",
+						"body": "Updated Body"
+					}
+					""";
 
-		MvcTestResult response = mockMvc.put()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/comments/" + comment.getId())
-										.content(requestBody)
-										.exchange();
-		Comment finalComment = comment;
-		assertThat(response).hasStatusOk()
-							.hasContentType(MediaType.APPLICATION_JSON)
-							.bodyJson()
-							.satisfies(json ->
-							{
-								json.assertThat()
-									.extractingPath("$.id")
-									.convertTo(Long.class)
-									.isEqualTo(finalComment.getId());
-								json.assertThat()
-									.extractingPath("$.body")
-									.isEqualTo("Updated Body");
-								json.assertThat()
-									.extractingPath("$.username")
-									.isEqualTo("Updated Username");
-								json.assertThat()
-									.extractingPath("$.createdAt")
-									.isNotNull();
-								json.assertThat()
-									.extractingPath("$.postId")
-									.convertTo(Long.class)
-									.isEqualTo(post.getId());
-							});
-
-		Optional<Comment> updatedComment = commentRepository.findById(finalComment.getId());
-		assertThat(updatedComment).isPresent();
-		assertThat(updatedComment.get()
-								 .getBody()).isEqualTo("Updated Body");
-		assertThat(updatedComment.get()
-								 .getUsername()).isEqualTo("Updated Username");
-	}
-
-	@Test
-	@WithMockUser(username = "Admin", authorities = "UPDATE")
-	void updateComment_Is404_WhenWrongCommentId()
-	{
-		String requestBody = """
-				{
-					"username": "Updated Username",
-					"body": "Updated Body"
-				}
-				""";
-
-		MvcTestResult response = mockMvc.put()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/comments/" + 9999L)
-										.content(requestBody)
-										.exchange();
-		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
-	}
-
-	@Test
-	void updateComment_Is401_WhenUnauthenticated()
-	{
-		String requestBody = """
-				{
-					"username": "Updated Username",
-					"body": "Updated Body"
-				}
-				""";
-
-		MvcTestResult response = mockMvc.put()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/comments/" + 1L)
-										.content(requestBody)
-										.exchange();
-		assertThat(response).hasStatus(HttpStatus.UNAUTHORIZED);
-	}
-
-	@Test
-	@WithMockUser(username = "User")
-	void updateComment_Is403_WhenUserLacksUpdateAuthority()
-	{
-		String requestBody = """
-				{
-					"username": "Updated Username",
-					"body": "Updated Body"
-				}
-				""";
-
-		MvcTestResult response = mockMvc.put()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/comments/" + 1L)
-										.content(requestBody)
-										.exchange();
-		assertThat(response).hasStatus(HttpStatus.FORBIDDEN);
+			MvcTestResult response = mockMvc.put()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/comments/" + 1L)
+											.content(requestBody)
+											.exchange();
+			assertThat(response).hasStatus(HttpStatus.FORBIDDEN);
+		}
 	}
 }
