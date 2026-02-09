@@ -43,7 +43,9 @@ public class Post extends BaseEntity
 	private Set<Comment> comments = new HashSet<>();
 
 	@ManyToMany
-	@JoinTable(name = "posts_tags", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
+	@JoinTable(name = "posts_tags",
+			   joinColumns = @JoinColumn(name = "post_id"),
+			   inverseJoinColumns = @JoinColumn(name = "tag_id"))
 	private Set<Tag> tags = new LinkedHashSet<>();
 
 	public String getTitle()
@@ -130,5 +132,10 @@ public class Post extends BaseEntity
 	{
 		getComments().add(comment);
 		comment.setPost(this);
+	}
+
+	public boolean isPublished()
+	{
+		return this.publishedAt != null;
 	}
 }

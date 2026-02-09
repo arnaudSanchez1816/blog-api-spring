@@ -1,12 +1,16 @@
 package com.blog.api.apispring.controller;
 
+import com.blog.api.apispring.annotation.WithPostComments;
 import com.blog.api.apispring.dto.metadata.Metadata;
 import com.blog.api.apispring.dto.posts.*;
 import com.blog.api.apispring.dto.tag.TagIdOrSlug;
+import com.blog.api.apispring.model.Comment;
 import com.blog.api.apispring.model.Post;
+import com.blog.api.apispring.projection.CommentInfo;
 import com.blog.api.apispring.projection.PostInfoWithAuthor;
 import com.blog.api.apispring.projection.PostInfoWithAuthorAndTags;
 import com.blog.api.apispring.security.userdetails.BlogUserDetails;
+import com.blog.api.apispring.service.CommentService;
 import com.blog.api.apispring.service.PostService;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
@@ -27,10 +31,12 @@ import java.util.*;
 class PostController
 {
 	private final PostService postService;
+	private final CommentService commentService;
 
-	public PostController(PostService postService)
+	public PostController(PostService postService, CommentService commentService)
 	{
 		this.postService = postService;
+		this.commentService = commentService;
 	}
 
 	@GetMapping
@@ -114,16 +120,26 @@ class PostController
 	}
 
 	@GetMapping("/{id}/comments")
-	public ResponseEntity<Void> getPostComments(@PathVariable long id)
+	@PreAuthorize("#post.isPublished() || @postSecurity.isOwner(authentication, #post)")
+	public ResponseEntity<GetPostCommentsResponse> getPostComments(@PathVariable("id") @NonNull Post post)
 	{
-		return ResponseEntity.notFound()
-							 .build();
+		Set<CommentInfo> commentsInfo = commentService.getAllCommentInfoByPostId(post.getId());
+		return ResponseEntity.ok(GetPostCommentsResponse.fromCommentsInfo(commentsInfo));
 	}
 
 	@PostMapping("/{id}/comments")
-	public ResponseEntity<Void> createPostComment(@PathVariable long id)
+	@PreAuthorize("#post.isPublished() || @postSecurity.isOwner(authentication, #post)")
+	public ResponseEntity<CommentInfo> createPostComment(@PathVariable("id") @NonNull Post post, @Valid @RequestBody
+	CreatePostCommentRequest createPostCommentRequest)
 	{
-		return ResponseEntity.notFound()
-							 .build();
+		String username = createPostCommentRequest.username();
+		String body = createPostCommentRequest.body();
+
+		Comment comment = postService.addCommentToPost(post, username, body);
+		// Todo : Comment -> CommentInfo without query
+		Optional<CommentInfo> commentInfo = commentService.getCommentInfo(comment.getId());
+		assert commentInfo.isPresent();
+
+		return ResponseEntity.ok(commentInfo.get());
 	}
 }

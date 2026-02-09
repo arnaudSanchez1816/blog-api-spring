@@ -2,7 +2,6 @@ package com.blog.api.apispring.controller;
 
 import com.blog.api.apispring.dto.posts.PostDto;
 import com.blog.api.apispring.dto.posts.UpdatePostRequest;
-import com.blog.api.apispring.dto.tag.TagIdOrSlug;
 import com.blog.api.apispring.extensions.ClearDatabaseExtension;
 import com.blog.api.apispring.model.Comment;
 import com.blog.api.apispring.model.Post;
@@ -27,9 +26,6 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
@@ -1121,5 +1117,623 @@ class PostControllerTests
 									.convertTo(LIST)
 									.hasSize(1);
 							});
+	}
+
+	/**
+	 * Test getPostComments returns 200 OK with empty list when post has no comments.
+	 */
+	@Test
+	void getPostComments_IsOk_WhenPostHasNoComments()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Post without comments");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post.setPublishedAt(OffsetDateTime.now());
+		post = postRepository.save(post);
+
+		MvcTestResult response = mockMvc.get()
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatusOk()
+							.hasContentType(MediaType.APPLICATION_JSON)
+							.bodyJson()
+							.satisfies(json ->
+							{
+								json.assertThat()
+									.extractingPath("$.results")
+									.asInstanceOf(LIST)
+									.hasSize(0);
+								json.assertThat()
+									.extractingPath("$.metadata.count")
+									.isEqualTo(0);
+							});
+	}
+
+	/**
+	 * Test getPostComments returns 200 OK with single comment when post has one comment.
+	 */
+	@Test
+	void getPostComments_IsOk_WhenPostHasOneComment()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Post with one comment");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post.setPublishedAt(OffsetDateTime.now());
+		Comment comment = new Comment();
+		comment.setBody("Test comment body");
+		comment.setUsername("Test User");
+		comment.setCreatedAt(OffsetDateTime.now());
+		post.addComment(comment);
+		post = postRepository.save(post);
+
+		MvcTestResult response = mockMvc.get()
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatusOk()
+							.hasContentType(MediaType.APPLICATION_JSON)
+							.bodyJson()
+							.satisfies(json ->
+							{
+								json.assertThat()
+									.extractingPath("$.results")
+									.asInstanceOf(LIST)
+									.hasSize(1);
+								json.assertThat()
+									.extractingPath("$.metadata.count")
+									.isEqualTo(1);
+							});
+	}
+
+	/**
+	 * Test getPostComments returns 200 OK with multiple comments when post has several comments.
+	 */
+	@Test
+	void getPostComments_IsOk_WhenPostHasMultipleComments()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Post with multiple comments");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post.setPublishedAt(OffsetDateTime.now());
+		Comment comment1 = new Comment();
+		comment1.setBody("First comment");
+		comment1.setUsername("User 1");
+		comment1.setCreatedAt(OffsetDateTime.now());
+		Comment comment2 = new Comment();
+		comment2.setBody("Second comment");
+		comment2.setUsername("User 2");
+		comment2.setCreatedAt(OffsetDateTime.now());
+		Comment comment3 = new Comment();
+		comment3.setBody("Third comment");
+		comment3.setUsername("User 3");
+		comment3.setCreatedAt(OffsetDateTime.now());
+		post.addComment(comment1);
+		post.addComment(comment2);
+		post.addComment(comment3);
+		post = postRepository.save(post);
+
+		MvcTestResult response = mockMvc.get()
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatusOk()
+							.hasContentType(MediaType.APPLICATION_JSON)
+							.bodyJson()
+							.satisfies(json ->
+							{
+								json.assertThat()
+									.extractingPath("$.results")
+									.asInstanceOf(LIST)
+									.hasSize(3);
+								json.assertThat()
+									.extractingPath("$.results[?(@.title == 'First comment')]")
+									.isNotNull();
+								json.assertThat()
+									.extractingPath("$.results[?(@.title == 'Second comment')]")
+									.isNotNull();
+								json.assertThat()
+									.extractingPath("$.results[?(@.title == 'Third comment')]")
+									.isNotNull();
+								json.assertThat()
+									.extractingPath("$.results[?(@.username == 'User 1')]")
+									.isNotNull();
+								json.assertThat()
+									.extractingPath("$.results[?(@.username == 'User 2')]")
+									.isNotNull();
+								json.assertThat()
+									.extractingPath("$.results[?(@.username == 'User 3')]")
+									.isNotNull();
+								json.assertThat()
+									.extractingPath("$.results..id")
+									.isNotNull();
+								json.assertThat()
+									.extractingPath("$.metadata.count")
+									.isEqualTo(3);
+							});
+	}
+
+	/**
+	 * Test getPostComments returns 404 NOT FOUND when post ID does not exist.
+	 */
+	@Test
+	void getPostComments_Is404_WhenPostIdDoesNotExist()
+	{
+		MvcTestResult response = mockMvc.get()
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/999999/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * Test getPostComments returns 404 NOT FOUND when given negative post ID.
+	 */
+	@Test
+	void getPostComments_Is404_WhenGivenNegativePostId()
+	{
+		MvcTestResult response = mockMvc.get()
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/-1/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * Test getPostComments returns 404 NOT FOUND when given zero as post ID.
+	 */
+	@Test
+	void getPostComments_Is404_WhenGivenZeroAsPostId()
+	{
+		MvcTestResult response = mockMvc.get()
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/0/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * Test getPostComments returns 403 FORBIDDEN when accessing unpublished post by non-owner.
+	 */
+	@Test
+	void getPostComments_Is403_WhenAccessingUnpublishedPostByNonOwner()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		User otherUser = new User("other@example.com", "Other User", "password456");
+		otherUser = userRepository.save(otherUser);
+
+		Post post = new Post();
+		post.setTitle("Unpublished post");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post = postRepository.save(post);
+
+		MvcTestResult response = mockMvc.get()
+										.with(user(new SecurityUser(otherUser)))
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.FORBIDDEN);
+	}
+
+	/**
+	 * Test getPostComments returns 200 OK when accessing unpublished post by owner.
+	 */
+	@Test
+	void getPostComments_IsOk_WhenAccessingUnpublishedPostByOwner()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Unpublished post");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post = postRepository.save(post);
+
+		MvcTestResult response = mockMvc.get()
+										.with(user(new SecurityUser(author)))
+										.contentType(MediaType.APPLICATION_JSON)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatusOk()
+							.hasContentType(MediaType.APPLICATION_JSON)
+							.bodyJson()
+							.satisfies(json ->
+							{
+								json.assertThat()
+									.extractingPath("$.results")
+									.asInstanceOf(LIST)
+									.hasSize(0);
+								json.assertThat()
+									.extractingPath("$.metadata.count")
+									.isEqualTo(0);
+							});
+	}
+
+	/**
+	 * Test createPostComment returns 200 OK when creating comment on published post without authentication.
+	 */
+	@Test
+	void createPostComment_IsOk_WhenCreatingCommentOnPublishedPost()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Published post");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post.setPublishedAt(OffsetDateTime.now());
+		post = postRepository.save(post);
+
+		String requestBody = """
+				{
+					"body": "Test comment body",
+					"username": "Test User"
+				}
+				""";
+
+		MvcTestResult response = mockMvc.post()
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(requestBody)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatusOk()
+							.hasContentType(MediaType.APPLICATION_JSON)
+							.bodyJson()
+							.satisfies(json ->
+							{
+								json.assertThat()
+									.extractingPath("$.id")
+									.isNotNull();
+								json.assertThat()
+									.extractingPath("$.body")
+									.isEqualTo("Test comment body");
+								json.assertThat()
+									.extractingPath("$.username")
+									.isEqualTo("Test User");
+								json.assertThat()
+									.extractingPath("$.createdAt")
+									.isNotNull();
+								json.assertThat()
+									.extractingPath("$.postId")
+									.isNotNull();
+							});
+	}
+
+	/**
+	 * Test createPostComment returns 200 OK when creating comment on unpublished post by owner.
+	 */
+	@Test
+	void createPostComment_IsOk_WhenCreatingCommentOnUnpublishedPostByOwner()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Unpublished post");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post = postRepository.save(post);
+
+		String requestBody = """
+				{
+					"body": "Test comment body",
+					"username": "Test User"
+				}
+				""";
+
+		MvcTestResult response = mockMvc.post()
+										.with(user(new SecurityUser(author)))
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(requestBody)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatusOk()
+							.hasContentType(MediaType.APPLICATION_JSON)
+							.bodyJson()
+							.satisfies(json ->
+							{
+								json.assertThat()
+									.extractingPath("$.id")
+									.isNotNull();
+								json.assertThat()
+									.extractingPath("$.body")
+									.isEqualTo("Test comment body");
+								json.assertThat()
+									.extractingPath("$.username")
+									.isEqualTo("Test User");
+							});
+	}
+
+	/**
+	 * Test createPostComment returns 403 FORBIDDEN when non-owner tries to create comment on unpublished post.
+	 */
+	@Test
+	void createPostComment_Is403_WhenNonOwnerTriesToCreateCommentOnUnpublishedPost()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		User otherUser = new User("other@example.com", "Other User", "password456");
+		otherUser = userRepository.save(otherUser);
+
+		Post post = new Post();
+		post.setTitle("Unpublished post");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post = postRepository.save(post);
+
+		String requestBody = """
+				{
+					"body": "Test comment body",
+					"username": "Test User"
+				}
+				""";
+
+		MvcTestResult response = mockMvc.post()
+										.with(user(new SecurityUser(otherUser)))
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(requestBody)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.FORBIDDEN);
+	}
+
+	/**
+	 * Test createPostComment returns 404 NOT FOUND when post ID does not exist.
+	 */
+	@Test
+	void createPostComment_Is404_WhenPostIdDoesNotExist()
+	{
+		String requestBody = """
+				{
+					"body": "Test comment body",
+					"username": "Test User"
+				}
+				""";
+
+		MvcTestResult response = mockMvc.post()
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(requestBody)
+										.uri("/posts/999999/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * Test createPostComment returns 404 NOT FOUND when given negative post ID.
+	 */
+	@Test
+	void createPostComment_Is404_WhenGivenNegativePostId()
+	{
+		String requestBody = """
+				{
+					"body": "Test comment body",
+					"username": "Test User"
+				}
+				""";
+
+		MvcTestResult response = mockMvc.post()
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(requestBody)
+										.uri("/posts/-1/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * Test createPostComment returns 404 NOT FOUND when given zero as post ID.
+	 */
+	@Test
+	void createPostComment_Is404_WhenGivenZeroAsPostId()
+	{
+		String requestBody = """
+				{
+					"body": "Test comment body",
+					"username": "Test User"
+				}
+				""";
+
+		MvcTestResult response = mockMvc.post()
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(requestBody)
+										.uri("/posts/0/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+	}
+
+	/**
+	 * Test createPostComment returns 400 BAD REQUEST when username exceeds max length.
+	 */
+	@Test
+	void createPostComment_Is400_WhenUsernameExceedsMaxLength()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Published post");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post.setPublishedAt(OffsetDateTime.now());
+		post = postRepository.save(post);
+
+		String requestBody = """
+				{
+					"body": "Test comment body",
+					"username": "%s"
+				}
+				""".formatted(StringUtils.repeat("a", 256));
+
+		MvcTestResult response = mockMvc.post()
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(requestBody)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	void createPostComment_Is400_WhenUsernameIsEmpty()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Published post");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post.setPublishedAt(OffsetDateTime.now());
+		post = postRepository.save(post);
+
+		String requestBody = """
+				{
+					"body": "Test comment body",
+					"username": ""
+				}
+				""";
+
+		MvcTestResult response = mockMvc.post()
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(requestBody)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	void createPostComment_Is400_WhenUsernameIsMissing()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Published post");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post.setPublishedAt(OffsetDateTime.now());
+		post = postRepository.save(post);
+
+		String requestBody = """
+				{
+					"body": "Test comment body"
+				}
+				""";
+
+		MvcTestResult response = mockMvc.post()
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(requestBody)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+	}
+
+	/**
+	 * Test createPostComment returns 400 BAD REQUEST when body is empty.
+	 */
+	@Test
+	void createPostComment_Is400_WhenBodyIsEmpty()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Published post");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post.setPublishedAt(OffsetDateTime.now());
+		post = postRepository.save(post);
+
+		String requestBody = """
+				{
+					"body": "",
+					"username": "Test User"
+				}
+				""";
+
+		MvcTestResult response = mockMvc.post()
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(requestBody)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+	}
+
+	/**
+	 * Test createPostComment returns 400 BAD REQUEST when body is missing.
+	 */
+	@Test
+	void createPostComment_Is400_WhenBodyIsMissing()
+	{
+		User author = new User("author@example.com", "Author Name", "password123");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Published post");
+		post.setDescription("Description");
+		post.setBody("Body");
+		post.setAuthor(author);
+		post.setPublishedAt(OffsetDateTime.now());
+		post = postRepository.save(post);
+
+		String requestBody = """
+				{
+					"username": "Test User"
+				}
+				""";
+
+		MvcTestResult response = mockMvc.post()
+										.contentType(MediaType.APPLICATION_JSON)
+										.content(requestBody)
+										.uri("/posts/" + post.getId() + "/comments")
+										.exchange();
+
+		assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
 	}
 }

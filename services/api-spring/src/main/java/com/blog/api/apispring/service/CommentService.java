@@ -6,9 +6,12 @@ import com.blog.api.apispring.projection.CommentInfo;
 import com.blog.api.apispring.repository.CommentRepository;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.HtmlUtils;
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class CommentService
@@ -46,6 +49,22 @@ public class CommentService
 		{
 			comment.setBody(HtmlUtils.htmlEscape(body));
 		}
+
+		return commentRepository.save(comment);
+	}
+
+	public Set<CommentInfo> getAllCommentInfoByPostId(long postId)
+	{
+		return commentRepository.findAllInfoByPostId(postId);
+	}
+
+	public Comment addCommentToPost(Post post, String username, String body)
+	{
+		Comment comment = new Comment();
+		comment.setCreatedAt(OffsetDateTime.now());
+		comment.setUsername(HtmlUtils.htmlEscape(username));
+		comment.setBody(HtmlUtils.htmlEscape(body));
+		comment.setPost(post);
 
 		return commentRepository.save(comment);
 	}
