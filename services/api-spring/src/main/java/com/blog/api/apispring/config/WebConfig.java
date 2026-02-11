@@ -1,6 +1,7 @@
 package com.blog.api.apispring.config;
 
 import com.blog.api.apispring.converter.PostIdConverter;
+import com.blog.api.apispring.converter.StringToPostSortByConverter;
 import com.blog.api.apispring.converter.StringToTagIdOrSlugConverter;
 import com.blog.api.apispring.repository.PostRepository;
 import com.blog.api.apispring.service.PostService;
@@ -29,6 +30,7 @@ public class WebConfig implements WebMvcConfigurer
 	{
 		registry.addConverter(new StringToTagIdOrSlugConverter());
 		registry.addConverter(new PostIdConverter(postRepository));
+		registry.addConverter(new StringToPostSortByConverter());
 	}
 
 	@Override
