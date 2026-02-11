@@ -13,6 +13,8 @@ import com.blog.api.apispring.repository.UserRepository;
 import com.blog.api.apispring.security.userdetails.SecurityUser;
 import com.blog.api.apispring.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1735,5 +1737,309 @@ class PostControllerTests
 										.exchange();
 
 		assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+	}
+
+	@Nested
+	@DisplayName("publishPost")
+	class PublishPost
+	{
+		@Test
+		void publishPost_Is204_WhenAuthorPublishPost()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Original Title");
+			post.setDescription("Original Description");
+			post.setBody("Original Body");
+			post.setAuthor(author);
+			post.setPublishedAt(null);
+			post = postRepository.save(post);
+
+			MvcTestResult result = mockMvc.post()
+										  .with(user(new SecurityUser(author)))
+										  .uri("/posts/" + post.getId() + "/publish")
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.NO_CONTENT);
+
+			MvcTestResult getResult = mockMvc.get()
+											 .with(user(new SecurityUser(author)))
+											 .uri("/posts/" + post.getId())
+											 .exchange();
+
+			assertThat(getResult).hasStatusOk()
+								 .hasContentType(MediaType.APPLICATION_JSON)
+								 .bodyJson()
+								 .convertTo(PostDto.class)
+								 .satisfies(p ->
+								 {
+									 assertThat(p.getPublishedAt()).isNotNull();
+								 });
+		}
+
+		@Test
+		@WithMockUser(username = "admin", authorities = "UPDATE")
+		void publishPost_Is204_WhenAdminPublishPost()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Original Title");
+			post.setDescription("Original Description");
+			post.setBody("Original Body");
+			post.setAuthor(author);
+			post.setPublishedAt(null);
+			post = postRepository.save(post);
+
+			MvcTestResult result = mockMvc.post()
+										  .uri("/posts/" + post.getId() + "/publish")
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.NO_CONTENT);
+
+			MvcTestResult getResult = mockMvc.get()
+											 .uri("/posts/" + post.getId())
+											 .exchange();
+
+			assertThat(getResult).hasStatusOk()
+								 .hasContentType(MediaType.APPLICATION_JSON)
+								 .bodyJson()
+								 .convertTo(PostDto.class)
+								 .satisfies(p ->
+								 {
+									 assertThat(p.getPublishedAt()).isNotNull();
+								 });
+		}
+
+		@Test
+		@WithMockUser(username = "admin", authorities = "UPDATE")
+		void publishPost_Is404_WhenPostDoesNotExists()
+		{
+			MvcTestResult result = mockMvc.post()
+										  .uri("/posts/" + 9999L + "/publish")
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.NOT_FOUND);
+		}
+
+		@Test
+		@WithMockUser(username = "user")
+		void publishPost_Is403_WhenUserDoesNotHavePermissions()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Original Title");
+			post.setDescription("Original Description");
+			post.setBody("Original Body");
+			post.setAuthor(author);
+			post.setPublishedAt(null);
+			post = postRepository.save(post);
+
+			MvcTestResult result = mockMvc.post()
+										  .uri("/posts/" + post.getId() + "/publish")
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.FORBIDDEN);
+		}
+
+		@Test
+		void publishPost_Is403_WhenUnauthenticated()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Original Title");
+			post.setDescription("Original Description");
+			post.setBody("Original Body");
+			post.setAuthor(author);
+			post.setPublishedAt(null);
+			post = postRepository.save(post);
+
+			MvcTestResult result = mockMvc.post()
+										  .uri("/posts/" + post.getId() + "/publish")
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.FORBIDDEN);
+		}
+
+		@Test
+		void publishPost_Is409_WhenPostIsAlreadyPublished()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Original Title");
+			post.setDescription("Original Description");
+			post.setBody("Original Body");
+			post.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			post = postRepository.save(post);
+
+			MvcTestResult result = mockMvc.post()
+										  .with(user(new SecurityUser(author)))
+										  .uri("/posts/" + post.getId() + "/publish")
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.CONFLICT);
+		}
+	}
+
+	@Nested
+	@DisplayName("hidePost")
+	class HidePost
+	{
+		@Test
+		void hidePost_Is204_WhenAuthorHidePost()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Original Title");
+			post.setDescription("Original Description");
+			post.setBody("Original Body");
+			post.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			post = postRepository.save(post);
+
+			MvcTestResult result = mockMvc.post()
+										  .with(user(new SecurityUser(author)))
+										  .uri("/posts/" + post.getId() + "/hide")
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.NO_CONTENT);
+
+			MvcTestResult getResult = mockMvc.get()
+											 .with(user(new SecurityUser(author)))
+											 .uri("/posts/" + post.getId())
+											 .exchange();
+
+			assertThat(getResult).hasStatusOk()
+								 .hasContentType(MediaType.APPLICATION_JSON)
+								 .bodyJson()
+								 .convertTo(PostDto.class)
+								 .satisfies(p ->
+								 {
+									 assertThat(p.getPublishedAt()).isNull();
+								 });
+		}
+
+		@Test
+		@WithMockUser(username = "admin", authorities = "UPDATE")
+		void hidePost_Is204_WhenAdminPublishPost()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Original Title");
+			post.setDescription("Original Description");
+			post.setBody("Original Body");
+			post.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			post = postRepository.save(post);
+
+			MvcTestResult result = mockMvc.post()
+										  .uri("/posts/" + post.getId() + "/hide")
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.NO_CONTENT);
+
+			MvcTestResult getResult = mockMvc.get()
+											 .uri("/posts/" + post.getId())
+											 .exchange();
+
+			assertThat(getResult).hasStatusOk()
+								 .hasContentType(MediaType.APPLICATION_JSON)
+								 .bodyJson()
+								 .convertTo(PostDto.class)
+								 .satisfies(p ->
+								 {
+									 assertThat(p.getPublishedAt()).isNull();
+								 });
+		}
+
+		@Test
+		@WithMockUser(username = "admin", authorities = "UPDATE")
+		void hidePost_Is404_WhenPostDoesNotExists()
+		{
+			MvcTestResult result = mockMvc.post()
+										  .uri("/posts/" + 9999L + "/hide")
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.NOT_FOUND);
+		}
+
+		@Test
+		@WithMockUser(username = "user")
+		void hidePost_Is403_WhenUserDoesNotHavePermissions()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Original Title");
+			post.setDescription("Original Description");
+			post.setBody("Original Body");
+			post.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			post = postRepository.save(post);
+
+			MvcTestResult result = mockMvc.post()
+										  .uri("/posts/" + post.getId() + "/hide")
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.FORBIDDEN);
+		}
+
+		@Test
+		void hidePost_Is403_WhenUnauthenticated()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Original Title");
+			post.setDescription("Original Description");
+			post.setBody("Original Body");
+			post.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			post = postRepository.save(post);
+
+			MvcTestResult result = mockMvc.post()
+										  .uri("/posts/" + post.getId() + "/hide")
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.FORBIDDEN);
+		}
+
+		@Test
+		void hidePost_Is409_WhenPostIsAlreadyHidden()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Original Title");
+			post.setDescription("Original Description");
+			post.setBody("Original Body");
+			post.setAuthor(author);
+			post.setPublishedAt(null);
+			post = postRepository.save(post);
+
+			MvcTestResult result = mockMvc.post()
+										  .with(user(new SecurityUser(author)))
+										  .uri("/posts/" + post.getId() + "/hide")
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.CONFLICT);
+		}
 	}
 }

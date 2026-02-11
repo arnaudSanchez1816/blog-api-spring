@@ -9,6 +9,7 @@ import com.blog.api.apispring.projection.*;
 import com.blog.api.apispring.repository.CommentRepository;
 import com.blog.api.apispring.repository.PostRepository;
 import jakarta.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 @Service
+@Slf4j
 public class PostService
 {
 	private final PostRepository postRepository;
@@ -163,5 +165,29 @@ public class PostService
 	public Comment addCommentToPost(Post post, String username, String body)
 	{
 		return commentService.addCommentToPost(post, username, body);
+	}
+
+	public Post publishPost(Post post)
+	{
+		if (post.isPublished())
+		{
+			log.info("Post {} is already published", post.getId());
+			return post;
+		}
+
+		post.setPublishedAt(OffsetDateTime.now());
+		return postRepository.save(post);
+	}
+
+	public Post hidePost(Post post)
+	{
+		if (!post.isPublished())
+		{
+			log.info("Post {} is already hidden", post.getId());
+			return post;
+		}
+
+		post.setPublishedAt(null);
+		return postRepository.save(post);
 	}
 }

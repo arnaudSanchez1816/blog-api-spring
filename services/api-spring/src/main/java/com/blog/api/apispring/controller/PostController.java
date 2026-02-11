@@ -1,9 +1,9 @@
 package com.blog.api.apispring.controller;
 
-import com.blog.api.apispring.annotation.WithPostComments;
 import com.blog.api.apispring.dto.metadata.Metadata;
 import com.blog.api.apispring.dto.posts.*;
 import com.blog.api.apispring.dto.tag.TagIdOrSlug;
+import com.blog.api.apispring.exception.PostPublicationConflictException;
 import com.blog.api.apispring.model.Comment;
 import com.blog.api.apispring.model.Post;
 import com.blog.api.apispring.projection.CommentInfo;
@@ -17,6 +17,8 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @RestController
@@ -141,5 +144,49 @@ class PostController
 		assert commentInfo.isPresent();
 
 		return ResponseEntity.ok(commentInfo.get());
+	}
+
+	@PostMapping("/{id}/publish")
+	@PreAuthorize("hasAuthority('UPDATE') || @postSecurity.isOwner(authentication, #post)")
+	public ResponseEntity<Void> publishPost(@PathVariable("id") @NonNull Post post)
+	{
+		if (post.isPublished())
+		{
+			throw PostPublicationConflictException.fromPost(post.getId());
+		}
+
+		post = postService.publishPost(post);
+
+		return ResponseEntity.status(HttpStatus.NO_CONTENT)
+							 .build();
+	}
+
+	@PostMapping("/{id}/hide")
+	@PreAuthorize("hasAuthority('UPDATE') || @postSecurity.isOwner(authentication, #post)")
+	public ResponseEntity<Void> hidePost(@PathVariable("id") @NonNull Post post)
+	{
+		if (!post.isPublished())
+		{
+			throw PostPublicationConflictException.fromPost(post.getId());
+		}
+
+		post = postService.hidePost(post);
+
+		return ResponseEntity.status(HttpStatus.NO_CONTENT)
+							 .build();
+	}
+
+	@ExceptionHandler(PostPublicationConflictException.class)
+	public ProblemDetail handlePostPublicationConflictException(PostPublicationConflictException ex)
+	{
+		ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+		pd.setTitle("Post publication conflict");
+		pd.setType(URI.create("about:blank"));
+		pd.setProperty("timestamp", OffsetDateTime.now()
+												  .toString());
+		pd.setProperty("postId", ex.getPostId());
+		pd.setProperty("errorCode", "RES_409");
+
+		return pd;
 	}
 }
