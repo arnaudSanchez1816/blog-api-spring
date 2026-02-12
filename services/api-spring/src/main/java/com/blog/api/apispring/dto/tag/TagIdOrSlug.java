@@ -26,6 +26,21 @@ public class TagIdOrSlug
 		throw new IllegalArgumentException("Invalid ID or slug format.");
 	}
 
+	public static TagIdOrSlug fromId(long id)
+	{
+		return new TagIdOrSlug(id, null);
+	}
+
+	public static TagIdOrSlug fromSlug(String slug)
+	{
+		if (slug.matches(TagUtils.SLUG_REGEX))
+		{
+			return new TagIdOrSlug(null, slug);
+		}
+
+		throw new IllegalArgumentException("Invalid slug format.");
+	}
+
 	public boolean isId()
 	{
 		return id != null;
