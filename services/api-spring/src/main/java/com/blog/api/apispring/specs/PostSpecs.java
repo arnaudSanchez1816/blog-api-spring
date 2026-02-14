@@ -15,16 +15,16 @@ import java.util.Set;
 
 public class PostSpecs
 {
-	public static PredicateSpecification<Post> isPublished(boolean isPublished)
+	public static PredicateSpecification<Post> onlyPublished(boolean onlyPublished)
 	{
 		return (from, criteriaBuilder) ->
 		{
-			if (isPublished)
+			if (onlyPublished)
 			{
 				return criteriaBuilder.isNotNull(from.get(Post_.PUBLISHED_AT));
 			} else
 			{
-				return criteriaBuilder.isNull(from.get(Post_.PUBLISHED_AT));
+				return criteriaBuilder.conjunction();
 			}
 		};
 	}

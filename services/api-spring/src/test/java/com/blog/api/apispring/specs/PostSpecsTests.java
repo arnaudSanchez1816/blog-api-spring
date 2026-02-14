@@ -9,7 +9,6 @@ import com.blog.api.apispring.repository.PostRepository;
 import com.blog.api.apispring.repository.TagRepository;
 import com.blog.api.apispring.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,13 +54,8 @@ class PostSpecsTests
 		tag2 = tagRepository.save(tag2);
 	}
 
-	/**
-	 * Tests {@link PostSpecs#isPublished(boolean)} specification method.
-	 * This method creates a JPA Specification that filters posts based on whether they are published or not.
-	 * A post is considered published if the publishedAt field is not null.
-	 */
 	@Test
-	void isPublished_ReturnsPublishedPosts_WhenTrue()
+	void onlyPublished_ReturnsPublishedPosts_WhenTrue()
 	{
 		User author = new User("author@blog.com", "Test Author", "password");
 		author = userRepository.save(author);
@@ -84,7 +78,7 @@ class PostSpecsTests
 		draftPost.setAuthor(author);
 		draftPost = postRepository.save(draftPost);
 
-		List<Post> publishedPosts = postRepository.findAll(PostSpecs.isPublished(true));
+		List<Post> publishedPosts = postRepository.findAll(PostSpecs.onlyPublished(true));
 
 		assertThat(publishedPosts).hasSize(1);
 		assertThat(publishedPosts.get(0)
@@ -94,7 +88,7 @@ class PostSpecsTests
 	}
 
 	@Test
-	void isPublished_ReturnsDraftPosts_WhenFalse()
+	void onlyPublished_ReturnsAllPosts_WhenFalse()
 	{
 		User author = new User("author@blog.com", "Test Author", "password");
 		author = userRepository.save(author);
@@ -117,17 +111,15 @@ class PostSpecsTests
 		draftPost.setAuthor(author);
 		draftPost = postRepository.save(draftPost);
 
-		List<Post> draftPosts = postRepository.findAll(PostSpecs.isPublished(false));
+		List<Post> draftPosts = postRepository.findAll(PostSpecs.onlyPublished(false));
 
-		assertThat(draftPosts).hasSize(1);
-		assertThat(draftPosts.get(0)
-							 .getId()).isEqualTo(draftPost.getId());
-		assertThat(draftPosts.get(0)
-							 .getPublishedAt()).isNull();
+		assertThat(draftPosts).hasSize(2);
+		assertThat(draftPosts).extracting(Post::getId)
+							  .containsExactlyInAnyOrder(publishedPost.getId(), draftPost.getId());
 	}
 
 	@Test
-	void isPublished_ReturnsEmptyList_WhenNoPublishedPostsExist()
+	void onlyPublished_ReturnsEmptyList_WhenNoPublishedPostsExist()
 	{
 		User author = new User("author@blog.com", "Test Author", "password");
 		author = userRepository.save(author);
@@ -141,14 +133,13 @@ class PostSpecsTests
 		draftPost.setAuthor(author);
 		draftPost = postRepository.save(draftPost);
 
-		List<Post> publishedPosts = postRepository.findAll(PostSpecs.isPublished(true));
+		List<Post> publishedPosts = postRepository.findAll(PostSpecs.onlyPublished(true));
 
 		assertThat(publishedPosts).isEmpty();
 	}
 
 	@Test
-	@DisplayName("isPublished returns empty list when no draft posts exist")
-	void isPublished_ReturnsEmptyList_WhenNoDraftPostsExist()
+	void onlyPublished_ReturnsOnlyPublished_WhenNoDraftPostsExist()
 	{
 		User author = new User("author@blog.com", "Test Author", "password");
 		author = userRepository.save(author);
@@ -162,14 +153,15 @@ class PostSpecsTests
 		publishedPost.setAuthor(author);
 		publishedPost = postRepository.save(publishedPost);
 
-		List<Post> draftPosts = postRepository.findAll(PostSpecs.isPublished(false));
+		List<Post> allPosts = postRepository.findAll(PostSpecs.onlyPublished(false));
 
-		assertThat(draftPosts).isEmpty();
+		assertThat(allPosts).hasSize(1);
+		assertThat(allPosts.getFirst()
+						   .getId()).isEqualTo(publishedPost.getId());
 	}
 
 	@Test
-	@DisplayName("isPublished returns multiple published posts")
-	void isPublished_ReturnsMultiplePublishedPosts_WhenMultipleExist()
+	void onlyPublished_ReturnsMultiplePublishedPosts_WhenMultipleExist()
 	{
 		User author = new User("author@blog.com", "Test Author", "password");
 		author = userRepository.save(author);
@@ -201,7 +193,7 @@ class PostSpecsTests
 		draftPost.setAuthor(author);
 		draftPost = postRepository.save(draftPost);
 
-		List<Post> publishedPosts = postRepository.findAll(PostSpecs.isPublished(true));
+		List<Post> publishedPosts = postRepository.findAll(PostSpecs.onlyPublished(true));
 
 		assertThat(publishedPosts).hasSize(2);
 		assertThat(publishedPosts).extracting(Post::getId)
@@ -210,7 +202,7 @@ class PostSpecsTests
 	}
 
 	@Test
-	void isPublished_ReturnsMultipleDraftPosts_WhenMultipleExist()
+	void onlyPublished_ReturnsMultipleDraftPosts_WhenMultipleExist()
 	{
 		User author = new User("author@blog.com", "Test Author", "password");
 		author = userRepository.save(author);
@@ -242,12 +234,11 @@ class PostSpecsTests
 		publishedPost.setAuthor(author);
 		publishedPost = postRepository.save(publishedPost);
 
-		List<Post> draftPosts = postRepository.findAll(PostSpecs.isPublished(false));
+		List<Post> allPosts = postRepository.findAll(PostSpecs.onlyPublished(false));
 
-		assertThat(draftPosts).hasSize(2);
-		assertThat(draftPosts).extracting(Post::getId)
-							  .containsExactlyInAnyOrder(draftPost1.getId(), draftPost2.getId());
-		assertThat(draftPosts).allMatch(post -> post.getPublishedAt() == null);
+		assertThat(allPosts).hasSize(3);
+		assertThat(allPosts).extracting(Post::getId)
+							.containsExactlyInAnyOrder(draftPost1.getId(), draftPost2.getId(), publishedPost.getId());
 	}
 
 	@Test
