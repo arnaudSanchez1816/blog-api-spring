@@ -42,7 +42,7 @@ class PostController
 	}
 
 	@GetMapping
-	public ResponseEntity<GetPostsResponse> getPosts(@Valid GetPostsRequest getPostsRequest,
+	public ResponseEntity<GetPostsResponse> getPosts(@Valid GetPostsRequestImpl getPostsRequest,
 													 Authentication authentication)
 	{
 		if (authentication == null || !authentication.isAuthenticated())
@@ -51,7 +51,7 @@ class PostController
 			getPostsRequest.setUnpublished(false);
 		}
 
-		Page<PostInfoWithAuthorAndTags> postsPage = postService.getPostsInfo(getPostsRequest);
+		Page<PostInfoWithAuthorAndTags> postsPage = postService.getPageablePostsInfo(getPostsRequest);
 		List<PostInfoWithAuthorAndTags> postsContent = postsPage.getContent();
 		Map<Long, Long> commentsCount = postService.getCommentsCount(postsContent.stream()
 																				 .map(PostInfoWithAuthor::getId)

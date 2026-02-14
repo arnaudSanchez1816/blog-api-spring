@@ -2,19 +2,15 @@ package com.blog.api.apispring.service;
 
 import com.blog.api.apispring.dto.posts.GetPostsRequest;
 import com.blog.api.apispring.dto.tag.TagIdOrSlug;
-import com.blog.api.apispring.enums.PostSortBy;
 import com.blog.api.apispring.model.*;
 import com.blog.api.apispring.projection.*;
-import com.blog.api.apispring.repository.CommentRepository;
 import com.blog.api.apispring.repository.PostRepository;
 import com.blog.api.apispring.specs.PostSpecs;
 import jakarta.persistence.EntityManager;
-import jakarta.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.HtmlUtils;
@@ -60,29 +56,22 @@ public class PostService
 		return postRepository.findInfoWithTagsAndCommentsById(id);
 	}
 
-	public Page<PostInfoWithAuthorAndTags> getPostsInfo(GetPostsRequest getPostsRequest)
+	public Page<PostInfoWithAuthorAndTags> getPageablePostsInfo(GetPostsRequest getPostsRequest)
 	{
-		int page = getPostsRequest.getPage();
-		int pageSize = getPostsRequest.getPageSize();
-		String q = getPostsRequest.getQ();
-		Collection<TagIdOrSlug> tags = getPostsRequest.getTags();
-		PostSortBy sortBy = getPostsRequest.getSortBy();
-		boolean includeUnpublished = getPostsRequest.isUnpublished();
+		Specification<Post> specs = getPostsRequest.toSpecifications();
+		Pageable pageable = getPostsRequest.toPageable();
+		return postRepository.findBy(specs,
+				sfq -> sfq.as(PostInfoWithAuthorAndTags.class)
+						  .page(pageable));
+	}
 
-		Sort sort;
-		switch (sortBy)
-		{
-			case ID_ASC -> sort = Sort.by(Sort.Order.asc(Post_.id.getName()));
-			case ID_DESC -> sort = Sort.by(Sort.Order.desc(Post_.id.getName()));
-			case PUBLISHED_AT_ASC -> sort = Sort.by(Sort.Order.asc(Post_.publishedAt.getName()));
-			case PUBLISHED_AT_DESC -> sort = Sort.by(Sort.Order.desc(Post_.publishedAt.getName()));
-			default -> throw new UnsupportedOperationException("Unsupported sort by value");
-		}
-		Pageable pageable = PageRequest.of(page, pageSize, sort);
+	public Page<PostInfoWithAuthorAndTags> getPageablePostsInfoByAuthor(GetPostsRequest getPostsRequest, long authorId)
+	{
+		Specification<Post> specs = getPostsRequest.toSpecifications()
+												   .and(PostSpecs.withAuthor(authorId));
+		Pageable pageable = getPostsRequest.toPageable();
 
-		return postRepository.findBy(PostSpecs.withTags(tags)
-											  .and(PostSpecs.titleContains(q))
-											  .and(PostSpecs.onlyPublished(!includeUnpublished)),
+		return postRepository.findBy(specs,
 				sfq -> sfq.as(PostInfoWithAuthorAndTags.class)
 						  .page(pageable));
 	}

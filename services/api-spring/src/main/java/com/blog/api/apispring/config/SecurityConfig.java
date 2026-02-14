@@ -61,7 +61,8 @@ public class SecurityConfig
 					 .permitAll();
 			authorize.requestMatchers(HttpMethod.GET, "/auth/token")
 					 .authenticated();
-			authorize.requestMatchers(HttpMethod.GET, "/users/me")
+			// Users route
+			authorize.requestMatchers(HttpMethod.GET, "/users/**")
 					 .authenticated();
 			// Tags route
 			authorize.requestMatchers(HttpMethod.GET, "/tags/*")

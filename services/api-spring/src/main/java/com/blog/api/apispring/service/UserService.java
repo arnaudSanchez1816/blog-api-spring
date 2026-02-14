@@ -14,11 +14,13 @@ public class UserService
 {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final PostService postService;
 
-	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder)
+	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, PostService postService)
 	{
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.postService = postService;
 	}
 
 	public Optional<User> findById(Long id)

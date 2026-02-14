@@ -1,6 +1,6 @@
 package com.blog.api.apispring.controller;
 
-import com.blog.api.apispring.dto.posts.GetPostsRequest;
+import com.blog.api.apispring.dto.posts.GetPostsRequestImpl;
 import com.blog.api.apispring.dto.posts.PostDto;
 import com.blog.api.apispring.dto.posts.UpdatePostRequest;
 import com.blog.api.apispring.extensions.ClearDatabaseExtension;
@@ -661,7 +661,7 @@ class PostControllerTests
 			User author = new User("author@example.com", "Author Name", "password123");
 			author = userRepository.save(author);
 
-			for (int i = 0; i < GetPostsRequest.DEFAULT_PAGE_SIZE; i++)
+			for (int i = 0; i < GetPostsRequestImpl.DEFAULT_PAGE_SIZE; i++)
 			{
 				Post post = new Post();
 				post.setTitle("Post " + i);
@@ -685,10 +685,10 @@ class PostControllerTests
 									json.assertThat()
 										.extractingPath("$.results")
 										.convertTo(LIST)
-										.hasSize(GetPostsRequest.DEFAULT_PAGE_SIZE);
+										.hasSize(GetPostsRequestImpl.DEFAULT_PAGE_SIZE);
 									json.assertThat()
 										.extractingPath("$.metadata.pageSize")
-										.isEqualTo(GetPostsRequest.DEFAULT_PAGE_SIZE);
+										.isEqualTo(GetPostsRequestImpl.DEFAULT_PAGE_SIZE);
 								});
 		}
 
@@ -698,7 +698,7 @@ class PostControllerTests
 			User author = new User("author@example.com", "Author Name", "password123");
 			author = userRepository.save(author);
 
-			for (int i = 0; i < GetPostsRequest.MAX_PAGE_SIZE; i++)
+			for (int i = 0; i < GetPostsRequestImpl.MAX_PAGE_SIZE; i++)
 			{
 				Post post = new Post();
 				post.setTitle("Post " + i);
@@ -722,10 +722,10 @@ class PostControllerTests
 									json.assertThat()
 										.extractingPath("$.results")
 										.convertTo(LIST)
-										.hasSize(GetPostsRequest.MAX_PAGE_SIZE);
+										.hasSize(GetPostsRequestImpl.MAX_PAGE_SIZE);
 									json.assertThat()
 										.extractingPath("$.metadata.pageSize")
-										.isEqualTo(GetPostsRequest.MAX_PAGE_SIZE);
+										.isEqualTo(GetPostsRequestImpl.MAX_PAGE_SIZE);
 								});
 		}
 
