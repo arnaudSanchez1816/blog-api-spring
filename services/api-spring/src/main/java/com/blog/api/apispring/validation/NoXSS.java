@@ -11,7 +11,7 @@ import java.lang.annotation.*;
  */
 @Documented
 @Constraint(validatedBy = NoHtmlValidator.class)
-@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Target({ElementType.TYPE_USE, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NoXSS
 {
