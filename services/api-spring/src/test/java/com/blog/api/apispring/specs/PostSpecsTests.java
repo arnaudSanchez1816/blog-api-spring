@@ -18,7 +18,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -574,5 +573,63 @@ class PostSpecsTests
 		assertThat(posts.getFirst()
 						.getTitle()
 						.toLowerCase()).containsSubsequence("Post 1".toLowerCase());
+	}
+
+	@Test
+	void titleContains_ReturnMultiple_WhenMultipleExist()
+	{
+		User author = new User("author@blog.com", "Test Author", "password");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Post 1");
+		post.setDescription("post 1 description");
+		post.setBody("post 1 body");
+		post.setReadingTime(3);
+		post.setPublishedAt(null);
+		post.setAuthor(author);
+		post = postRepository.save(post);
+
+		Post post2 = new Post();
+		post2.setTitle("Post 2");
+		post2.setDescription("post 2 description");
+		post2.setBody("post 2 body");
+		post2.setReadingTime(3);
+		post2.setPublishedAt(null);
+		post2.setAuthor(author);
+		post2 = postRepository.save(post2);
+
+		Post draft = new Post();
+		draft.setTitle("Draft");
+		draft.setDescription("Draft description");
+		draft.setBody("Draft body");
+		draft.setReadingTime(3);
+		draft.setPublishedAt(null);
+		draft.setAuthor(author);
+		draft = postRepository.save(draft);
+
+		List<Post> posts = postRepository.findAll(PostSpecs.titleContains("Post"));
+		assertThat(posts).hasSize(2);
+		assertThat(posts).extracting(Post::getId)
+						 .containsExactlyInAnyOrder(post.getId(), post2.getId());
+	}
+
+	@Test
+	void titleContains_ReturnNone_WhenNoneExist()
+	{
+		User author = new User("author@blog.com", "Test Author", "password");
+		author = userRepository.save(author);
+
+		Post draft = new Post();
+		draft.setTitle("Draft");
+		draft.setDescription("Draft description");
+		draft.setBody("Draft body");
+		draft.setReadingTime(3);
+		draft.setPublishedAt(null);
+		draft.setAuthor(author);
+		draft = postRepository.save(draft);
+
+		List<Post> posts = postRepository.findAll(PostSpecs.titleContains("Post"));
+		assertThat(posts).hasSize(0);
 	}
 }
