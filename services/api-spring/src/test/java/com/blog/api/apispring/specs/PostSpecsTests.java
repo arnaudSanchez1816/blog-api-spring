@@ -389,14 +389,11 @@ class PostSpecsTests
 		post3.addTag(tag1);
 		post3 = postRepository.save(post3);
 
-		List<Post> postsWithTags = postRepository.findAll(PostSpecs.withTags(List.of(TagIdOrSlug.fromId(tag2.getId()))));
-		assertThat(postsWithTags).hasSize(2);
+		List<Post> postsWithTags = postRepository.findAll(PostSpecs.withTags(List.of(TagIdOrSlug.fromId(tag1.getId()),
+				TagIdOrSlug.fromId(tag2.getId()))));
+		assertThat(postsWithTags).hasSize(3);
 		assertThat(postsWithTags).extracting(Post::getId)
-								 .containsExactlyInAnyOrder(post.getId(), post2.getId());
-		assertThat(postsWithTags).allMatch(p -> p.getTags()
-												 .stream()
-												 .anyMatch(t -> t.getId()
-																 .equals(tag2.getId())));
+								 .containsExactlyInAnyOrder(post.getId(), post2.getId(), post3.getId());
 	}
 
 	@Test

@@ -7,6 +7,7 @@ import com.blog.api.apispring.model.Tag_;
 import com.blog.api.apispring.model.User_;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.jpa.domain.PredicateSpecification;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -35,11 +36,15 @@ public class PostSpecs
 						from.get(Post_.title)), criteriaBuilder.lower(criteriaBuilder.literal("%" + q + "%")));
 	}
 
-	public static PredicateSpecification<Post> withTags(Collection<TagIdOrSlug> tags)
+	public static Specification<Post> withTags(Collection<TagIdOrSlug> tags)
 	{
 		if (tags == null || tags.isEmpty())
 		{
-			return ((_, criteriaBuilder) -> criteriaBuilder.conjunction());
+			return ((_, query, criteriaBuilder) ->
+					{
+						query.distinct(true);
+						return criteriaBuilder.conjunction();
+					});
 		}
 
 		Set<Long> tagIds = new HashSet<>();
@@ -55,8 +60,10 @@ public class PostSpecs
 			}
 		}
 
-		return (from, criteriaBuilder) ->
+		return (from, query, criteriaBuilder) ->
 		{
+			query.distinct(true);
+
 			CriteriaBuilder.In<Object> inIds = criteriaBuilder.in(from.get(Post_.TAGS)
 																	  .get(Tag_.ID));
 			inIds.value(tagIds);
