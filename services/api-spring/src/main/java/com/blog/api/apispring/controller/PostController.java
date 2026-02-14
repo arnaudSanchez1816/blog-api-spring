@@ -15,12 +15,11 @@ import com.blog.api.apispring.service.PostService;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -43,12 +42,16 @@ class PostController
 	}
 
 	@GetMapping
-	public ResponseEntity<GetPostsResponse> getPosts(@Valid GetPostsRequest getPostsRequest)
+	public ResponseEntity<GetPostsResponse> getPosts(@Valid GetPostsRequest getPostsRequest,
+													 Authentication authentication)
 	{
-		int page = getPostsRequest.page();
-		int pageSize = getPostsRequest.pageSize();
-		Pageable pageable = PageRequest.of(page, pageSize);
-		Page<PostInfoWithAuthorAndTags> postsPage = postService.getPostsInfo(pageable);
+		if (authentication == null || !authentication.isAuthenticated())
+		{
+			// Only allow viewing unpublished
+			getPostsRequest.setUnpublished(false);
+		}
+
+		Page<PostInfoWithAuthorAndTags> postsPage = postService.getPostsInfo(getPostsRequest);
 		List<PostInfoWithAuthorAndTags> postsContent = postsPage.getContent();
 		Map<Long, Long> commentsCount = postService.getCommentsCount(postsContent.stream()
 																				 .map(PostInfoWithAuthor::getId)
@@ -65,7 +68,8 @@ class PostController
 		Metadata metadata = new Metadata();
 		metadata.count(postsPage.getTotalElements())
 				.page(postsPage.getNumber())
-				.pageSize(postsPage.getSize());
+				.pageSize(postsPage.getSize())
+				.sortBy(getPostsRequest.getSortBy());
 		return ResponseEntity.ok(new GetPostsResponse(results, metadata));
 	}
 
@@ -182,8 +186,9 @@ class PostController
 		ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
 		pd.setTitle("Post publication conflict");
 		pd.setType(URI.create("about:blank"));
-		pd.setProperty("timestamp", OffsetDateTime.now()
-												  .toString());
+		pd.setProperty("timestamp",
+				OffsetDateTime.now()
+							  .toString());
 		pd.setProperty("postId", ex.getPostId());
 		pd.setProperty("errorCode", "RES_409");
 

@@ -1,5 +1,6 @@
 package com.blog.api.apispring.controller;
 
+import com.blog.api.apispring.dto.posts.GetPostsRequest;
 import com.blog.api.apispring.dto.posts.PostDto;
 import com.blog.api.apispring.dto.posts.UpdatePostRequest;
 import com.blog.api.apispring.extensions.ClearDatabaseExtension;
@@ -28,6 +29,7 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
@@ -219,332 +221,1138 @@ class PostControllerTests
 		assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
 	}
 
-	/**
-	 * Test getPosts returns 200 OK with empty list when no posts exist.
-	 */
-	@Test
-	void getPosts_IsOk_WhenNoPostsExist()
+	@Nested
+	@DisplayName("getPosts")
+	class GetPosts
 	{
-		MvcTestResult response = mockMvc.get()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/posts?page=0&pageSize=10")
-										.exchange();
-
-		assertThat(response).hasStatusOk()
-							.hasContentType(MediaType.APPLICATION_JSON)
-							.bodyJson()
-							.satisfies(json ->
-							{
-								json.assertThat()
-									.extractingPath("$.results")
-									.asInstanceOf(LIST)
-									.hasSize(0);
-								json.assertThat()
-									.extractingPath("$.metadata.count")
-									.isEqualTo(0);
-								json.assertThat()
-									.extractingPath("$.metadata.page")
-									.isEqualTo(0);
-								json.assertThat()
-									.extractingPath("$.metadata.pageSize")
-									.isEqualTo(10);
-							});
-	}
-
-	/**
-	 * Test getPosts returns 200 OK with single post when one post exists.
-	 */
-	@Test
-	void getPosts_IsOk_WhenOnePostExists()
-	{
-		User author = new User("author@example.com", "Author Name", "password123");
-		author = userRepository.save(author);
-
-		Post post = new Post();
-		post.setTitle("Test Post");
-		post.setDescription("Test description");
-		post.setBody("Test body");
-		post.setReadingTime(5);
-		post.setAuthor(author);
-		post = postRepository.save(post);
-
-		MvcTestResult response = mockMvc.get()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/posts?page=0&pageSize=10")
-										.exchange();
-
-		Post finalPost = post;
-		assertThat(response).hasStatusOk()
-							.hasContentType(MediaType.APPLICATION_JSON)
-							.bodyJson()
-							.satisfies(json ->
-							{
-								json.assertThat()
-									.extractingPath("$.results")
-									.convertTo(LIST)
-									.hasSize(1);
-								json.assertThat()
-									.extractingPath("$.results[0].id")
-									.isEqualTo(finalPost.getId()
-														.intValue());
-								json.assertThat()
-									.extractingPath("$.results[0].title")
-									.isEqualTo("Test Post");
-							});
-	}
-
-	/**
-	 * Test getPosts returns 200 OK with multiple posts in correct order.
-	 */
-	@Test
-	void getPosts_IsOk_WithMultiplePosts()
-	{
-		User author = new User("author@example.com", "Author Name", "password123");
-		author = userRepository.save(author);
-
-		Post post1 = new Post();
-		post1.setTitle("First Post");
-		post1.setDescription("Description 1");
-		post1.setBody("Body 1");
-		post1.setAuthor(author);
-		post1 = postRepository.save(post1);
-
-		Post post2 = new Post();
-		post2.setTitle("Second Post");
-		post2.setDescription("Description 2");
-		post2.setBody("Body 2");
-		post2.setAuthor(author);
-		post2 = postRepository.save(post2);
-
-		Post post3 = new Post();
-		post3.setTitle("Third Post");
-		post3.setDescription("Description 3");
-		post3.setBody("Body 3");
-		post3.setAuthor(author);
-		post3 = postRepository.save(post3);
-
-		MvcTestResult response = mockMvc.get()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/posts?page=0&pageSize=10")
-										.exchange();
-
-		assertThat(response).hasStatusOk()
-							.hasContentType(MediaType.APPLICATION_JSON)
-							.bodyJson()
-							.satisfies(json ->
-							{
-								json.assertThat()
-									.extractingPath("$.results")
-									.convertTo(LIST)
-									.hasSize(3);
-							});
-	}
-
-	/**
-	 * Test getPosts returns correct metadata including count, page, and pageSize.
-	 */
-	@Test
-	void getPosts_IsOk_WithCorrectMetadata()
-	{
-		User author = new User("author@example.com", "Author Name", "password123");
-		author = userRepository.save(author);
-
-		for (int i = 0; i < 5; i++)
+		/**
+		 * Test getPosts returns 200 OK with empty list when no posts exist.
+		 */
+		@Test
+		void getPosts_IsOk_WhenNoPostsExist()
 		{
-			Post post = new Post();
-			post.setTitle("Post " + i);
-			post.setDescription("Description " + i);
-			post.setBody("Body " + i);
-			post.setAuthor(author);
-			postRepository.save(post);
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=10")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.asInstanceOf(LIST)
+										.hasSize(0);
+									json.assertThat()
+										.extractingPath("$.metadata.count")
+										.isEqualTo(0);
+									json.assertThat()
+										.extractingPath("$.metadata.page")
+										.isEqualTo(0);
+									json.assertThat()
+										.extractingPath("$.metadata.pageSize")
+										.isEqualTo(10);
+								});
 		}
 
-		MvcTestResult response = mockMvc.get()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/posts?page=0&pageSize=10")
-										.exchange();
-
-		assertThat(response).hasStatusOk()
-							.hasContentType(MediaType.APPLICATION_JSON)
-							.bodyJson()
-							.satisfies(json ->
-							{
-								json.assertThat()
-									.extractingPath("$.metadata.count")
-									.isEqualTo(5);
-								json.assertThat()
-									.extractingPath("$.metadata.page")
-									.isEqualTo(0);
-								json.assertThat()
-									.extractingPath("$.metadata.pageSize")
-									.isEqualTo(10);
-							});
-	}
-
-	/**
-	 * Test getPosts handles pagination correctly by returning second page of results.
-	 */
-	@Test
-	void getPosts_IsOk_WithPagination()
-	{
-		User author = new User("author@example.com", "Author Name", "password123");
-		author = userRepository.save(author);
-
-		for (int i = 0; i < 15; i++)
+		/**
+		 * Test getPosts returns 200 OK with single post when one post exists.
+		 */
+		@Test
+		void getPosts_IsOk_WhenOnePostExists()
 		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
 			Post post = new Post();
-			post.setTitle("Post " + i);
-			post.setDescription("Description " + i);
-			post.setBody("Body " + i);
+			post.setTitle("Test Post");
+			post.setDescription("Test description");
+			post.setBody("Test body");
+			post.setReadingTime(5);
 			post.setAuthor(author);
-			postRepository.save(post);
+			post.setPublishedAt(OffsetDateTime.now());
+			post = postRepository.save(post);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=10")
+											.exchange();
+
+			Post finalPost = post;
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(1);
+									json.assertThat()
+										.extractingPath("$.results[0].id")
+										.isEqualTo(finalPost.getId()
+															.intValue());
+									json.assertThat()
+										.extractingPath("$.results[0].title")
+										.isEqualTo("Test Post");
+								});
 		}
 
-		MvcTestResult response = mockMvc.get()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/posts?page=1&pageSize=10")
-										.exchange();
-
-		assertThat(response).hasStatusOk()
-							.hasContentType(MediaType.APPLICATION_JSON)
-							.bodyJson()
-							.satisfies(json ->
-							{
-								json.assertThat()
-									.extractingPath("$.results")
-									.convertTo(LIST)
-									.hasSize(5);
-								json.assertThat()
-									.extractingPath("$.metadata.count")
-									.isEqualTo(15);
-								json.assertThat()
-									.extractingPath("$.metadata.page")
-									.isEqualTo(1);
-								json.assertThat()
-									.extractingPath("$.metadata.pageSize")
-									.isEqualTo(10);
-							});
-	}
-
-	/**
-	 * Test getPosts includes tags when posts have associated tags.
-	 */
-	@Test
-	void getPosts_IsOk_WithTags()
-	{
-		User author = new User("author@example.com", "Author Name", "password123");
-		author = userRepository.save(author);
-
-		Tag tag1 = new Tag("Java", "java");
-		Tag tag2 = new Tag("Spring", "spring");
-		tag1 = tagRepository.save(tag1);
-		tag2 = tagRepository.save(tag2);
-
-		Post post = new Post();
-		post.setTitle("Post with Tags");
-		post.setDescription("Description");
-		post.setBody("Body");
-		post.setAuthor(author);
-		post.addTag(tag1);
-		post.addTag(tag2);
-		post = postRepository.save(post);
-
-		MvcTestResult response = mockMvc.get()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/posts?page=0&pageSize=10")
-										.exchange();
-
-		assertThat(response).hasStatusOk()
-							.hasContentType(MediaType.APPLICATION_JSON)
-							.bodyJson()
-							.satisfies(json ->
-							{
-								json.assertThat()
-									.extractingPath("$.results[0].tags")
-									.convertTo(LIST)
-									.hasSize(2);
-							});
-	}
-
-	/**
-	 * Test getPosts includes correct comments count when posts have comments.
-	 */
-	@Test
-	void getPosts_IsOk_WithCommentsCount()
-	{
-		User author = new User("author@example.com", "Author Name", "password123");
-		author = userRepository.save(author);
-
-		Post post = new Post();
-		post.setTitle("Post with Comments");
-		post.setDescription("Description");
-		post.setBody("Body");
-		post.setAuthor(author);
-		Comment comment1 = new Comment();
-		comment1.setBody("Comment 1");
-		comment1.setUsername("User 1");
-		comment1.setCreatedAt(OffsetDateTime.now());
-		Comment comment2 = new Comment();
-		comment2.setBody("Comment 2");
-		comment2.setUsername("User 2");
-		comment2.setCreatedAt(OffsetDateTime.now());
-		post.addComment(comment1);
-		post.addComment(comment2);
-		post = postRepository.save(post);
-
-		MvcTestResult response = mockMvc.get()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/posts?page=0&pageSize=10")
-										.exchange();
-
-		assertThat(response).hasStatusOk()
-							.hasContentType(MediaType.APPLICATION_JSON)
-							.bodyJson()
-							.satisfies(json ->
-							{
-								json.assertThat()
-									.extractingPath("$.results[0].commentsCount")
-									.isEqualTo(2);
-							});
-	}
-
-	/**
-	 * Test getPosts respects custom pageSize parameter.
-	 */
-	@Test
-	void getPosts_IsOk_WithCustomPageSize()
-	{
-		User author = new User("author@example.com", "Author Name", "password123");
-		author = userRepository.save(author);
-
-		for (int i = 0; i < 10; i++)
+		/**
+		 * Test getPosts returns 200 OK with multiple posts in correct order.
+		 */
+		@Test
+		void getPosts_IsOk_WithMultiplePosts()
 		{
-			Post post = new Post();
-			post.setTitle("Post " + i);
-			post.setDescription("Description " + i);
-			post.setBody("Body " + i);
-			post.setAuthor(author);
-			postRepository.save(post);
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post1 = new Post();
+			post1.setTitle("First Post");
+			post1.setDescription("Description 1");
+			post1.setBody("Body 1");
+			post1.setAuthor(author);
+			post1.setPublishedAt(OffsetDateTime.now());
+			post1 = postRepository.save(post1);
+
+			Post post2 = new Post();
+			post2.setTitle("Second Post");
+			post2.setDescription("Description 2");
+			post2.setBody("Body 2");
+			post2.setAuthor(author);
+			post2.setPublishedAt(OffsetDateTime.now());
+			post2 = postRepository.save(post2);
+
+			Post post3 = new Post();
+			post3.setTitle("Third Post");
+			post3.setDescription("Description 3");
+			post3.setBody("Body 3");
+			post3.setAuthor(author);
+			post3.setPublishedAt(OffsetDateTime.now());
+			post3 = postRepository.save(post3);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=10")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(3);
+								});
 		}
 
-		MvcTestResult response = mockMvc.get()
-										.contentType(MediaType.APPLICATION_JSON)
-										.uri("/posts?page=0&pageSize=3")
-										.exchange();
+		/**
+		 * Test getPosts returns correct metadata including count, page, and pageSize.
+		 */
+		@Test
+		void getPosts_IsOk_WithCorrectMetadata()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
 
-		assertThat(response).hasStatusOk()
-							.hasContentType(MediaType.APPLICATION_JSON)
-							.bodyJson()
-							.satisfies(json ->
-							{
-								json.assertThat()
-									.extractingPath("$.results")
-									.convertTo(LIST)
-									.hasSize(3);
-								json.assertThat()
-									.extractingPath("$.metadata.pageSize")
-									.isEqualTo(3);
-							});
+			Tag tag1 = new Tag("Java", "java");
+			tag1 = tagRepository.save(tag1);
+
+			for (int i = 0; i < 5; i++)
+			{
+				Post post = new Post();
+				post.setTitle("Post " + i);
+				post.setDescription("Description " + i);
+				post.setBody("Body " + i);
+				post.setAuthor(author);
+				post.addTag(tag1);
+				post.setPublishedAt(OffsetDateTime.now());
+				postRepository.save(post);
+			}
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=10&tags=java&sortBy=id")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.metadata.count")
+										.isEqualTo(5);
+									json.assertThat()
+										.extractingPath("$.metadata.page")
+										.isEqualTo(0);
+									json.assertThat()
+										.extractingPath("$.metadata.pageSize")
+										.isEqualTo(10);
+									json.assertThat()
+										.extractingPath("$.metadata.sortBy")
+										.isEqualTo("id");
+								});
+		}
+
+		/**
+		 * Test getPosts handles pagination correctly by returning second page of results.
+		 */
+		@Test
+		void getPosts_IsOk_WithPagination()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			for (int i = 0; i < 15; i++)
+			{
+				Post post = new Post();
+				post.setTitle("Post " + i);
+				post.setDescription("Description " + i);
+				post.setBody("Body " + i);
+				post.setAuthor(author);
+				post.setPublishedAt(OffsetDateTime.now());
+				postRepository.save(post);
+			}
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=1&pageSize=10")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(5);
+									json.assertThat()
+										.extractingPath("$.metadata.count")
+										.isEqualTo(15);
+									json.assertThat()
+										.extractingPath("$.metadata.page")
+										.isEqualTo(1);
+									json.assertThat()
+										.extractingPath("$.metadata.pageSize")
+										.isEqualTo(10);
+								});
+		}
+
+		@Test
+		void getPosts_IsOk_WithInvalidPage()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			for (int i = 0; i < 15; i++)
+			{
+				Post post = new Post();
+				post.setTitle("Post " + i);
+				post.setDescription("Description " + i);
+				post.setBody("Body " + i);
+				post.setAuthor(author);
+				post.setPublishedAt(OffsetDateTime.now());
+				postRepository.save(post);
+			}
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=-50&pageSize=10")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(10);
+									json.assertThat()
+										.extractingPath("$.metadata.count")
+										.isEqualTo(15);
+									json.assertThat()
+										.extractingPath("$.metadata.page")
+										.isEqualTo(0);
+									json.assertThat()
+										.extractingPath("$.metadata.pageSize")
+										.isEqualTo(10);
+								});
+		}
+
+		/**
+		 * Test getPosts includes tags when posts have associated tags.
+		 */
+		@Test
+		void getPosts_IsOk_WithTags()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Tag tag1 = new Tag("Java", "java");
+			Tag tag2 = new Tag("Spring", "spring");
+			tag1 = tagRepository.save(tag1);
+			tag2 = tagRepository.save(tag2);
+
+			Post post = new Post();
+			post.setTitle("Post with Tags");
+			post.setDescription("Description");
+			post.setBody("Body");
+			post.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			post.addTag(tag1);
+			post.addTag(tag2);
+			post = postRepository.save(post);
+
+			Post post2 = new Post();
+			post2.setTitle("Post without Tags");
+			post2.setDescription("Description");
+			post2.setBody("Body");
+			post2.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			post2 = postRepository.save(post2);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?tags=java,spring")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(1);
+									json.assertThat()
+										.extractingPath("$.results[0].tags")
+										.convertTo(LIST)
+										.hasSize(2);
+								});
+		}
+
+		@Test
+		void getPosts_Is400_WithGivenInvalidTags()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Tag tag1 = new Tag("Java", "java");
+			tag1 = tagRepository.save(tag1);
+
+			Post post = new Post();
+			post.setTitle("Post with Tags");
+			post.setDescription("Description");
+			post.setBody("Body");
+			post.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			post.addTag(tag1);
+			post = postRepository.save(post);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?tags=@alsdsqkdKL")
+											.exchange();
+
+			assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+		}
+
+		/**
+		 * Test getPosts includes correct comments count when posts have comments.
+		 */
+		@Test
+		void getPosts_IsOk_WithCommentsCount()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Post with Comments");
+			post.setDescription("Description");
+			post.setBody("Body");
+			post.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			Comment comment1 = new Comment();
+			comment1.setBody("Comment 1");
+			comment1.setUsername("User 1");
+			comment1.setCreatedAt(OffsetDateTime.now());
+			Comment comment2 = new Comment();
+			comment2.setBody("Comment 2");
+			comment2.setUsername("User 2");
+			comment2.setCreatedAt(OffsetDateTime.now());
+			post.addComment(comment1);
+			post.addComment(comment2);
+			post = postRepository.save(post);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=10")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results[0].commentsCount")
+										.isEqualTo(2);
+								});
+		}
+
+		/**
+		 * Test getPosts respects custom pageSize parameter.
+		 */
+		@Test
+		void getPosts_IsOk_WithCustomPageSize()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			for (int i = 0; i < 10; i++)
+			{
+				Post post = new Post();
+				post.setTitle("Post " + i);
+				post.setDescription("Description " + i);
+				post.setBody("Body " + i);
+				post.setAuthor(author);
+				post.setPublishedAt(OffsetDateTime.now());
+				postRepository.save(post);
+			}
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=3")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(3);
+									json.assertThat()
+										.extractingPath("$.metadata.pageSize")
+										.isEqualTo(3);
+								});
+		}
+
+		@Test
+		void getPosts_IsOk_WithTooSmallCustomPageSize()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			for (int i = 0; i < GetPostsRequest.DEFAULT_PAGE_SIZE; i++)
+			{
+				Post post = new Post();
+				post.setTitle("Post " + i);
+				post.setDescription("Description " + i);
+				post.setBody("Body " + i);
+				post.setAuthor(author);
+				post.setPublishedAt(OffsetDateTime.now());
+				postRepository.save(post);
+			}
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=-30")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(GetPostsRequest.DEFAULT_PAGE_SIZE);
+									json.assertThat()
+										.extractingPath("$.metadata.pageSize")
+										.isEqualTo(GetPostsRequest.DEFAULT_PAGE_SIZE);
+								});
+		}
+
+		@Test
+		void getPosts_IsOk_WithTooBigCustomPageSize()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			for (int i = 0; i < GetPostsRequest.MAX_PAGE_SIZE; i++)
+			{
+				Post post = new Post();
+				post.setTitle("Post " + i);
+				post.setDescription("Description " + i);
+				post.setBody("Body " + i);
+				post.setAuthor(author);
+				post.setPublishedAt(OffsetDateTime.now());
+				postRepository.save(post);
+			}
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=999")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(GetPostsRequest.MAX_PAGE_SIZE);
+									json.assertThat()
+										.extractingPath("$.metadata.pageSize")
+										.isEqualTo(GetPostsRequest.MAX_PAGE_SIZE);
+								});
+		}
+
+		@Test
+		void getPosts_IsOk_WhenSortingByIdAsc()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post1 = new Post();
+			post1.setTitle("First Post");
+			post1.setDescription("Description 1");
+			post1.setBody("Body 1");
+			post1.setAuthor(author);
+			post1.setPublishedAt(OffsetDateTime.now());
+			post1 = postRepository.save(post1);
+
+			Post post2 = new Post();
+			post2.setTitle("Second Post");
+			post2.setDescription("Description 2");
+			post2.setBody("Body 2");
+			post2.setAuthor(author);
+			post2.setPublishedAt(OffsetDateTime.now());
+			post2 = postRepository.save(post2);
+
+			Post post3 = new Post();
+			post3.setTitle("Third Post");
+			post3.setDescription("Description 3");
+			post3.setBody("Body 3");
+			post3.setAuthor(author);
+			post3.setPublishedAt(OffsetDateTime.now());
+			post3 = postRepository.save(post3);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?sortBy=id")
+											.exchange();
+
+			Post finalPost1 = post1;
+			Post finalPost2 = post2;
+			Post finalPost3 = post3;
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(3);
+									json.assertThat()
+										.extractingPath("$.results[*].id")
+										.convertTo(LIST)
+										.containsExactly(finalPost1.getId()
+																   .intValue(),
+												finalPost2.getId()
+														  .intValue(),
+												finalPost3.getId()
+														  .intValue());
+								});
+		}
+
+		@Test
+		void getPosts_IsOk_WhenSortingByIdDesc()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post1 = new Post();
+			post1.setTitle("First Post");
+			post1.setDescription("Description 1");
+			post1.setBody("Body 1");
+			post1.setAuthor(author);
+			post1.setPublishedAt(OffsetDateTime.now());
+			post1 = postRepository.save(post1);
+
+			Post post2 = new Post();
+			post2.setTitle("Second Post");
+			post2.setDescription("Description 2");
+			post2.setBody("Body 2");
+			post2.setAuthor(author);
+			post2.setPublishedAt(OffsetDateTime.now());
+			post2 = postRepository.save(post2);
+
+			Post post3 = new Post();
+			post3.setTitle("Third Post");
+			post3.setDescription("Description 3");
+			post3.setBody("Body 3");
+			post3.setAuthor(author);
+			post3.setPublishedAt(OffsetDateTime.now());
+			post3 = postRepository.save(post3);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?sortBy=-id")
+											.exchange();
+
+			Post finalPost1 = post1;
+			Post finalPost2 = post2;
+			Post finalPost3 = post3;
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(3);
+									json.assertThat()
+										.extractingPath("$.results[*].id")
+										.convertTo(LIST)
+										.containsExactly(finalPost3.getId()
+																   .intValue(),
+												finalPost2.getId()
+														  .intValue(),
+												finalPost1.getId()
+														  .intValue());
+								});
+		}
+
+		@Test
+		void getPosts_IsOk_WhenSortingByPublicationDateAsc()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post1 = new Post();
+			post1.setTitle("First Post");
+			post1.setDescription("Description 1");
+			post1.setBody("Body 1");
+			post1.setAuthor(author);
+			post1.setPublishedAt(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+			post1 = postRepository.save(post1);
+
+			Post post2 = new Post();
+			post2.setTitle("Second Post");
+			post2.setDescription("Description 2");
+			post2.setBody("Body 2");
+			post2.setAuthor(author);
+			post2.setPublishedAt(OffsetDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+			post2 = postRepository.save(post2);
+
+			Post post3 = new Post();
+			post3.setTitle("Third Post");
+			post3.setDescription("Description 3");
+			post3.setBody("Body 3");
+			post3.setAuthor(author);
+			post3.setPublishedAt(OffsetDateTime.of(2030, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+			post3 = postRepository.save(post3);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?sortBy=publishedAt")
+											.exchange();
+
+			Post finalPost1 = post1;
+			Post finalPost2 = post2;
+			Post finalPost3 = post3;
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(3);
+									json.assertThat()
+										.extractingPath("$.results[*].id")
+										.convertTo(LIST)
+										.containsExactly(finalPost1.getId()
+																   .intValue(),
+												finalPost2.getId()
+														  .intValue(),
+												finalPost3.getId()
+														  .intValue());
+								});
+		}
+
+		@Test
+		void getPosts_IsOk_WhenSortingByPublicationDateDesc()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post1 = new Post();
+			post1.setTitle("First Post");
+			post1.setDescription("Description 1");
+			post1.setBody("Body 1");
+			post1.setAuthor(author);
+			post1.setPublishedAt(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+			post1 = postRepository.save(post1);
+
+			Post post2 = new Post();
+			post2.setTitle("Second Post");
+			post2.setDescription("Description 2");
+			post2.setBody("Body 2");
+			post2.setAuthor(author);
+			post2.setPublishedAt(OffsetDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+			post2 = postRepository.save(post2);
+
+			Post post3 = new Post();
+			post3.setTitle("Third Post");
+			post3.setDescription("Description 3");
+			post3.setBody("Body 3");
+			post3.setAuthor(author);
+			post3.setPublishedAt(OffsetDateTime.of(2030, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+			post3 = postRepository.save(post3);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?sortBy=-publishedAt")
+											.exchange();
+
+			Post finalPost1 = post1;
+			Post finalPost2 = post2;
+			Post finalPost3 = post3;
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(3);
+									json.assertThat()
+										.extractingPath("$.results[*].id")
+										.convertTo(LIST)
+										.containsExactly(finalPost3.getId()
+																   .intValue(),
+												finalPost2.getId()
+														  .intValue(),
+												finalPost1.getId()
+														  .intValue());
+								});
+		}
+
+		@Test
+		void getPosts_Is400_WhenInvalidSortBy()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post1 = new Post();
+			post1.setTitle("First Post");
+			post1.setDescription("Description 1");
+			post1.setBody("Body 1");
+			post1.setAuthor(author);
+			post1.setPublishedAt(OffsetDateTime.now());
+			post1 = postRepository.save(post1);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?sortBy=invalidSortBy")
+											.exchange();
+
+			assertThat(response).hasStatus(HttpStatus.BAD_REQUEST);
+		}
+
+		/**
+		 * Test getPosts returns 200 OK with posts matching the search query.
+		 */
+		@Test
+		void getPosts_IsOk_WithSearchQuery()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post1 = new Post();
+			post1.setTitle("Java Programming");
+			post1.setDescription("Description");
+			post1.setBody("Body");
+			post1.setAuthor(author);
+			post1.setPublishedAt(OffsetDateTime.now());
+			postRepository.save(post1);
+
+			Post post2 = new Post();
+			post2.setTitle("Spring Framework");
+			post2.setDescription("Description");
+			post2.setBody("Body");
+			post2.setAuthor(author);
+			post2.setPublishedAt(OffsetDateTime.now());
+			postRepository.save(post2);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=10&q=Java")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(1);
+									json.assertThat()
+										.extractingPath("$.results[0].title")
+										.isEqualTo("Java Programming");
+									json.assertThat()
+										.extractingPath("$.metadata.count")
+										.isEqualTo(1);
+								});
+		}
+
+		/**
+		 * Test getPosts returns 200 OK with empty results when no posts match search query.
+		 */
+		@Test
+		void getPosts_IsOk_WithNoMatchingSearchQuery()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Java Programming");
+			post.setDescription("Description");
+			post.setBody("Body");
+			post.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			postRepository.save(post);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=10&q=Python")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.asInstanceOf(LIST)
+										.hasSize(0);
+									json.assertThat()
+										.extractingPath("$.metadata.count")
+										.isEqualTo(0);
+								});
+		}
+
+		/**
+		 * Test getPosts returns 200 OK with multiple posts matching search query.
+		 */
+		@Test
+		void getPosts_IsOk_WithMultipleMatchingSearchQuery()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post1 = new Post();
+			post1.setTitle("Java Programming Basics");
+			post1.setDescription("Description");
+			post1.setBody("Body");
+			post1.setAuthor(author);
+			post1.setPublishedAt(OffsetDateTime.now());
+			postRepository.save(post1);
+
+			Post post2 = new Post();
+			post2.setTitle("Advanced Java Concepts");
+			post2.setDescription("Description");
+			post2.setBody("Body");
+			post2.setAuthor(author);
+			post2.setPublishedAt(OffsetDateTime.now());
+			postRepository.save(post2);
+
+			Post post3 = new Post();
+			post3.setTitle("Spring Framework");
+			post3.setDescription("Description");
+			post3.setBody("Body");
+			post3.setAuthor(author);
+			post3.setPublishedAt(OffsetDateTime.now());
+			postRepository.save(post3);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=10&q=Java")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(2);
+									json.assertThat()
+										.extractingPath("$.metadata.count")
+										.isEqualTo(2);
+								});
+		}
+
+		/**
+		 * Test getPosts performs case-insensitive search.
+		 */
+		@Test
+		void getPosts_IsOk_WithCaseInsensitiveSearch()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Java Programming");
+			post.setDescription("Description");
+			post.setBody("Body");
+			post.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			postRepository.save(post);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=10&q=java")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(1);
+									json.assertThat()
+										.extractingPath("$.results[0].title")
+										.isEqualTo("Java Programming");
+								});
+		}
+
+		/**
+		 * Test getPosts returns 200 OK with partial title matches.
+		 */
+		@Test
+		void getPosts_IsOk_WithPartialTitleMatch()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Java Programming Basics");
+			post.setDescription("Description");
+			post.setBody("Body");
+			post.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			postRepository.save(post);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?page=0&pageSize=10&q=Program")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.convertTo(LIST)
+										.hasSize(1);
+									json.assertThat()
+										.extractingPath("$.results[0].title")
+										.isEqualTo("Java Programming Basics");
+								});
+		}
+
+		@Test
+		void getPosts_ReturnNone_WhenNoPublishedPostExist()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Java Programming Basics");
+			post.setDescription("Description");
+			post.setBody("Body");
+			post.setAuthor(author);
+			postRepository.save(post);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.asInstanceOf(LIST)
+										.hasSize(0);
+								});
+		}
+
+		@Test
+		void getPosts_ReturnNone_WhenIncludeUnpublishedIsFalse()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Java Programming Basics");
+			post.setDescription("Description");
+			post.setBody("Body");
+			post.setAuthor(author);
+			postRepository.save(post);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?unpublished=false")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.asInstanceOf(LIST)
+										.hasSize(0);
+								});
+		}
+
+		@Test
+		@WithMockUser(username = "admin")
+		void getPosts_ReturnPost_WhenIncludeUnpublishedIsTrue()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Java Programming Basics");
+			post.setDescription("Description");
+			post.setBody("Body");
+			post.setAuthor(author);
+			postRepository.save(post);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?unpublished=true")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.asInstanceOf(LIST)
+										.hasSize(1);
+								});
+		}
+
+		@Test
+		@WithMockUser(username = "admin")
+		void getPosts_ReturnMultiple_WhenIncludeUnpublishedIsTrue()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Java Programming Basics");
+			post.setDescription("Description");
+			post.setBody("Body");
+			post.setAuthor(author);
+			postRepository.save(post);
+
+			Post post2 = new Post();
+			post2.setTitle("Spring Programming Basics");
+			post2.setDescription("Description");
+			post2.setBody("Body");
+			post2.setAuthor(author);
+			post2.setPublishedAt(OffsetDateTime.now());
+			postRepository.save(post2);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?unpublished=true")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.asInstanceOf(LIST)
+										.hasSize(2);
+								});
+		}
+
+		@Test
+		void getPosts_ReturnNone_WhenUnauthenticatedAndIncludeUnpublishedIsTrue()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Java Programming Basics");
+			post.setDescription("Description");
+			post.setBody("Body");
+			post.setAuthor(author);
+			postRepository.save(post);
+
+			MvcTestResult response = mockMvc.get()
+											.contentType(MediaType.APPLICATION_JSON)
+											.uri("/posts?unpublished=true")
+											.exchange();
+
+			assertThat(response).hasStatusOk()
+								.hasContentType(MediaType.APPLICATION_JSON)
+								.bodyJson()
+								.satisfies(json ->
+								{
+									json.assertThat()
+										.extractingPath("$.results")
+										.asInstanceOf(LIST)
+										.hasSize(0);
+								});
+		}
 	}
 
 	/**

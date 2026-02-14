@@ -1,17 +1,20 @@
 package com.blog.api.apispring.service;
 
+import com.blog.api.apispring.dto.posts.GetPostsRequest;
 import com.blog.api.apispring.dto.tag.TagIdOrSlug;
-import com.blog.api.apispring.model.Comment;
-import com.blog.api.apispring.model.Post;
-import com.blog.api.apispring.model.Tag;
-import com.blog.api.apispring.model.User;
+import com.blog.api.apispring.enums.PostSortBy;
+import com.blog.api.apispring.model.*;
 import com.blog.api.apispring.projection.*;
 import com.blog.api.apispring.repository.CommentRepository;
 import com.blog.api.apispring.repository.PostRepository;
+import com.blog.api.apispring.specs.PostSpecs;
 import jakarta.persistence.EntityManager;
+import jakarta.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.HtmlUtils;
@@ -57,14 +60,31 @@ public class PostService
 		return postRepository.findInfoWithTagsAndCommentsById(id);
 	}
 
-	public Page<PostInfoWithAuthorAndTags> getPostsInfo(Pageable pageable)
+	public Page<PostInfoWithAuthorAndTags> getPostsInfo(GetPostsRequest getPostsRequest)
 	{
-		if (pageable == null)
-		{
-			pageable = Pageable.unpaged();
-		}
+		int page = getPostsRequest.getPage();
+		int pageSize = getPostsRequest.getPageSize();
+		String q = getPostsRequest.getQ();
+		Collection<TagIdOrSlug> tags = getPostsRequest.getTags();
+		PostSortBy sortBy = getPostsRequest.getSortBy();
+		boolean includeUnpublished = getPostsRequest.isUnpublished();
 
-		return postRepository.findAllInfoWithTags(pageable);
+		Sort sort;
+		switch (sortBy)
+		{
+			case ID_ASC -> sort = Sort.by(Sort.Order.asc(Post_.id.getName()));
+			case ID_DESC -> sort = Sort.by(Sort.Order.desc(Post_.id.getName()));
+			case PUBLISHED_AT_ASC -> sort = Sort.by(Sort.Order.asc(Post_.publishedAt.getName()));
+			case PUBLISHED_AT_DESC -> sort = Sort.by(Sort.Order.desc(Post_.publishedAt.getName()));
+			default -> throw new UnsupportedOperationException("Unsupported sort by value");
+		}
+		Pageable pageable = PageRequest.of(page, pageSize, sort);
+
+		return postRepository.findBy(PostSpecs.withTags(tags)
+											  .and(PostSpecs.titleContains(q))
+											  .and(PostSpecs.onlyPublished(!includeUnpublished)),
+				sfq -> sfq.as(PostInfoWithAuthorAndTags.class)
+						  .page(pageable));
 	}
 
 	public Long getCommentsCount(long id)
