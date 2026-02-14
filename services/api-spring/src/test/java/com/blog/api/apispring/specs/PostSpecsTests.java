@@ -341,8 +341,7 @@ class PostSpecsTests
 		post.addTag(tag2);
 		post = postRepository.save(post);
 
-		List<Post> postsWithTags = postRepository.findAll(
-				PostSpecs.withTags(List.of(TagIdOrSlug.fromId(tag1.getId()))));
+		List<Post> postsWithTags = postRepository.findAll(PostSpecs.withTags(List.of(TagIdOrSlug.fromId(tag1.getId()))));
 		assertThat(postsWithTags).hasSize(1);
 		assertThat(postsWithTags.getFirst()
 								.getId()).isEqualTo(post.getId());
@@ -390,8 +389,7 @@ class PostSpecsTests
 		post3.addTag(tag1);
 		post3 = postRepository.save(post3);
 
-		List<Post> postsWithTags = postRepository.findAll(
-				PostSpecs.withTags(List.of(TagIdOrSlug.fromId(tag2.getId()))));
+		List<Post> postsWithTags = postRepository.findAll(PostSpecs.withTags(List.of(TagIdOrSlug.fromId(tag2.getId()))));
 		assertThat(postsWithTags).hasSize(2);
 		assertThat(postsWithTags).extracting(Post::getId)
 								 .containsExactlyInAnyOrder(post.getId(), post2.getId());
@@ -417,8 +415,7 @@ class PostSpecsTests
 		post.addTag(tag1);
 		post = postRepository.save(post);
 
-		List<Post> postsWithTags = postRepository.findAll(
-				PostSpecs.withTags(List.of(TagIdOrSlug.fromId(tag2.getId()))));
+		List<Post> postsWithTags = postRepository.findAll(PostSpecs.withTags(List.of(TagIdOrSlug.fromId(tag2.getId()))));
 		assertThat(postsWithTags).isEmpty();
 	}
 
@@ -439,8 +436,7 @@ class PostSpecsTests
 		post.addTag(tag1);
 		post = postRepository.save(post);
 
-		List<Post> postsWithTags = postRepository.findAll(
-				PostSpecs.withTags(List.of(TagIdOrSlug.fromSlug(tag1.getSlug()))));
+		List<Post> postsWithTags = postRepository.findAll(PostSpecs.withTags(List.of(TagIdOrSlug.fromSlug(tag1.getSlug()))));
 		assertThat(postsWithTags).hasSize(1);
 		assertThat(postsWithTags.getFirst()
 								.getId()).isEqualTo(post.getId());
@@ -477,8 +473,8 @@ class PostSpecsTests
 		post2.addTag(tag2);
 		post2 = postRepository.save(post2);
 
-		List<Post> postsWithTags = postRepository.findAll(
-				PostSpecs.withTags(List.of(TagIdOrSlug.fromSlug(tag1.getSlug()), TagIdOrSlug.fromId(tag2.getId()))));
+		List<Post> postsWithTags = postRepository.findAll(PostSpecs.withTags(List.of(TagIdOrSlug.fromSlug(tag1.getSlug()),
+				TagIdOrSlug.fromId(tag2.getId()))));
 		assertThat(postsWithTags).hasSize(2);
 		assertThat(postsWithTags).extracting(Post::getId)
 								 .containsExactlyInAnyOrder(post.getId(), post2.getId());
@@ -631,5 +627,61 @@ class PostSpecsTests
 
 		List<Post> posts = postRepository.findAll(PostSpecs.titleContains("Post"));
 		assertThat(posts).hasSize(0);
+	}
+
+	@Test
+	void titleContains_ReturnAll_WhenGivenNullString()
+	{
+		User author = new User("author@blog.com", "Test Author", "password");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Post 1");
+		post.setDescription("post 1 description");
+		post.setBody("post 1 body");
+		post.setReadingTime(3);
+		post.setPublishedAt(null);
+		post.setAuthor(author);
+		post = postRepository.save(post);
+
+		Post draft = new Post();
+		draft.setTitle("Draft");
+		draft.setDescription("Draft description");
+		draft.setBody("Draft body");
+		draft.setReadingTime(3);
+		draft.setPublishedAt(null);
+		draft.setAuthor(author);
+		draft = postRepository.save(draft);
+
+		List<Post> posts = postRepository.findAll(PostSpecs.titleContains(null));
+		assertThat(posts).hasSize(2);
+	}
+
+	@Test
+	void titleContains_ReturnAll_WhenGivenBlankString()
+	{
+		User author = new User("author@blog.com", "Test Author", "password");
+		author = userRepository.save(author);
+
+		Post post = new Post();
+		post.setTitle("Post 1");
+		post.setDescription("post 1 description");
+		post.setBody("post 1 body");
+		post.setReadingTime(3);
+		post.setPublishedAt(null);
+		post.setAuthor(author);
+		post = postRepository.save(post);
+
+		Post draft = new Post();
+		draft.setTitle("Draft");
+		draft.setDescription("Draft description");
+		draft.setBody("Draft body");
+		draft.setReadingTime(3);
+		draft.setPublishedAt(null);
+		draft.setAuthor(author);
+		draft = postRepository.save(draft);
+
+		List<Post> posts = postRepository.findAll(PostSpecs.titleContains("    "));
+		assertThat(posts).hasSize(2);
 	}
 }

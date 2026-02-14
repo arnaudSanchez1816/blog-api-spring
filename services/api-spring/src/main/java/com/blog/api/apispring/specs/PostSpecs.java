@@ -30,9 +30,9 @@ public class PostSpecs
 
 	public static PredicateSpecification<Post> titleContains(String q)
 	{
-		return (from, criteriaBuilder) -> q == null ? criteriaBuilder.conjunction() : criteriaBuilder.like(
-				criteriaBuilder.lower(from.get(Post_.title)),
-				criteriaBuilder.lower(criteriaBuilder.literal("%" + q + "%")));
+		return (from, criteriaBuilder) ->
+				q == null || q.isBlank() ? criteriaBuilder.conjunction() : criteriaBuilder.like(criteriaBuilder.lower(
+						from.get(Post_.title)), criteriaBuilder.lower(criteriaBuilder.literal("%" + q + "%")));
 	}
 
 	public static PredicateSpecification<Post> withTags(Collection<TagIdOrSlug> tags)
