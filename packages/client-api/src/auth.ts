@@ -1,4 +1,7 @@
+import { checkApiUrlEnvVariable } from "./utils"
+
 export const fetchAccessToken = async (): Promise<string> => {
+    checkApiUrlEnvVariable()
     const getTokenUrl = new URL("./auth/token", import.meta.env.VITE_API_URL)
     const getTokenResponse = await fetch(getTokenUrl, {
         mode: "cors",

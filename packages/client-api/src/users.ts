@@ -1,4 +1,5 @@
 import { FetchPostsParams, PostDetails } from "./posts"
+import { checkApiUrlEnvVariable } from "./utils"
 
 export interface UserRole {
     id: number
@@ -16,6 +17,8 @@ export const fetchCurrentUser = async (token: string): Promise<UserDetails> => {
     if (!token) {
         throw new Error("Token is invalid")
     }
+
+    checkApiUrlEnvVariable()
 
     const url = new URL("./users/me", import.meta.env.VITE_API_URL)
     const response = await fetch(url, {
@@ -55,6 +58,7 @@ export const fetchUserPosts = async (
         throw new Error("Invalid token")
     }
 
+    checkApiUrlEnvVariable()
     const url = new URL("./users/me/posts", import.meta.env.VITE_API_URL)
     const searchParams = new URLSearchParams()
     if (page) {

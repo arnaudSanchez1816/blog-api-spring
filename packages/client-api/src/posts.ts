@@ -1,3 +1,5 @@
+import { checkApiUrlEnvVariable } from "./utils"
+
 export interface PostDetails {
     id: number
     title: string
@@ -82,6 +84,8 @@ export const fetchPosts = async (
     if (showUnpublished) {
         searchParams.set("unpublished", "")
     }
+
+    checkApiUrlEnvVariable()
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./posts?${searchParams}`, apiUrl)
     const response = await fetch(url, {
@@ -107,6 +111,7 @@ export const fetchPost = async (
     postId: number,
     accessToken?: string | null
 ): Promise<PostDetails> => {
+    checkApiUrlEnvVariable()
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./posts/${postId}`, apiUrl)
     const response = await fetch(url, {
@@ -130,6 +135,7 @@ export const deletePost = async (
     postId: number,
     accessToken: string
 ): Promise<PostDetailsWithoutCommentsAndTags> => {
+    checkApiUrlEnvVariable()
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./posts/${postId}`, apiUrl)
 
@@ -155,6 +161,7 @@ export const publishPost = async (
     postId: number,
     accessToken: string
 ): Promise<void> => {
+    checkApiUrlEnvVariable()
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./posts/${postId}/publish`, apiUrl)
 
@@ -176,6 +183,7 @@ export const hidePost = async (
     postId: number,
     accessToken: string
 ): Promise<void> => {
+    checkApiUrlEnvVariable()
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./posts/${postId}/hide`, apiUrl)
 
@@ -204,6 +212,7 @@ export const updatePost = async (
     { body, title, tags }: UpdatePostParams,
     accessToken: string
 ): Promise<Omit<PostDetails, "commentsCount">> => {
+    checkApiUrlEnvVariable()
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./posts/${postId}`, apiUrl)
     const response = await fetch(url, {

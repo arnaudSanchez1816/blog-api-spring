@@ -1,3 +1,5 @@
+import { checkApiUrlEnvVariable } from "./utils"
+
 export interface CommentDetails {
     id: number
     username: string
@@ -16,6 +18,7 @@ export const postComment = async (
     { postId, username, commentBody }: PostCommentParams,
     accessToken?: string | null
 ): Promise<CommentDetails> => {
+    checkApiUrlEnvVariable()
     const API_URL = import.meta.env.VITE_API_URL
 
     const url = new URL(`./posts/${postId}/comments`, API_URL)
@@ -55,6 +58,7 @@ export const fetchComments = async (
         throw new Error("PostId is invalid")
     }
 
+    checkApiUrlEnvVariable()
     const url = new URL(
         `./posts/${postId}/comments`,
         import.meta.env.VITE_API_URL
@@ -82,6 +86,7 @@ export const deleteComment = async (
         throw new Error("Comment id is invalid")
     }
 
+    checkApiUrlEnvVariable()
     const url = new URL(`./comments/${commentId}`, import.meta.env.VITE_API_URL)
     const response = await fetch(url, {
         mode: "cors",

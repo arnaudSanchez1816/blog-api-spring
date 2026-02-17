@@ -1,3 +1,5 @@
+import { checkApiUrlEnvVariable } from "./utils"
+
 export interface TagDetails {
     id: number
     name: string
@@ -12,6 +14,7 @@ export interface FetchTagsResult {
 }
 
 export const fetchTags = async (): Promise<FetchTagsResult> => {
+    checkApiUrlEnvVariable()
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./tags`, apiUrl)
 
@@ -29,6 +32,8 @@ export const deleteTag = async (
     idOrSlug: string | number,
     accessToken: string
 ): Promise<TagDetails> => {
+    checkApiUrlEnvVariable()
+
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./tags/${idOrSlug}`, apiUrl)
 
@@ -58,6 +63,8 @@ export const editTag = async (
     idOrSlug: string | number,
     accessToken: string
 ): Promise<TagDetails> => {
+    checkApiUrlEnvVariable()
+
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./tags/${idOrSlug}`, apiUrl)
 
@@ -87,6 +94,8 @@ export const createTag = async (
     { name, slug }: CreateTagParams,
     accessToken: string
 ): Promise<TagDetails> => {
+    checkApiUrlEnvVariable()
+
     const apiUrl = import.meta.env.VITE_API_URL
     const url = new URL(`./tags`, apiUrl)
 
