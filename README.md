@@ -1,10 +1,12 @@
 # Blog-API
 
-A blogging platform built with Spring Boot 4 and React.
+A blogging platform built with Spring and React.
+
+This is a reimplementation of the back-end API of my already existing [Node.js/Express version](https://github.com/arnaudSanchez1816/blog-api).
 
 ## Features
 
-- A simple API to easily interact with your blog's data.
+- A RESTful API to easily interact with your blog's data.
 - A custom content management system to create, edit and publish posts and moderate comments.
 - JWT-based authentication and role based authorization to ensure only authorized users can manage your blog.
 - Intuitive user interface for browsing, reading and filtering posts.
@@ -13,8 +15,8 @@ A blogging platform built with Spring Boot 4 and React.
 
 ```sh
 # Clone the repo
-git clone https://github.com/arnaudSanchez1816/blog-api.git
-cd blog-api
+git clone https://github.com/arnaudSanchez1816/blog-api-spring.git
+cd blog-api-spring
 
 # Install dependencies
 pnpm install
@@ -45,7 +47,7 @@ This monorepo includes the following packages/apps:
 
 - `web`: a [React](https://react.dev/) app for the client frontend
 - `cms`: a React content management system to manage the blog
-- `api`: a RESTful API built with [Spring Boot 4](https://spring.io/)
+- `api-spring`: a RESTful API built with [Spring](https://spring.io/)
 - `@repo/ui`: a React component/hooks library shared by both `web` and `cms` applications
 - `@repo/auth-provider`: a custom hook used to handle authentication via JWT token
 - `@repo/client-api`: a library facade to the RESTful API used by both `web` and `cms` applications
