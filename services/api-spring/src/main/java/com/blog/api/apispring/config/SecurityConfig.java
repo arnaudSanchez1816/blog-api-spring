@@ -11,6 +11,7 @@ import com.blog.api.apispring.service.JwtService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
@@ -28,6 +29,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -38,13 +44,16 @@ public class SecurityConfig
 	private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 	private final RestAccessDeniedHandler restAccessDeniedHandler;
 	private final JwtService jwtService;
+	private final Environment environment;
 
 	public SecurityConfig(RestAuthenticationEntryPoint restAuthenticationEntryPoint,
-						  RestAccessDeniedHandler restAccessDeniedHandler, JwtService jwtService)
+						  RestAccessDeniedHandler restAccessDeniedHandler, JwtService jwtService,
+						  Environment environment)
 	{
 		this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
 		this.restAccessDeniedHandler = restAccessDeniedHandler;
 		this.jwtService = jwtService;
+		this.environment = environment;
 	}
 
 	@Bean
@@ -139,23 +148,27 @@ public class SecurityConfig
 		return new BCryptPasswordEncoder();
 	}
 
-//	// === CORS filter bean ===
-//	// TODO: This is a very permissive configuration, adjust it to your needs!
-//	@Bean
-//	public CorsFilter corsFilter() {
-//
-//		CorsConfiguration cfg = new CorsConfiguration();
-//
-//		cfg.setAllowCredentials(true);
-//		cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-//		cfg.addAllowedOriginPattern("*"); // TODO: Change with your front-end origin or remove if used with a mobile app
-//		cfg.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-//		cfg.setExposedHeaders(List.of("Authorization")); // Per il token JWT
-//		// Preflight cache
-//		cfg.setMaxAge(3600L);
-//
-//		UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
-//		src.registerCorsConfiguration("/**", cfg);
-//		return new CorsFilter(src);
-//	}
+	//	// === CORS filter bean ===
+	@Bean
+	public CorsFilter corsFilter()
+	{
+		CorsConfiguration cfg = new CorsConfiguration();
+
+		cfg.setAllowCredentials(true);
+		cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		String corsAllowedUrls = environment.getRequiredProperty("blog-api.security.cors-allowed-urls");
+		String[] urls = corsAllowedUrls.split(",");
+		for (String url : urls)
+		{
+			cfg.addAllowedOriginPattern(url);
+		}
+		cfg.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+		cfg.setExposedHeaders(List.of("Authorization"));
+		// Preflight cache
+		cfg.setMaxAge(3600L);
+
+		UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
+		src.registerCorsConfiguration("/**", cfg);
+		return new CorsFilter(src);
+	}
 }

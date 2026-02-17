@@ -29,6 +29,11 @@
       "name": "blog-api.seeding.users.admin-password",
       "type": "java.lang.String",
       "description": "Seeding admin user password."
+    },
+    {
+      "name": "blog-api.security.cors-allowed-urls",
+      "type": "java.lang.String",
+      "description": "Seeding admin user password."
     }
   ]
 }
