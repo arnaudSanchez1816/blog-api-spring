@@ -8,12 +8,6 @@ import com.blog.api.apispring.repository.PostRepository;
 import com.blog.api.apispring.specs.PostSpecs;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.commonmark.renderer.text.TextContentRenderer;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Cleaner;
-import org.jsoup.safety.Safelist;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,8 +19,6 @@ import org.springframework.web.util.HtmlUtils;
 
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -36,14 +28,18 @@ public class PostService
 	private final TagService tagService;
 	private final EntityManager entityManager;
 	private final CommentService commentService;
+	private final TextService textService;
+	private final MarkdownService markdownService;
 
 	public PostService(PostRepository postRepository, TagService tagService, EntityManager entityManager,
-					   CommentService commentService)
+					   CommentService commentService, TextService textService, MarkdownService markdownService)
 	{
 		this.postRepository = postRepository;
 		this.tagService = tagService;
 		this.entityManager = entityManager;
 		this.commentService = commentService;
+		this.textService = textService;
+		this.markdownService = markdownService;
 	}
 
 	public Optional<PostInfoWithAuthor> getPostInfo(long id)
@@ -111,7 +107,7 @@ public class PostService
 		User author = entityManager.getReference(User.class, authorId);
 
 		Post newPost = new Post();
-		newPost.setTitle(HtmlUtils.htmlEscape(title));
+		newPost.setTitle(textService.sanitizeText(title));
 		newPost.setAuthor(author);
 
 		return postRepository.save(newPost);
@@ -120,73 +116,31 @@ public class PostService
 	@Transactional
 	public PostInfoWithAuthorAndTags updatePost(Post post, String title, String body, Set<TagIdOrSlug> tagIdsOrSlugs)
 	{
-		Cleaner cleaner = new Cleaner(Safelist.none());
 		if (body != null)
 		{
 			// Update body, description and reading time
-			String sanitizedBody = cleaner.clean(Jsoup.parse(body))
-										  .text();
+			String sanitizedBody = textService.sanitizeText(body);
 			post.setBody(sanitizedBody);
 
 			// Parse markdown to plain text for processing.
-			Parser parser = Parser.builder()
-								  .build();
-			Node parsedBodyMarkdown = parser.parse(body);
-			TextContentRenderer textRenderer = TextContentRenderer.builder()
-																  .build();
-
-			String plainTextBody = textRenderer.render(parsedBodyMarkdown);
-			// Maybe we can only clean the body once?
-			plainTextBody = cleaner.clean(Jsoup.parse(plainTextBody))
-								   .text();
-
+			String plainTextBody = markdownService.parseMarkdownToPlainText(sanitizedBody);
 			// Description
-			String description = plainTextBody;
-			// Get first 50 words
-			Pattern pattern = Pattern.compile("(^(?:\\S+\\s*){1,50}).*", Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(description);
-			if (matcher.find())
-			{
-				String first50WordsGroup = matcher.group(1);
-				if (first50WordsGroup != null)
-				{
-					description = first50WordsGroup.trim() + "...";
-				}
-			}
+			String description = textService.getFirstWordsSubstring(plainTextBody, 50) + "...";
 			post.setDescription(description);
-
 			// Reading time
-			int readingTime = estimateReadingTime(plainTextBody);
+			int readingTime = textService.estimateReadingTime(plainTextBody);
 			post.setReadingTime(readingTime);
 		}
 
 		if (title != null)
 		{
-			String sanitizedTitle = cleaner.clean(Jsoup.parse(title))
-										   .text();
+			String sanitizedTitle = textService.sanitizeText(title);
 			post.setTitle(sanitizedTitle);
 		}
 
 		if (tagIdsOrSlugs != null)
 		{
-			Set<Tag> newTags = new HashSet<>();
-			if (!tagIdsOrSlugs.isEmpty())
-			{
-				List<Long> ids = new ArrayList<>();
-				List<String> slugs = new ArrayList<>();
-				for (TagIdOrSlug idOrSlug : tagIdsOrSlugs)
-				{
-					if (idOrSlug.isSlug())
-					{
-						slugs.add(idOrSlug.getSlug());
-					} else
-					{
-						ids.add(idOrSlug.getId());
-					}
-				}
-				// todo : is there a way to fetch entity references from a slug ?
-				newTags = tagService.getAllTagsByIdOrSlug(ids, slugs);
-			}
+			Set<Tag> newTags = getTagsFromIdOrSlug(tagIdsOrSlugs);
 			post.setTags(newTags);
 		}
 
@@ -201,31 +155,28 @@ public class PostService
 		return postProjection;
 	}
 
-	private int estimateReadingTime(String plainText)
+	private Set<Tag> getTagsFromIdOrSlug(Set<TagIdOrSlug> tagIdOrSlugs)
 	{
-		Pattern pattern = Pattern.compile("\\S+");
-		Matcher matcher = pattern.matcher(plainText);
-		int count = 0;
-		while (matcher.find())
+		Set<Tag> tags = new HashSet<>();
+		if (!tagIdOrSlugs.isEmpty())
 		{
-			count += 1;
+			List<Long> ids = new ArrayList<>();
+			List<String> slugs = new ArrayList<>();
+			for (TagIdOrSlug idOrSlug : tagIdOrSlugs)
+			{
+				if (idOrSlug.isSlug())
+				{
+					slugs.add(idOrSlug.getSlug());
+				} else
+				{
+					ids.add(idOrSlug.getId());
+				}
+			}
+			// todo : is there a way to fetch entity references from a slug ?
+			tags = tagService.getAllTagsByIdOrSlug(ids, slugs);
 		}
 
-		return count > 0 ? Math.max(count / 200, 1) : 1;
-	}
-
-	@Transactional
-	public PostInfoWithAuthorAndTags updatePost(long id, String title, String body,
-												Set<TagIdOrSlug> tagIdsOrSlugs) throws NoSuchElementException
-	{
-		Optional<Post> opPost = postRepository.findById(id);
-		if (opPost.isEmpty())
-		{
-			throw new NoSuchElementException(String.format("Post with id : %d does not exists.", id));
-		}
-
-		Post post = opPost.get();
-		return updatePost(post, title, body, tagIdsOrSlugs);
+		return tags;
 	}
 
 	public Comment addCommentToPost(Post post, String username, String body)
