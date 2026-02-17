@@ -12,9 +12,9 @@ After a few months of following the [Odin Project](https://www.theodinproject.co
 
 This blog is composed of :
 
-- A RESTful API, made with Express, using a Postgres database with Prisma used as ORM.
+- A RESTful API, made with Spring boot, using a Postgres database. The API is a reimplementation of my already existing [Express implementation](https://github.com/arnaudSanchez1816/blog-api)
 - A client made with React, styling was done using HeroUI and Tailwind.
 - A content management system made with React. Authentication is done via JWT.
 
 Source code for this blog is available on Github.\
-[Blog-api](https://github.com/arnaudSanchez1816/blog-api)
+[Blog-api](https://github.com/arnaudSanchez1816/blog-api-spring)
