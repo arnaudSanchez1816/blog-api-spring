@@ -37,7 +37,7 @@ export const postsLoader = async ({
 export default function Posts() {
     const location = useLocation()
     const { getPosts } = useLoaderData()
-    const [currentPageString, setCurrentPage] = useParamSearchParams("page", 1)
+    const [currentPageString, setCurrentPage] = useParamSearchParams("page", 0)
     const [, setLeftContent] = useSearchLayoutContext()
 
     const currentPage = Number(currentPageString)

@@ -32,7 +32,7 @@ export const searchLoader = async ({ request }: LoaderFunctionArgs) => {
 export default function Search() {
     const navigation = useNavigation()
     const { results: posts, metadata } = useLoaderData<FetchPostsResult>()
-    const [currentPageString, setCurrentPage] = useParamSearchParams("page", 1)
+    const [currentPageString, setCurrentPage] = useParamSearchParams("page", 0)
     const isMd = useTwBreakpoint("md")
     const { count } = metadata
     const [, setLeftContent] = useSearchLayoutContext()

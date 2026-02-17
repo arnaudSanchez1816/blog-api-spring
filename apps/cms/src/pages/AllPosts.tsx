@@ -77,7 +77,7 @@ export default function AllPosts() {
         queryKey: ["posts"],
         queryFn,
     })
-    const [currentPageString, setCurrentPage] = useParamSearchParams("page", 1)
+    const [currentPageString, setCurrentPage] = useParamSearchParams("page", 0)
     const currentPage = Number(currentPageString)
 
     const [, setLeftContent] = useSearchLayoutContext()

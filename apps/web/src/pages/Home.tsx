@@ -12,7 +12,6 @@ interface HomeLoaderReturnValue {
 
 export async function homeLoader(): Promise<HomeLoaderReturnValue> {
     const getPosts = fetchPosts({
-        page: 1,
         pageSize,
     })
 

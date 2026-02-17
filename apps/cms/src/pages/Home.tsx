@@ -17,7 +17,7 @@ function RecentPosts({ token }: RecentPostsProps) {
     const fetchRecentPostsQuery = useCallback(
         () =>
             fetchUserPosts(
-                { pageSize: NB_RECENT_POSTS, page: 1, sortBy: "-id" },
+                { pageSize: NB_RECENT_POSTS, sortBy: "-id" },
                 token
             ),
         [token]
