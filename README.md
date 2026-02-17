@@ -1,6 +1,6 @@
 # Blog-API
 
-A blogging platform built with Express and React.
+A blogging platform built with Spring Boot 4 and React.
 
 ## Features
 
@@ -45,7 +45,7 @@ This monorepo includes the following packages/apps:
 
 - `web`: a [React](https://react.dev/) app for the client frontend
 - `cms`: a React content management system to manage the blog
-- `api`: a RESTful API built with [Express](https://expressjs.com/)
+- `api`: a RESTful API built with [Spring Boot 4](https://spring.io/)
 - `@repo/ui`: a React component/hooks library shared by both `web` and `cms` applications
 - `@repo/auth-provider`: a custom hook used to handle authentication via JWT token
 - `@repo/client-api`: a library facade to the RESTful API used by both `web` and `cms` applications
@@ -70,8 +70,8 @@ This monorepo includes the following packages/apps:
 | /posts/:id          | DELETE | Delete an existing post by ID                   |
 | /posts/:id/comments | GET    | Get comments of an existing post by ID          |
 | /posts/:id/comments | POST   | Create a new comment for an existing post by ID |
-| /posts/:id/publish  | PUT    | Publish an existing post by ID                  |
-| /posts/:id/hide     | PUT    | Unpublished an existing post by ID              |
+| /posts/:id/publish  | POST   | Publish an existing post by ID                  |
+| /posts/:id/hide     | POST   | Unpublished an existing post by ID              |
 | /comments/:id       | GET    | Retrieve an existing comment by ID              |
 | /comments/:id       | PUT    | Update an existing comment by ID                |
 | /comments/:id       | DELETE | Delete an existing comment by ID                |
