@@ -160,7 +160,7 @@ export const publishPost = async (
 
     const response = await fetch(url, {
         mode: "cors",
-        method: "PUT",
+        method: "POST",
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
@@ -181,7 +181,7 @@ export const hidePost = async (
 
     const response = await fetch(url, {
         mode: "cors",
-        method: "PUT",
+        method: "POST",
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
