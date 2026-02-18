@@ -60,7 +60,7 @@ class AuthController
 		refreshTokenCookie.setHttpOnly(true);
 		refreshTokenCookie.setSecure(true);
 		refreshTokenCookie.setMaxAge(REFRESH_COOKIE_MAX_AGE);
-		refreshTokenCookie.setPath(servletContext.getContextPath() + "/token");
+		refreshTokenCookie.setPath(servletContext.getContextPath() + "/auth/token");
 		refreshTokenCookie.setAttribute("SameSite", "Strict");
 		response.addCookie(refreshTokenCookie);
 

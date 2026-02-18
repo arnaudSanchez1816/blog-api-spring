@@ -10,23 +10,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
-import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 
-import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import static org.springframework.web.util.WebUtils.getCookie;
 
 @Slf4j
@@ -35,7 +26,7 @@ public class RefreshJwtAuthenticationFilter extends OncePerRequestFilter
 	private final JwtService jwtService;
 	private final AuthenticationManager authenticationManager;
 
-	public static final String REFRESH_TOKEN_COOKIE = "__Host-REFRESHTOKEN";
+	public static final String REFRESH_TOKEN_COOKIE = "__Http-REFRESHTOKEN";
 
 	public RefreshJwtAuthenticationFilter(JwtService jwtService, AuthenticationManager authenticationManager)
 	{

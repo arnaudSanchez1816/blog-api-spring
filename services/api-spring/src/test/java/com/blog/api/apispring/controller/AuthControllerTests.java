@@ -137,7 +137,7 @@ public class AuthControllerTests
 								assertThat(cookie.isHttpOnly()).isTrue();
 								assertThat(cookie.getSecure()).isTrue();
 								assertThat(cookie.getAttribute("SameSite")).isEqualTo("Strict");
-								assertThat(cookie.getPath()).endsWith("/token");
+								assertThat(cookie.getPath()).endsWith("/auth/token");
 								assertThat(cookie.getMaxAge()).isEqualTo(Duration.ofDays(30)
 																				 .getSeconds());
 							});
