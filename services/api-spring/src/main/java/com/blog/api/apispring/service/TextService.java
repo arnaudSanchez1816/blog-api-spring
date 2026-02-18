@@ -47,6 +47,6 @@ public class TextService
 	{
 		Cleaner cleaner = new Cleaner(Safelist.none());
 		return cleaner.clean(Jsoup.parse(text))
-					  .text();
+					  .wholeText();
 	}
 }
