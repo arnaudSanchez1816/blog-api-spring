@@ -148,9 +148,9 @@ public class SecurityConfig
 		return new BCryptPasswordEncoder();
 	}
 
-	//	// === CORS filter bean ===
+	//	// === CORS bean ===
 	@Bean
-	public CorsFilter corsFilter()
+	public UrlBasedCorsConfigurationSource corsConfigurationSource()
 	{
 		CorsConfiguration cfg = new CorsConfiguration();
 
@@ -169,6 +169,6 @@ public class SecurityConfig
 
 		UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
 		src.registerCorsConfiguration("/**", cfg);
-		return new CorsFilter(src);
+		return src;
 	}
 }
