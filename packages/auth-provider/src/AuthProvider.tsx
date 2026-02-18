@@ -116,7 +116,7 @@ export const AuthProvider = ({
                 if (error instanceof Response) {
                     console.error(error)
                     const body = error.body ? await error.json() : {}
-                    const { errorMessage } = body.error || {
+                    const { errorMessage } = body.title || {
                         errorMessage: "Failed to login",
                     }
 
@@ -128,9 +128,34 @@ export const AuthProvider = ({
         []
     )
 
-    const logout = useCallback(() => {
-        setUser(null)
-        setAccessToken(null)
+    const logout = useCallback(async (): Promise<void | {
+        error: string
+    }> => {
+        try {
+            const url = new URL("./auth/logout", import.meta.env.VITE_API_URL)
+            const response = await fetch(url, {
+                mode: "cors",
+                method: "get",
+                credentials: "include",
+            })
+
+            if (!response.ok) {
+                throw response
+            }
+        } catch (error) {
+            if (error instanceof Response) {
+                console.error(error)
+                const body = error.body ? await error.json() : {}
+                const { errorMessage } = body.title || {
+                    errorMessage: "Failed to logout",
+                }
+
+                return { error: errorMessage }
+            }
+        } finally {
+            setUser(null)
+            setAccessToken(null)
+        }
     }, [])
 
     const providerValue = useMemo(() => {
