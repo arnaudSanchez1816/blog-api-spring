@@ -1,10 +1,10 @@
 package com.blog.api.apispring.controller;
 
-import com.blog.api.apispring.dto.UserDetailsResponse;
 import com.blog.api.apispring.dto.metadata.Metadata;
 import com.blog.api.apispring.dto.posts.GetPostsResponse;
 import com.blog.api.apispring.dto.posts.PostDto;
 import com.blog.api.apispring.dto.users.GetUserPostsRequest;
+import com.blog.api.apispring.dto.users.UserDetailsDto;
 import com.blog.api.apispring.projection.PostInfoWithAuthor;
 import com.blog.api.apispring.projection.PostInfoWithAuthorAndTags;
 import com.blog.api.apispring.security.userdetails.BlogUserDetails;
@@ -32,9 +32,9 @@ public class UserController
 	}
 
 	@GetMapping("/me")
-	public ResponseEntity<UserDetailsResponse> getCurrentUser(@AuthenticationPrincipal BlogUserDetails userDetails)
+	public ResponseEntity<UserDetailsDto> getCurrentUser(@AuthenticationPrincipal BlogUserDetails userDetails)
 	{
-		return ResponseEntity.ok(new UserDetailsResponse(userDetails));
+		return ResponseEntity.ok(UserDetailsDto.fromBlogUserDetails(userDetails));
 	}
 
 	// TODO : Fix duplication with GET /posts from PostController

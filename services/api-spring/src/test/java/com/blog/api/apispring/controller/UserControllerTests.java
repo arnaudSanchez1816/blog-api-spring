@@ -66,7 +66,8 @@ public class UserControllerTests
 							.bodyJson()
 							.returns(1, fromPath("$.id"))
 							.returns("admin", fromPath("$.name"))
-							.returns("admin@blog.com", fromPath("$.email"));
+							.returns("admin@blog.com", fromPath("$.email"))
+							.doesNotHavePath("$.password");
 	}
 
 	@Test
