@@ -44,8 +44,12 @@ public class JwtService
 
 	public String generateAccessToken(Long userId, String username, String email)
 	{
-		return generateJwtToken(jwtAccessSecret, username, email, userId, Instant.now()
-																				 .plus(1, ChronoUnit.DAYS));
+		return generateJwtToken(jwtAccessSecret,
+				username,
+				email,
+				userId,
+				Instant.now()
+					   .plus(1, ChronoUnit.DAYS));
 	}
 
 	public String generateAccessToken(Long userId, String username, String email, Instant expiresAt)
@@ -55,15 +59,18 @@ public class JwtService
 
 	public String generateRefreshToken(Long userId, String username, String email)
 	{
-		return generateJwtToken(jwtAccessSecret, username, email, userId, Instant.now()
-																				 .plus(30, ChronoUnit.DAYS));
+		return generateJwtToken(jwtRefreshSecret,
+				username,
+				email,
+				userId,
+				Instant.now()
+					   .plus(30, ChronoUnit.DAYS));
 	}
 
 	public String generateRefreshToken(Long userId, String username, String email, Instant expiresAt)
 	{
 		return generateJwtToken(jwtRefreshSecret, username, email, userId, expiresAt);
 	}
-
 
 	private String generateJwtToken(String jwtSecret, String username, String email, Long userId, Instant expiresAt)
 	{
