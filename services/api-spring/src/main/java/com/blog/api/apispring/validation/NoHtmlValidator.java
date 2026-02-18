@@ -14,7 +14,7 @@ public class NoHtmlValidator implements ConstraintValidator<NoXSS, String>
 		if (value == null) return true;
 		Cleaner cleaner = new Cleaner(Safelist.none());
 		String text = cleaner.clean(Jsoup.parse(value))
-							 .text();
+							 .wholeText();
 		return text.equals(value);
 	}
 }
