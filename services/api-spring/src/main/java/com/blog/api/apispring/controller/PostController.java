@@ -90,7 +90,8 @@ class PostController
 	}
 
 	@PostMapping
-	public ResponseEntity<PostDto> createPost(@Valid CreatePostRequest createPostRequest,
+	@PreAuthorize("hasAuthority('CREATE')")
+	public ResponseEntity<PostDto> createPost(@Valid @RequestBody CreatePostRequest createPostRequest,
 											  @AuthenticationPrincipal BlogUserDetails userDetails)
 	{
 		Post newPost = postService.createPost(createPostRequest.title(), userDetails.getId());

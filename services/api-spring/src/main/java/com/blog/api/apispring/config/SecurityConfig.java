@@ -85,10 +85,10 @@ public class SecurityConfig
 			// Posts route
 			authorize.requestMatchers("/posts/*/comments")
 					 .permitAll();
-			authorize.requestMatchers(HttpMethod.GET, "/posts/*")
+			authorize.requestMatchers(HttpMethod.GET, "/posts/**")
 					 .permitAll();
-			authorize.requestMatchers(HttpMethod.POST, "/posts/*")
-					 .hasAuthority(PermissionType.CREATE.name());
+			authorize.requestMatchers("/posts/**")
+					 .authenticated();
 			// Comments routes
 			// Authority check done with MethodSecutiry
 			authorize.requestMatchers("/comments/**")

@@ -1,5 +1,6 @@
 package com.blog.api.apispring.controller;
 
+import com.blog.api.apispring.dto.posts.CreatePostRequest;
 import com.blog.api.apispring.dto.posts.GetPostsRequestImpl;
 import com.blog.api.apispring.dto.posts.PostDto;
 import com.blog.api.apispring.dto.posts.UpdatePostRequest;
@@ -23,6 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
@@ -30,6 +32,7 @@ import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
@@ -1472,6 +1475,150 @@ class PostControllerTests
 											.exchange();
 
 			assertThat(response).hasStatus(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@Nested
+	@DisplayName("createPost")
+	class CreatePost
+	{
+		@Test
+		void createPost_Is201_WhenGivenValidTitle()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			CreatePostRequest requestBody = new CreatePostRequest("Post title");
+
+			MvcTestResult result = mockMvc.post()
+										  .with(user(new SecurityUser(author,
+												  Set.of(new SimpleGrantedAuthority("CREATE")))))
+										  .contentType(MediaType.APPLICATION_JSON)
+										  .content(JsonUtils.asJsonString(requestBody))
+										  .uri("/posts")
+										  .exchange();
+			User finalAuthor = author;
+			assertThat(result).hasStatus(HttpStatus.CREATED)
+							  .hasContentType(MediaType.APPLICATION_JSON)
+							  .bodyJson()
+							  .convertTo(PostDto.class)
+							  .satisfies(dto ->
+							  {
+								  assertThat(dto.getTitle()).isEqualTo("Post title");
+								  assertThat(dto.getAuthor()
+												.id()).isEqualTo(finalAuthor.getId());
+							  });
+		}
+
+		@Test
+		void createPost_Is400_WhenGivenNoTitle()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			MvcTestResult result = mockMvc.post()
+										  .with(user(new SecurityUser(author,
+												  Set.of(new SimpleGrantedAuthority("CREATE")))))
+										  .contentType(MediaType.APPLICATION_JSON)
+										  .content("")
+										  .uri("/posts")
+										  .exchange();
+			assertThat(result).hasStatus(HttpStatus.BAD_REQUEST);
+		}
+
+		@Test
+		void createPost_Is400_WhenGivenTitleTooLong()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+			StringBuilder title = new StringBuilder();
+			title.append("t".repeat(256));
+
+			String requestBody = String.format("""
+					{
+						"title" : %s
+					}
+					""", title);
+
+			MvcTestResult result = mockMvc.post()
+										  .with(user(new SecurityUser(author,
+												  Set.of(new SimpleGrantedAuthority("CREATE")))))
+										  .contentType(MediaType.APPLICATION_JSON)
+										  .content(requestBody)
+										  .uri("/posts")
+										  .exchange();
+			assertThat(result).hasStatus(HttpStatus.BAD_REQUEST);
+		}
+
+		@Test
+		void createPost_Is400_WhenGivenBlankTitle()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			String requestBody = """
+					{
+						"title" : "        "
+					}
+					""";
+
+			MvcTestResult result = mockMvc.post()
+										  .with(user(new SecurityUser(author,
+												  Set.of(new SimpleGrantedAuthority("CREATE")))))
+										  .contentType(MediaType.APPLICATION_JSON)
+										  .content(requestBody)
+										  .uri("/posts")
+										  .exchange();
+			assertThat(result).hasStatus(HttpStatus.BAD_REQUEST);
+		}
+
+		@Test
+		void createPost_Is400_WhenGivenNullTitle()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			String requestBody = """
+					{
+						"title" : null
+					}
+					""";
+
+			MvcTestResult result = mockMvc.post()
+										  .with(user(new SecurityUser(author,
+												  Set.of(new SimpleGrantedAuthority("CREATE")))))
+										  .contentType(MediaType.APPLICATION_JSON)
+										  .content(requestBody)
+										  .uri("/posts")
+										  .exchange();
+			assertThat(result).hasStatus(HttpStatus.BAD_REQUEST);
+		}
+
+		@Test
+		void createPost_Is401_WhenUnauthenticated()
+		{
+			CreatePostRequest requestBody = new CreatePostRequest("Post title");
+
+			MvcTestResult result = mockMvc.post()
+										  .contentType(MediaType.APPLICATION_JSON)
+										  .content(JsonUtils.asJsonString(requestBody))
+										  .uri("/posts")
+										  .exchange();
+			assertThat(result).hasStatus(HttpStatus.UNAUTHORIZED);
+		}
+
+		@Test
+		@WithMockUser(username = "user")
+		void createPost_Is403_WhenMissingAuthorities()
+		{
+			CreatePostRequest requestBody = new CreatePostRequest("Post title");
+
+			MvcTestResult result = mockMvc.post()
+										  .contentType(MediaType.APPLICATION_JSON)
+										  .content(JsonUtils.asJsonString(requestBody))
+										  .uri("/posts")
+										  .exchange();
+			assertThat(result).hasStatus(HttpStatus.FORBIDDEN);
 		}
 	}
 
