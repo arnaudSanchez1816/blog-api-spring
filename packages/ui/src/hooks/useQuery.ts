@@ -18,12 +18,12 @@ export default function useQuery<T>({
 ] {
     const [data, setData] = useState<T | undefined>(undefined)
     const [error, setError] = useState<unknown | undefined>(undefined)
-    const [fetchData, setFetchData] = useState(enabled)
-    const [loading, setLoading] = useState(fetchData)
+    const [forceFetch, setForceFetch] = useState(false)
+    const [loading, setLoading] = useState(enabled)
     useEffect(() => {
         let ignore = false
 
-        if (fetchData) {
+        if (enabled || forceFetch) {
             const doFetch = async () => {
                 setLoading(true)
 
@@ -43,9 +43,7 @@ export default function useQuery<T>({
                 } finally {
                     if (!ignore) {
                         setLoading(false)
-                        if (!enabled) {
-                            setFetchData(false)
-                        }
+                        setForceFetch(false)
                     }
                 }
             }
@@ -55,11 +53,11 @@ export default function useQuery<T>({
         return () => {
             ignore = true
         }
-    }, [...queryKey, enabled, fetchData, queryFn])
+    }, [...queryKey, enabled, forceFetch, queryFn])
 
     const triggerFetch = useCallback(() => {
-        setFetchData(true)
-    }, [setFetchData])
+        setForceFetch(true)
+    }, [setForceFetch])
 
     return [data, loading, error, triggerFetch]
 }
