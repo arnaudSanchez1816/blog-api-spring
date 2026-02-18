@@ -162,6 +162,20 @@ public class AuthControllerTests
 	}
 
 	@Test
+	void logout_RemoveRefreshTokenCookie_WhenOk()
+	{
+		MvcTestResult response = mockMvc.get()
+										.uri("/auth/logout")
+										.exchange();
+		assertThat(response).hasStatusOk()
+							.cookies()
+							.hasCookieSatisfying(REFRESH_TOKEN_COOKIE, cookie ->
+							{
+								assertThat(cookie.getMaxAge()).isEqualTo(0);
+							});
+	}
+
+	@Test
 	void getToken_ReturnsToken_WhenUserIsAuthenticated()
 	{
 		User user = new User("user@email.com", "user", "password123");

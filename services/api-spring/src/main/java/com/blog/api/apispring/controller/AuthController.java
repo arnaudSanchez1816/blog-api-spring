@@ -56,18 +56,35 @@ class AuthController
 		String email = userDetails.getEmail();
 		String refreshToken = jwtService.generateRefreshToken(userId, username, email);
 
-		Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE, refreshToken);
-		refreshTokenCookie.setHttpOnly(true);
-		refreshTokenCookie.setSecure(true);
-		refreshTokenCookie.setMaxAge(REFRESH_COOKIE_MAX_AGE);
-		refreshTokenCookie.setPath(servletContext.getContextPath() + "/auth/token");
-		refreshTokenCookie.setAttribute("SameSite", "Strict");
+		Cookie refreshTokenCookie = generateRefreshTokenCookie(refreshToken, REFRESH_COOKIE_MAX_AGE);
 		response.addCookie(refreshTokenCookie);
 
 		// Generate access token
 		String accessToken = generateAccessToken(userDetails);
 
 		return ResponseEntity.ok(new LoginResponse(accessToken, UserDetailsDto.fromBlogUserDetails(userDetails)));
+	}
+
+	@GetMapping("/logout")
+	public ResponseEntity<Void> logout(HttpServletResponse response)
+	{
+		// Delete the refresh token cookie by setting maxAge to 0
+		Cookie expiredRefreshTokenCookie = generateRefreshTokenCookie("", 0);
+		response.addCookie(expiredRefreshTokenCookie);
+
+		return ResponseEntity.ok()
+							 .build();
+	}
+
+	private Cookie generateRefreshTokenCookie(String value, int maxAge)
+	{
+		Cookie refreshTokenCookie = new Cookie(REFRESH_TOKEN_COOKIE, value);
+		refreshTokenCookie.setHttpOnly(true);
+		refreshTokenCookie.setSecure(true);
+		refreshTokenCookie.setMaxAge(maxAge);
+		refreshTokenCookie.setPath(servletContext.getContextPath() + "/auth/token");
+		refreshTokenCookie.setAttribute("SameSite", "Strict");
+		return refreshTokenCookie;
 	}
 
 	@GetMapping("/token")
