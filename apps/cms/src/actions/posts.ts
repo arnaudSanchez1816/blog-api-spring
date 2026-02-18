@@ -1,5 +1,10 @@
 import { addToast } from "@heroui/react"
-import { deletePost, hidePost, publishPost } from "@repo/client-api/posts"
+import {
+    deletePost,
+    hidePost,
+    publishPost,
+    createPost,
+} from "@repo/client-api/posts"
 import { ActionFunctionArgs, data, redirect } from "react-router"
 import { parseErrorResponse } from "../utils/parseErrorResponse"
 
@@ -45,21 +50,14 @@ export async function postsAction(
 async function createNewPost(formData: FormData, accessToken: string) {
     try {
         const title = formData.get("title")
-
-        const url = new URL("./posts", import.meta.env.VITE_API_URL)
-        const response = await fetch(url, {
-            method: "post",
-            headers: {
-                "Content-type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify({ title }),
-        })
-
-        if (!response.ok) {
-            throw response
+        if (!title) {
+            throw new Error("Create Tag Action title param missing")
         }
-        const newPost = await response.json()
+
+        const newPost = await createPost(
+            { title: title.toString() },
+            accessToken
+        )
 
         addToast({
             title: "Success",

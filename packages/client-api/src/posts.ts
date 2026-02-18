@@ -24,6 +24,34 @@ export type PostDetailsWithoutCommentsAndTags = Omit<
     "tags" | "commentsCount"
 >
 
+export interface CreatePostParams {
+    title: string
+}
+
+export const createPost = async (
+    { title }: CreatePostParams,
+    token: string
+): Promise<PostDetails> => {
+    checkApiUrlEnvVariable()
+    const url = new URL("./posts", import.meta.env.VITE_API_URL)
+    const response = await fetch(url, {
+        method: "post",
+        headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title }),
+    })
+
+    if (!response.ok) {
+        throw response
+    }
+
+    const post = await response.json()
+
+    return post
+}
+
 export interface FetchPostsParams {
     q?: string | null
     page?: number | null
@@ -82,7 +110,7 @@ export const fetchPosts = async (
         searchParams.set("tags", tags.join(","))
     }
     if (showUnpublished) {
-        searchParams.set("unpublished", "")
+        searchParams.set("unpublished", "true")
     }
 
     checkApiUrlEnvVariable()
