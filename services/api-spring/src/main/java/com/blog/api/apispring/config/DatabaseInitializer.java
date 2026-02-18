@@ -8,15 +8,23 @@ import com.blog.api.apispring.security.authorities.PermissionType;
 import com.blog.api.apispring.service.TagService;
 import com.blog.api.apispring.service.UserService;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -25,6 +33,7 @@ import java.util.*;
 public class DatabaseInitializer implements ApplicationRunner
 {
 
+	private static final Logger log = LoggerFactory.getLogger(DatabaseInitializer.class);
 	private final Environment environment;
 	private final UserService userService;
 	private final PasswordEncoder passwordEncoder;
@@ -33,6 +42,12 @@ public class DatabaseInitializer implements ApplicationRunner
 	private RoleRepository roleRepository;
 	private PostRepository postRepository;
 	private Flyway flyway;
+	private ApplicationArguments applicationArguments;
+
+	@Value("classpath:seeding/markdown_test.md")
+	private Resource markdownTestFile;
+	@Value("classpath:seeding/markdown_lorem1.md")
+	private Resource markdownLoremFile;
 
 	public DatabaseInitializer(Environment environment, UserService userService, PasswordEncoder passwordEncoder)
 	{
@@ -71,18 +86,36 @@ public class DatabaseInitializer implements ApplicationRunner
 		this.flyway = flyway;
 	}
 
+	@Autowired
+	public void setApplicationArguments(ApplicationArguments applicationArguments)
+	{
+		this.applicationArguments = applicationArguments;
+	}
+
 	@Override
 	public void run(@NonNull ApplicationArguments args)
 	{
-		System.out.println("Initializing database...");
-
-		if (environment.matchesProfiles("dev"))
+		log.debug("Database initialization");
+		if (applicationArguments.containsOption("reset-db"))
 		{
 			// Clear database
-			flyway.clean();
-			flyway.migrate();
+			log.info("Reset database...");
+			try
+			{
+				flyway.clean();
+				flyway.migrate();
+			} catch (FlywayException e)
+			{
+				log.error("Failed to reset database\nMake sure you have the dev profile enabled\n{}", e.getMessage());
+			}
 		}
 
+		if (!applicationArguments.containsOption("seed-db"))
+		{
+			return;
+		}
+
+		log.info("Seeding database...");
 		// Permissions
 		Permission read = createPermissionIfNotFound(PermissionType.READ);
 		Permission create = createPermissionIfNotFound(PermissionType.CREATE);
@@ -98,7 +131,9 @@ public class DatabaseInitializer implements ApplicationRunner
 		String adminName = environment.getRequiredProperty("blog-api.seeding.users.admin-name");
 		String adminEmail = environment.getRequiredProperty("blog-api.seeding.users.admin-email");
 		String adminPassword = environment.getRequiredProperty("blog-api.seeding.users.admin-password");
-		User adminUser = createUserIfNotFound(adminEmail, adminName, passwordEncoder.encode(adminPassword),
+		User adminUser = createUserIfNotFound(adminEmail,
+				adminName,
+				passwordEncoder.encode(adminPassword),
 				Collections.singleton(adminRole));
 
 		// Tags
@@ -110,22 +145,26 @@ public class DatabaseInitializer implements ApplicationRunner
 		if (optionalPost.isEmpty())
 		{
 			Post post = new Post();
-			post.setTitle("Title");
-			post.setBody("Body");
-			post.setDescription("Description");
+			post.setTitle("Markdown display test");
+			String body = readMarkdownFileResource(markdownTestFile, "# This is a blog post !");
+			post.setBody(body);
+			post.setDescription("This post display examples of supported markdown features.");
 			post.setAuthor(adminUser);
 			post.setReadingTime(5);
 			post.setPublishedAt(OffsetDateTime.now());
 			post.addTag(jsTag);
 			postRepository.save(post);
 		}
+
 		Optional<Post> optionalPost2 = postRepository.findById(2L);
 		if (optionalPost2.isEmpty())
 		{
 			Post post = new Post();
-			post.setTitle("Title 2");
-			post.setBody("Body 2");
-			post.setDescription("Description 2");
+			post.setTitle("Munera parabat turis");
+			String body = readMarkdownFileResource(markdownLoremFile,
+					"Lorem markdownum. Cura spumis despexitque tegi Tartara");
+			post.setBody(body);
+			post.setDescription("Lorem markdownum. Cura spumis despexitque tegi Tartara");
 			post.setAuthor(adminUser);
 			post.setReadingTime(2);
 			post.setPublishedAt(OffsetDateTime.now());
@@ -138,8 +177,37 @@ public class DatabaseInitializer implements ApplicationRunner
 			post.addComment(comment);
 			postRepository.save(post);
 		}
+		Optional<Post> optionalDraftPost = postRepository.findById(3L);
+		if (optionalDraftPost.isEmpty())
+		{
+			Post post = new Post();
+			post.setTitle("Draft post");
+			post.setBody("# This is an unpublished post !\nYou can edit my content or publish me right away!");
+			post.setDescription("Draft post, this post is not visible except to you!");
+			post.setAuthor(adminUser);
+			post.setReadingTime(1);
+			postRepository.save(post);
+		}
 
-		System.out.println("Initializing database done!");
+		log.info("Database seeding done!");
+	}
+
+	private String readMarkdownFileResource(Resource fileResource, String defaultText)
+	{
+		String body = defaultText;
+		try
+		{
+			if (fileResource != null && fileResource.exists() && fileResource.isFile())
+			{
+				File file = fileResource.getFile();
+				body = new String(Files.readAllBytes(file.toPath()));
+			}
+		} catch (IOException e)
+		{
+			log.error("Failed to read markdown resource file");
+			body = defaultText;
+		}
+		return body;
 	}
 
 	private Permission createPermissionIfNotFound(PermissionType permissionType)
