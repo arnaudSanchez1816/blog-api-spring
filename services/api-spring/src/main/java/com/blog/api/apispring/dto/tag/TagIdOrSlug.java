@@ -1,6 +1,7 @@
 package com.blog.api.apispring.dto.tag;
 
 import com.blog.api.apispring.utils.TagUtils;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 public class TagIdOrSlug
 {
@@ -13,6 +14,7 @@ public class TagIdOrSlug
 		this.slug = slug;
 	}
 
+	@JsonCreator
 	public static TagIdOrSlug fromString(String value)
 	{
 		if (value.matches("^\\d+$"))
@@ -26,6 +28,7 @@ public class TagIdOrSlug
 		throw new IllegalArgumentException("Invalid ID or slug format.");
 	}
 
+	@JsonCreator(mode = JsonCreator.Mode.DELEGATING)
 	public static TagIdOrSlug fromId(long id)
 	{
 		return new TagIdOrSlug(id, null);

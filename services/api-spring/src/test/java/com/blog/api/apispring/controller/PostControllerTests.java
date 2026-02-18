@@ -1447,6 +1447,27 @@ class PostControllerTests
 			assertThat(response).hasStatus(HttpStatus.FORBIDDEN);
 		}
 
+		@Test
+		void deletePost_Is401_WhenUnauthenticated()
+		{
+			User author = new User("author@example.com", "Author Name", "password123");
+			author = userRepository.save(author);
+
+			Post post = new Post();
+			post.setTitle("Original Title");
+			post.setDescription("Original Description");
+			post.setBody("Original Body");
+			post.setAuthor(author);
+			post.setPublishedAt(OffsetDateTime.now());
+			post = postRepository.save(post);
+
+			MvcTestResult result = mockMvc.delete()
+										  .uri("/posts/" + post.getId())
+										  .exchange();
+
+			assertThat(result).hasStatus(HttpStatus.UNAUTHORIZED);
+		}
+
 		/**
 		 * Test deletePost returns 404 NOT FOUND when given negative post ID.
 		 */
@@ -1921,8 +1942,10 @@ class PostControllerTests
 
 			Tag tag1 = new Tag("Java", "java");
 			Tag tag2 = new Tag("Spring", "spring");
+			Tag tag3 = new Tag("Js", "javascript");
 			tag1 = tagRepository.save(tag1);
 			tag2 = tagRepository.save(tag2);
+			tag3 = tagRepository.save(tag3);
 
 			Post post = new Post();
 			post.setTitle("Original Title");
@@ -1934,7 +1957,7 @@ class PostControllerTests
 			String requestBody = """
 					{
 						"title": "Updated Title",
-						"tags": ["java", "spring"]
+						"tags": ["java", "2", 3]
 					}
 					""";
 
@@ -1953,7 +1976,7 @@ class PostControllerTests
 									json.assertThat()
 										.extractingPath("$.tags")
 										.convertTo(LIST)
-										.hasSize(2);
+										.hasSize(3);
 								});
 		}
 
@@ -2828,7 +2851,7 @@ class PostControllerTests
 		}
 
 		@Test
-		void publishPost_Is403_WhenUnauthenticated()
+		void publishPost_Is401_WhenUnauthenticated()
 		{
 			User author = new User("author@example.com", "Author Name", "password123");
 			author = userRepository.save(author);
@@ -2845,7 +2868,7 @@ class PostControllerTests
 										  .uri("/posts/" + post.getId() + "/publish")
 										  .exchange();
 
-			assertThat(result).hasStatus(HttpStatus.FORBIDDEN);
+			assertThat(result).hasStatus(HttpStatus.UNAUTHORIZED);
 		}
 
 		@Test
@@ -2980,7 +3003,7 @@ class PostControllerTests
 		}
 
 		@Test
-		void hidePost_Is403_WhenUnauthenticated()
+		void hidePost_Is401_WhenUnauthenticated()
 		{
 			User author = new User("author@example.com", "Author Name", "password123");
 			author = userRepository.save(author);
@@ -2997,7 +3020,7 @@ class PostControllerTests
 										  .uri("/posts/" + post.getId() + "/hide")
 										  .exchange();
 
-			assertThat(result).hasStatus(HttpStatus.FORBIDDEN);
+			assertThat(result).hasStatus(HttpStatus.UNAUTHORIZED);
 		}
 
 		@Test
