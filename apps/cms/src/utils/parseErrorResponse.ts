@@ -1,19 +1,34 @@
-export async function parseErrorResponse(errorResponse: Response) {
+export interface ParsedErrorResponse {
+    errorMessage: string
+    status: number
+    errors?: Record<string, string>[]
+}
+
+export async function parseErrorResponse(
+    errorResponse: Response
+): Promise<ParsedErrorResponse> {
     const { status, statusText } = errorResponse
-    let error: { errorMessage: string; status: number }
+    let parsedError: ParsedErrorResponse = {
+        status: status,
+        errorMessage: statusText,
+    }
     if (errorResponse.body) {
         try {
             const errorBody = await errorResponse.json()
-            error = { ...errorBody.error }
-        } catch (parseError) {
-            if (parseError instanceof SyntaxError == false) {
-                console.error(parseError)
+            const errorMessage = errorBody.errors
+                ? Object.values(errorBody.errors)[0]
+                : errorBody.title
+            parsedError = {
+                ...parsedError,
+                errorMessage: errorMessage ?? statusText,
+                errors: errorBody.errors,
             }
-            error = { errorMessage: statusText, status }
+        } catch (e) {
+            if (e instanceof SyntaxError == false) {
+                console.error(e)
+            }
         }
-    } else {
-        error = { errorMessage: statusText, status }
     }
 
-    return error
+    return parsedError
 }
