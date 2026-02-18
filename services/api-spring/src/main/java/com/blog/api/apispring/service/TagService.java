@@ -17,10 +17,12 @@ import java.util.Set;
 public class TagService
 {
 	private final TagRepository tagRepository;
+	private final TextService textService;
 
-	public TagService(TagRepository tagRepository)
+	public TagService(TagRepository tagRepository, TextService textService)
 	{
 		this.tagRepository = tagRepository;
+		this.textService = textService;
 	}
 
 	public Optional<Tag> getTag(Long id)
@@ -73,7 +75,8 @@ public class TagService
 	@Transactional
 	public Tag createTag(CreateTagRequest createTagDto)
 	{
-		Tag newTag = new Tag(HtmlUtils.htmlEscape(createTagDto.name()), HtmlUtils.htmlEscape(createTagDto.slug()));
+		Tag newTag = new Tag(textService.sanitizeText(createTagDto.name()),
+				textService.sanitizeText(createTagDto.slug()));
 		newTag = tagRepository.save(newTag);
 
 		return newTag;
@@ -82,7 +85,8 @@ public class TagService
 	@Transactional
 	public Tag updateTag(Long id, UpdateTagRequest updateTagDto)
 	{
-		Tag updatedTag = new Tag(HtmlUtils.htmlEscape(updateTagDto.name()), HtmlUtils.htmlEscape(updateTagDto.slug()));
+		Tag updatedTag = new Tag(textService.sanitizeText(updateTagDto.name()),
+				textService.sanitizeText(updateTagDto.slug()));
 		updatedTag.setId(id);
 		updatedTag = tagRepository.save(updatedTag);
 
