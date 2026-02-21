@@ -1,11 +1,13 @@
 package com.blog.api.apispring.repository;
 
+import com.blog.api.apispring.PostgresTestConfig;
 import com.blog.api.apispring.extensions.ClearDatabaseExtension;
 import com.blog.api.apispring.model.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import java.util.Optional;
 
@@ -16,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This class tests the updateTag methods in the TagRepository interface.
  */
 @SpringBootTest
+@Import(PostgresTestConfig.class)
 @ExtendWith(ClearDatabaseExtension.class)
 class TagRepositoryTests
 {

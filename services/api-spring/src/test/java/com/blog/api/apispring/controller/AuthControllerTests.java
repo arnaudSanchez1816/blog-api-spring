@@ -2,6 +2,7 @@ package com.blog.api.apispring.controller;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.blog.api.apispring.PostgresTestConfig;
 import com.blog.api.apispring.dto.LoginRequest;
 import com.blog.api.apispring.dto.LoginResponse;
 import com.blog.api.apispring.extensions.ClearDatabaseExtension;
@@ -18,6 +19,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,6 +36,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 @SpringBootTest
+@Import(PostgresTestConfig.class)
 @WebAppConfiguration
 @AutoConfigureMockMvc
 @ExtendWith(ClearDatabaseExtension.class)

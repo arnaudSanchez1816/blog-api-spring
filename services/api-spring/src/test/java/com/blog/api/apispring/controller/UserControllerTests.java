@@ -1,5 +1,6 @@
 package com.blog.api.apispring.controller;
 
+import com.blog.api.apispring.PostgresTestConfig;
 import com.blog.api.apispring.dto.posts.GetPostsRequestImpl;
 import com.blog.api.apispring.extensions.ClearDatabaseExtension;
 import com.blog.api.apispring.model.Comment;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -34,6 +36,7 @@ import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 @SpringBootTest
+@Import(PostgresTestConfig.class)
 @WebAppConfiguration
 @AutoConfigureMockMvc
 @ExtendWith(ClearDatabaseExtension.class)

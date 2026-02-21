@@ -1,5 +1,6 @@
 package com.blog.api.apispring.controller;
 
+import com.blog.api.apispring.PostgresTestConfig;
 import com.blog.api.apispring.dto.posts.CreatePostRequest;
 import com.blog.api.apispring.dto.posts.GetPostsRequestImpl;
 import com.blog.api.apispring.dto.posts.PostDto;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -43,6 +45,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
  * Tests the getPost method which retrieves a single post by ID.
  */
 @SpringBootTest
+@Import(PostgresTestConfig.class)
 @WebAppConfiguration
 @AutoConfigureMockMvc
 @ExtendWith(ClearDatabaseExtension.class)

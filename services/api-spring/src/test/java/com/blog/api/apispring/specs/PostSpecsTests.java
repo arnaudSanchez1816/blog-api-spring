@@ -1,5 +1,6 @@
 package com.blog.api.apispring.specs;
 
+import com.blog.api.apispring.PostgresTestConfig;
 import com.blog.api.apispring.dto.tag.TagIdOrSlug;
 import com.blog.api.apispring.extensions.ClearDatabaseExtension;
 import com.blog.api.apispring.model.Post;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests the specification methods used for filtering posts in JPA queries.
  */
 @SpringBootTest
+@Import(PostgresTestConfig.class)
 @WebAppConfiguration
 @ExtendWith(ClearDatabaseExtension.class)
 class PostSpecsTests

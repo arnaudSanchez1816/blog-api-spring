@@ -1,5 +1,6 @@
 package com.blog.api.apispring.repository;
 
+import com.blog.api.apispring.PostgresTestConfig;
 import com.blog.api.apispring.extensions.ClearDatabaseExtension;
 import com.blog.api.apispring.model.Comment;
 import com.blog.api.apispring.model.Post;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SpringBootTest
+@Import(PostgresTestConfig.class)
 @ExtendWith(ClearDatabaseExtension.class)
 class PostRepositoryTests
 {
@@ -279,8 +282,10 @@ class PostRepositoryTests
 	@Test
 	void findAllInfoWithTags_ReturnsPagedPostsWithAuthorAndTags()
 	{
-		Pageable pageable = PageRequest.of(0, 10, Sort.by("id")
-													  .ascending());
+		Pageable pageable = PageRequest.of(0,
+				10,
+				Sort.by("id")
+					.ascending());
 
 		Page<PostInfoWithAuthorAndTags> result = postRepository.findAllInfoWithTags(pageable);
 

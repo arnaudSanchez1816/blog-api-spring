@@ -1,5 +1,6 @@
 package com.blog.api.apispring.repository;
 
+import com.blog.api.apispring.PostgresTestConfig;
 import com.blog.api.apispring.extensions.ClearDatabaseExtension;
 import com.blog.api.apispring.model.Comment;
 import com.blog.api.apispring.model.Post;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -18,6 +20,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Import(PostgresTestConfig.class)
 @ExtendWith(ClearDatabaseExtension.class)
 class CommentRepositoryTests
 {
@@ -100,24 +103,18 @@ class CommentRepositoryTests
 	{
 		Set<CommentInfo> result = commentRepository.findAllInfoByPostId(post.getId());
 		assertThat(result.size()).isEqualTo(2);
-		assertThat(result
-				.stream()
-				.anyMatch(commentInfo -> commentInfo
-												 .getBody()
-												 .equals(comment1.getBody()) && commentInfo
-												 .getId()
-												 .equals(comment1.getId()) && commentInfo
-												 .getUsername()
-												 .equals(comment1.getUsername()))).isTrue();
-		assertThat(result
-				.stream()
-				.anyMatch(commentInfo -> commentInfo
-												 .getBody()
-												 .equals(comment2.getBody()) && commentInfo
-												 .getId()
-												 .equals(comment2.getId()) && commentInfo
-												 .getUsername()
-												 .equals(comment2.getUsername()))).isTrue();
+		assertThat(result.stream()
+						 .anyMatch(commentInfo -> commentInfo.getBody()
+															 .equals(comment1.getBody()) && commentInfo.getId()
+																									   .equals(comment1.getId()) &&
+												  commentInfo.getUsername()
+															 .equals(comment1.getUsername()))).isTrue();
+		assertThat(result.stream()
+						 .anyMatch(commentInfo -> commentInfo.getBody()
+															 .equals(comment2.getBody()) && commentInfo.getId()
+																									   .equals(comment2.getId()) &&
+												  commentInfo.getUsername()
+															 .equals(comment2.getUsername()))).isTrue();
 	}
 
 	@Test
