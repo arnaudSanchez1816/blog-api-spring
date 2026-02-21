@@ -8,11 +8,11 @@
         <version>4.0.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.blog.api</groupId>
+    <groupId>com.blog</groupId>
     <artifactId>api-spring</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>api-spring</name>
-    <description>api-spring</description>
+    <version>1.0</version>
+    <name>blog-api-spring</name>
+    <description>Spring version of the Blog Api.</description>
     <url/>
     <licenses>
         <license/>
@@ -26,8 +26,27 @@
         <tag/>
         <url/>
     </scm>
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <SPRING_PROFILE>dev</SPRING_PROFILE>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <SPRING_PROFILE>prod</SPRING_PROFILE>
+            </properties>
+        </profile>
+    </profiles>
     <properties>
         <java.version>25</java.version>
+        <docker.image.name.notags>com.blog.${project.artifactId}</docker.image.name.notags>
+        <docker.image.name.versioned>${docker.image.name.notags}:${project.version}</docker.image.name.versioned>
     </properties>
     <dependencies>
         <dependency>
@@ -217,6 +236,35 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <profiles>${SPRING_PROFILE}</profiles>
+                    <image>
+                        <name>${docker.image.name.versioned}</name>
+                        <tags>${docker.image.name.notags}:latest</tags>
+                    </image>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-image</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <resources>
+                        <resource>
+                            <directory>
+                                src/main/resources
+                            </directory>
+                            <filtering>true</filtering>
+                        </resource>
+                    </resources>
+                </configuration>
             </plugin>
         </plugins>
     </build>
