@@ -22,9 +22,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -197,10 +196,19 @@ public class DatabaseInitializer implements ApplicationRunner
 		String body = defaultText;
 		try
 		{
-			if (fileResource != null && fileResource.exists() && fileResource.isFile())
+			if (fileResource == null)
 			{
-				File file = fileResource.getFile();
-				body = new String(Files.readAllBytes(file.toPath()));
+				log.warn("File resource is null");
+				return defaultText;
+			}
+
+			if (fileResource.exists() && fileResource.isReadable())
+			{
+				InputStream inputStream = fileResource.getInputStream();
+				body = new String(inputStream.readAllBytes());
+			} else
+			{
+				log.warn("File resource missing : {}", fileResource.getFilename());
 			}
 		} catch (IOException e)
 		{
