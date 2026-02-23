@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WebAppConfiguration
 @AutoConfigureMockMvc
 @ExtendWith(ClearDatabaseExtension.class)
-class CommentControllerTest
+class CommentControllerTests
 {
 	@Autowired
 	private MockMvcTester mockMvc;
