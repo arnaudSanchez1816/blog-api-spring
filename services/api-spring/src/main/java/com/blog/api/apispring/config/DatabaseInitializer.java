@@ -29,7 +29,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 @Component
-@Profile(value = {"dev & !test"})
+@Profile(value = {"!test"})
 public class DatabaseInitializer implements ApplicationRunner
 {
 
