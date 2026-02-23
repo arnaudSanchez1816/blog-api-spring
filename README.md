@@ -21,11 +21,9 @@ cd blog-api-spring
 # Install dependencies
 pnpm install
 
-# Create and configure api/.env
-cp ./services/api/.env.example ./services/api/.env
-
-PORT=3000
-DATABASE_URL= "postgresql://USERNAME:PASSWORD@HOST:PORT/blog?schema=blog_api"
+# Run backend api
+cd services/api-spring
+./mvnw spring-boot:run
 
 # Create web/.env
 cp ./apps/web/.env.example ./apps/web/.env
@@ -33,11 +31,7 @@ cp ./apps/web/.env.example ./apps/web/.env
 # Create cms/.env
 cp ./apps/cms/.env.example ./apps/cms/.env
 
-# Push prisma schema to DB
-cd services/api
-pnpm -C ./services/api run prisma:push
-
-# Run the server and client apps
+# Run client apps
 pnpm exec turbo dev
 ```
 
@@ -58,27 +52,28 @@ This monorepo includes the following packages/apps:
 
 ## Endpoints
 
-| Endpoint            | Method | Description                                     |
-| ------------------- | ------ | ----------------------------------------------- |
-| /auth/login         | POST   | Login a user                                    |
-| /auth/token         | GET    | Generate a new JWT access token                 |
-| /users              | POST   | Create a new user                               |
-| /users/me           | GET    | Get current user details                        |
-| /users/me/posts     | GET    | Get current user posts                          |
-| /posts/             | GET    | Get all published posts                         |
-| /posts/             | POST   | Create a new post                               |
-| /posts/:id          | GET    | Retrieve an existing post by ID                 |
-| /posts/:id          | PUT    | Update an existing post by ID                   |
-| /posts/:id          | DELETE | Delete an existing post by ID                   |
-| /posts/:id/comments | GET    | Get comments of an existing post by ID          |
-| /posts/:id/comments | POST   | Create a new comment for an existing post by ID |
-| /posts/:id/publish  | POST   | Publish an existing post by ID                  |
-| /posts/:id/hide     | POST   | Unpublished an existing post by ID              |
-| /comments/:id       | GET    | Retrieve an existing comment by ID              |
-| /comments/:id       | PUT    | Update an existing comment by ID                |
-| /comments/:id       | DELETE | Delete an existing comment by ID                |
-| /tags/              | GET    | Get all existing tags                           |
-| /tags/              | POST   | Create a new tag                                |
-| /tags/:id           | GET    | Get an existing tag by ID or slug               |
-| /tags/:id           | PUT    | Update an existing tag by ID or slug            |
-| /tags/:id           | DELETE | Delete an existing tag by ID or slug            |
+| Endpoint            | Method | Description                                      |
+| ------------------- | ------ | ------------------------------------------------ |
+| /auth/login         | POST   | Login a user                                     |
+| /auth/logout        | GET    | Logout a user, clears http-only JWT token cookie |
+| /auth/token         | GET    | Generate a new JWT access token                  |
+| /users              | POST   | Create a new user                                |
+| /users/me           | GET    | Get current user details                         |
+| /users/me/posts     | GET    | Get current user posts                           |
+| /posts/             | GET    | Get all published posts                          |
+| /posts/             | POST   | Create a new post                                |
+| /posts/:id          | GET    | Retrieve an existing post by ID                  |
+| /posts/:id          | PUT    | Update an existing post by ID                    |
+| /posts/:id          | DELETE | Delete an existing post by ID                    |
+| /posts/:id/comments | GET    | Get comments of an existing post by ID           |
+| /posts/:id/comments | POST   | Create a new comment for an existing post by ID  |
+| /posts/:id/publish  | POST   | Publish an existing post by ID                   |
+| /posts/:id/hide     | POST   | Unpublished an existing post by ID               |
+| /comments/:id       | GET    | Retrieve an existing comment by ID               |
+| /comments/:id       | PUT    | Update an existing comment by ID                 |
+| /comments/:id       | DELETE | Delete an existing comment by ID                 |
+| /tags/              | GET    | Get all existing tags                            |
+| /tags/              | POST   | Create a new tag                                 |
+| /tags/:id           | GET    | Get an existing tag by ID or slug                |
+| /tags/:id           | PUT    | Update an existing tag by ID or slug             |
+| /tags/:id           | DELETE | Delete an existing tag by ID or slug             |
