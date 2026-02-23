@@ -51,7 +51,7 @@ public class RefreshJwtAuthenticationFilter extends OncePerRequestFilter
 																												 ServletException,
 																												 IOException
 	{
-		log.info("Refresh token authentication...");
+		log.debug("Refresh token authentication...");
 		Cookie refreshTokenCookie = getCookie(request, REFRESH_TOKEN_COOKIE);
 		if (refreshTokenCookie == null)
 		{

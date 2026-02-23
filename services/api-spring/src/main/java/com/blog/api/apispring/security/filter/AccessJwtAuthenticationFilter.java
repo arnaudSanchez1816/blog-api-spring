@@ -27,7 +27,6 @@ public class AccessJwtAuthenticationFilter extends OncePerRequestFilter
 	private final JwtService jwtService;
 	private final AuthenticationManager authenticationManager;
 
-
 	public AccessJwtAuthenticationFilter(JwtService jwtService, AuthenticationManager authenticationManager)
 	{
 		this.jwtService = jwtService;
@@ -59,7 +58,7 @@ public class AccessJwtAuthenticationFilter extends OncePerRequestFilter
 			return;
 		}
 
-		log.info("Access token authentication...");
+		log.debug("Access token authentication...");
 		String header = request.getHeader("Authorization");
 		if (header == null || !header.startsWith(BEARER_PREFIX))
 		{
