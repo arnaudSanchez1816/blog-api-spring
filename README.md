@@ -25,10 +25,9 @@ pnpm install
 cd services/api-spring
 ./mvnw spring-boot:run
 
-# Create web/.env
+# Create client .env files
+cd -
 cp ./apps/web/.env.example ./apps/web/.env
-
-# Create cms/.env
 cp ./apps/cms/.env.example ./apps/cms/.env
 
 # Run client apps
