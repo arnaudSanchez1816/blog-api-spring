@@ -45,9 +45,10 @@ COPY --from=extracter /builder/extracted/dependencies/ ./
 COPY --from=extracter /builder/extracted/spring-boot-loader/ ./
 COPY --from=extracter /builder/extracted/snapshot-dependencies/ ./
 COPY --from=extracter /builder/extracted/application/ ./
-# Execute the AOT cache training run
-RUN java -XX:AOTCacheOutput=app.aot -Dspring.context.exit=onRefresh -jar application.jar
-# Start the application jar with AOT cache enabled - this is not the uber jar used by the builder
-# This jar only contains application code and references to the extracted jar files
-# This layout is efficient to start up and AOT cache friendly
-ENTRYPOINT ["java", "-XX:AOTCache=app.aot", "-jar", "application.jar"]
+## Execute the AOT cache training run
+#RUN java -XX:AOTCacheOutput=app.aot -Dspring.context.exit=onRefresh -jar application.jar
+## Start the application jar with AOT cache enabled - this is not the uber jar used by the builder
+## This jar only contains application code and references to the extracted jar files
+## This layout is efficient to start up and AOT cache friendly
+#ENTRYPOINT ["java", "-XX:AOTCache=app.aot", "-jar", "application.jar"]
+ENTRYPOINT ["java", "-jar", "application.jar"]
